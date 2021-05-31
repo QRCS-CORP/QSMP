@@ -120,7 +120,6 @@ static void qsmp_server_print_banner()
 	qsc_consoleutils_print_line("* QSMP: Quantum Secure Messaging Protocol Server  *");
 	qsc_consoleutils_print_line("*                                                 *");
 	qsc_consoleutils_print_line("* Release:   v1.0.0.0a (A0)                       *");
-	qsc_consoleutils_print_line("* License:   AGPLv3                               *");
 	qsc_consoleutils_print_line("* Date:      May 28, 2021                         *");
 	qsc_consoleutils_print_line("* Contact:   develop@vtdev.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
