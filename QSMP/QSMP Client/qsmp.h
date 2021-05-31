@@ -344,6 +344,46 @@ static const char QSC_QSMP_CONFIG_STRING[QSC_QSMP_CONFIG_SIZE] = "dilithium-s2_k
 * \brief The sequence number of a packet that closes a connection
 */
 #define QSC_QSMP_SEQUENCE_TERMINATOR 0xFFFFFFFF
+/*!
+* \def QSC_QSMP_CONNECT_REQUEST_SIZE
+* \brief The key-exchange connect stage request packet size
+*/
+#define QSC_QSMP_CONNECT_REQUEST_SIZE (QSC_QSMP_KEYID_SIZE + QSC_QSMP_STOKEN_SIZE + QSC_QSMP_CONFIG_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_EXSTART_REQUEST_SIZE
+* \brief The key-exchange exstart stage request packet size
+*/
+#define QSC_QSMP_EXSTART_REQUEST_SIZE (QSC_QSMP_CIPHERTEXT_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_EXCHANGE_REQUEST_SIZE
+* \brief The key-exchange exchange stage request packet size
+*/
+#define QSC_QSMP_EXCHANGE_REQUEST_SIZE (QSC_QSMP_MACKEY_SIZE + QSC_QSMP_PUBLICKEY_SIZE + QSC_QSMP_MACTAG_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_ESTABLISH_REQUEST_SIZE
+* \brief The key-exchange establish stage request packet size
+*/
+#define QSC_QSMP_ESTABLISH_REQUEST_SIZE (QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_CONNECT_RESPONSE_SIZE
+* \brief The key-exchange connect stage response packet size
+*/
+#define QSC_QSMP_CONNECT_RESPONSE_SIZE (QSC_QSMP_SIGNATURE_SIZE + QSC_QSMP_HASH_SIZE + QSC_QSMP_PUBLICKEY_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_EXSTART_RESPONSE_SIZE
+* \brief The key-exchange exstart stage response packet size
+*/
+#define QSC_QSMP_EXSTART_RESPONSE_SIZE (QSC_QSMP_HEADER_SIZE + 1)
+/*!
+* \def QSC_QSMP_EXCHANGE_RESPONSE_SIZE
+* \brief The key-exchange exchange stage response packet size
+*/
+#define QSC_QSMP_EXCHANGE_RESPONSE_SIZE (QSC_QSMP_CIPHERTEXT_SIZE + QSC_QSMP_MACTAG_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_ESTABLISH_RESPONSE_SIZE
+* \brief The key-exchange establish stage response packet size
+*/
+#define QSC_QSMP_ESTABLISH_RESPONSE_SIZE (QSC_QSMP_HEADER_SIZE + 1)
 
 /* public key encoding constants */
 

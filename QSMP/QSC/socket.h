@@ -54,6 +54,12 @@
 #define QSC_SOCKET_RET_SUCCESS 0
 
 /*!
+\def QSC_SOCKET_TERMINATOR_SIZE
+* The length of the message string terminator character
+*/
+#define QSC_SOCKET_TERMINATOR_SIZE 1
+
+/*!
 \def QSC_SOCKET_TIMEOUT_MSEC
 * The default number of seconds to wait for a connection
 */

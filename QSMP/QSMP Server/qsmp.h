@@ -54,42 +54,62 @@
 * Dk	-The symmetric decryption function and key
 * Ek	-The symmetric encryption function and key
 * Exp	-The key expansion function: cSHAKE
-* H	-The hash function: sha3
+* H		-The hash function: sha3
 * Mmk	-The MAC function and key: KMAC
 * SAsk	-Sign with the secret signature key
 * VApk	-Verify a signature the public signature key
 *
 * Key Exchange Sequence
 * 7.1 Connect Request:
-* The client first checks the expiration date on the public key, if invalid, it queries the server for a new public verification key.
-* The client sends a connection request with its configuration string, key identity, and a random session token. The key identity (kid) is a multi-part 16-byte address and key identification string, used to identify the intended target server and corresponding key.
-* The client stores a hash of the session token, the configuration string, and the public asymmetric signature verification-key.
+* The client first checks the expiration date on the public key, if invalid, 
+* it queries the server for a new public verification key.
+* The client sends a connection request with its configuration string, 
+* key identity, and a random session token. 
+* The key identity (kid) is a multi-part 16-byte address and key identification string, 
+* used to identify the intended target server and corresponding key.
+* The client stores a hash of the session token, the configuration string, 
+* and the public asymmetric signature verification-key.
 * sth = H(stok || cfg || psk)
-* The client then sends the public-key identity string, configuration string, and the session token to the server.
+* The client then sends the public-key identity string, configuration string, 
+* and the session token to the server.
 * C{kid, cfg, stok}->S
 *
 * Connect Response:
-* The server responds with either an error message, or a response packet. The error message can be busy, unrecognized, or unauthorized. Any error during the key exchange will generate an error-packet sent to the remote host, which will trigger a tear down of the connection on both sides.
-* The server first checks that it has the requested public signature verification-key, using the key-identity string, then verifies that it has a compatible protocol configuration. The server stores a hash of the session token, the configuration string, and the public signature verification-key to create the session token hash.
+* The server responds with either an error message, or a response packet. 
+* The error message can be busy, unrecognized, or unauthorized. 
+* Any error during the key exchange will generate an error-packet sent to the remote host, 
+* which will trigger a tear down of the connection on both sides.
+* The server first checks that it has the requested public signature verification-key,
+* using the key-identity string, then verifies that it has a compatible protocol configuration. 
+* The server stores a hash of the session token, the configuration string, 
+* and the public signature verification-key to create the session token hash.
 * sth = H(stok || cfg || psk)
-* The server then generates an asymmetric encryption key-pair, stores the secret key, hashes the public key, and then signs the hash of the public encryption key using the asymmetric signature scheme. This signed hash can itself be signed by a ‘chain of trust’ model, like PGP or X509, using a signature verification extension to this protocol.
+* The server then generates an asymmetric encryption key-pair, stores the secret key, 
+* hashes the public key, and then signs the hash of the public encryption key using the asymmetric signature scheme. 
+* This signed hash can itself be signed by a ‘chain of trust’ model, like PGP or X509, 
+* using a signature verification extension to this protocol.
 * pekh = H(pke)
 * spkh = Ssk(pekh)
-* The server sends a response message containing a signed hash of a public asymmetric encryption-key, and a copy of that key.
+* The server sends a response message containing a signed hash of a public asymmetric encryption-key, 
+* and a copy of that key.
 * S{spkh, pke}->C
 *
 * Exstart Request:
-* The client verifies the signature of the public encryption keys hash, then generates its own hash of the public key, and compares them. If the hash matches, the client uses the public-key to encapsulate a shared secret.
+* The client verifies the signature of the public encryption keys hash, 
+* then generates its own hash of the public key, and compares them. 
+* If the hash matches, the client uses the public-key to encapsulate a shared secret.
 * cph = Vsk(H(pk)) cph := ph
 * cpta = EApk(sec)
-* The client then expands the shared secret and session token hash, and uses the output to key the clients transmit-channel symmetric cipher.
+* The client then expands the shared secret and session token hash, 
+* and uses the output to key the clients transmit-channel symmetric cipher.
 * k,n = Exp(sec || sth)
 * cprtx(k,n)
 * The client transmits the cipher-text to the server.
 * C{cpta}->S
 *
 * Exstart Response:
-* The server decapsulates the shared-secret, combines it with the session token hash, and keys the servers receive-channel cipher. The channel-1 VPN is now established.
+* The server decapsulates the shared-secret, combines it with the session token hash, 
+* and keys the servers receive-channel cipher. The channel-1 VPN is now established.
 * sec = DApk(cpta)
 * k,n = Exp(sec, sth)
 * cprrx(k,n)
@@ -97,30 +117,43 @@
 * S{m}->C
 *
 * Exchange Request:
-* The client generates and stores an asymmetric cipher key-pair. The client generates a MAC key and stores it to state. The server then encrypts the MAC key and the asymmetric encapsulation-key using the channel-1 VPN, and sends the encrypted MAC and encapsulation keys to the server.
+* The client generates and stores an asymmetric cipher key-pair. 
+* The client generates a MAC key and stores it to state. 
+* The server then encrypts the MAC key and the asymmetric encapsulation-key using the channel-1 VPN, 
+* and sends the encrypted MAC and encapsulation keys to the server.
 * pk,sk = G(cfg)
 * cpt = Ek(pk)
 * C{mk,cpt}->S
 *
 * Exchange Response:
-* The server decrypts the MAC and encapsulation keys, and uses the encapsulation-key to encapsulate a shared-secret for channel 2. The server then uses the MAC key received from the client, to MAC ciphertext, appending a MAC code to the message.
+* The server decrypts the MAC and encapsulation keys, 
+* and uses the encapsulation-key to encapsulate a shared-secret for channel 2. 
+* The server then uses the MAC key received from the client, 
+* to MAC the ciphertext, appending a MAC code to the message.
 * mk,pk = Dk(cpt)
 * cpta = EApk(sec)
-* The server then expands the shared secret and session token hash, and creates the symmetric ciphers key and nonce.
+* The server then expands the shared secret and session token hash, 
+* and creates the symmetric ciphers key and nonce.
 * k,n = Exp(sec, sth)
-* The MAC function is keyed with the MAC key sent by the client, the ciphertext is added to the MAC, and the output code is prepended to the message.
+* The MAC function is keyed with the MAC key sent by the client, 
+* the ciphertext is added to the MAC, and the output code is prepended to the message.
 * cc = Mmk(cpta)
-* The server’s channel-2 transmission channel is initialized, and the authenticated cipher-text is sent to the client.
+* The server’s channel-2 transmission channel is initialized, 
+* and the authenticated cipher-text is sent to the client.
 * cprtx(k,n)
 * S{cc, cpta}->C
 *
 * Established Request:
-* The client uses the stored MAC key to key the MAC function, then adds the ciphertext to the hash. The client compares the hash code appended to the ciphertext with the one generated with the MAC function before decapsulation the shared key.
+* The client uses the stored MAC key to key the MAC function, 
+* then adds the ciphertext to the hash. 
+* The client compares the hash code appended to the ciphertext with the one generated with the MAC function,
+* before decapsulation the shared key.
 * mc = Mmk(cpta), mc := cc
 * The client then decapsulates the shared secret, combines it with the session token hash, and expands it.
 * sec = DAsk(cpta)
 * k,n = Exp(sec, sth)
-* The client then keys the clients receive channel, the second VPN is established, and the client sends an established message.
+* The client then keys the clients receive channel, 
+* the second VPN is established, and the client sends an established message.
 * cprrx(k,n)
 * C{m}->S
 *
@@ -129,10 +162,16 @@
 * S{m}->C
 *
 * Transmission:
-* The host, client or server, transmitting a message, first encrypts the message, updates the MAC function with the cipher-text, and appends a MAC code to the end of the cipher-text.
-* The serialized packet header, including the message size, key identity, and sequence number, is added to the MAC state through the additional-data parameter of the authenticated stream cipher RCS. This unique data is added to the MAC function with every packet, along with the encrypted cipher-text.
+* The host, client or server, transmitting a message, first encrypts the message, 
+* updates the MAC function with the cipher-text, and appends a MAC code to the end of the cipher-text.
+* The serialized packet header, including the message size, key identity, 
+* and sequence number, is added to the MAC state through the additional-data parameter,
+* of the authenticated stream cipher RCS. 
+* This unique data is added to the MAC function with every packet, along with the encrypted cipher-text.
 * (cpt || mc) = Ek(sh, m)
-* The packet is decrypted by serializing the packet header and adding it to the MAC state, then finalizing the MAC on the cipher-text and comparing the output code with the code appended to the cipher-text. If the code matches, the cipher-text is decrypted, and the message passed up to the application.
+* The packet is decrypted by serializing the packet header and adding it to the MAC state, 
+* then finalizing the MAC on the cipher-text and comparing the output code with the code appended to the cipher-text. 
+* If the code matches, the cipher-text is decrypted, and the message passed up to the application.
 * m = Dk(sh, cpt) == 0 ? m : NULL
 */
 
@@ -344,6 +383,46 @@ static const char QSC_QSMP_CONFIG_STRING[QSC_QSMP_CONFIG_SIZE] = "dilithium-s2_k
 * \brief The sequence number of a packet that closes a connection
 */
 #define QSC_QSMP_SEQUENCE_TERMINATOR 0xFFFFFFFF
+/*!
+* \def QSC_QSMP_CONNECT_REQUEST_SIZE
+* \brief The key-exchange connect stage request packet size
+*/
+#define QSC_QSMP_CONNECT_REQUEST_SIZE (QSC_QSMP_KEYID_SIZE + QSC_QSMP_STOKEN_SIZE + QSC_QSMP_CONFIG_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_EXSTART_REQUEST_SIZE
+* \brief The key-exchange exstart stage request packet size
+*/
+#define QSC_QSMP_EXSTART_REQUEST_SIZE (QSC_QSMP_CIPHERTEXT_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_EXCHANGE_REQUEST_SIZE
+* \brief The key-exchange exchange stage request packet size
+*/
+#define QSC_QSMP_EXCHANGE_REQUEST_SIZE (QSC_QSMP_MACKEY_SIZE + QSC_QSMP_PUBLICKEY_SIZE + QSC_QSMP_MACTAG_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_ESTABLISH_REQUEST_SIZE
+* \brief The key-exchange establish stage request packet size
+*/
+#define QSC_QSMP_ESTABLISH_REQUEST_SIZE (QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_CONNECT_RESPONSE_SIZE
+* \brief The key-exchange connect stage response packet size
+*/
+#define QSC_QSMP_CONNECT_RESPONSE_SIZE (QSC_QSMP_SIGNATURE_SIZE + QSC_QSMP_HASH_SIZE + QSC_QSMP_PUBLICKEY_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_EXSTART_RESPONSE_SIZE
+* \brief The key-exchange exstart stage response packet size
+*/
+#define QSC_QSMP_EXSTART_RESPONSE_SIZE (QSC_QSMP_HEADER_SIZE + 1)
+/*!
+* \def QSC_QSMP_EXCHANGE_RESPONSE_SIZE
+* \brief The key-exchange exchange stage response packet size
+*/
+#define QSC_QSMP_EXCHANGE_RESPONSE_SIZE (QSC_QSMP_CIPHERTEXT_SIZE + QSC_QSMP_MACTAG_SIZE + QSC_QSMP_HEADER_SIZE)
+/*!
+* \def QSC_QSMP_ESTABLISH_RESPONSE_SIZE
+* \brief The key-exchange establish stage response packet size
+*/
+#define QSC_QSMP_ESTABLISH_RESPONSE_SIZE (QSC_QSMP_HEADER_SIZE + 1)
 
 /* public key encoding constants */
 
@@ -472,15 +551,15 @@ QSC_EXPORT_API typedef struct qsc_qsmp_client_key
 } qsc_qsmp_client_key;
 
 /*!
-* \struct qsc_qsmp_keep_alive_state
+* \struct qsmp_keep_alive_state
 * \brief The QSMP keep alive state structure
 */
-QSC_EXPORT_API typedef struct qsc_qsmp_keep_alive_state
+QSC_EXPORT_API typedef struct qsmp_keep_alive_state
 {
 	uint64_t etime;										/*!< The keep alive epoch time  */
 	uint64_t seqctr;									/*!< The keep alive packet sequence number  */
 	bool recd;											/*!< The keep alive response received status  */
-} qsc_qsmp_keep_alive_state;
+} qsmp_keep_alive_state;
 
 
 /**

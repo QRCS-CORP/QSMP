@@ -50,10 +50,10 @@ QSC_EXPORT_API typedef struct qsc_qsmp_server_key
 } qsc_qsmp_server_key;
 
 /*!
-* \struct qsc_qsmp_kex_server_state
+* \struct qsmp_kex_server_state
 * \brief The QSMP server state structure
 */
-QSC_EXPORT_API typedef struct qsc_qsmp_kex_server_state
+QSC_EXPORT_API typedef struct qsmp_kex_server_state
 {
 	qsc_rcs_state rxcpr;						/*!< The receive channel cipher state */
 	qsc_rcs_state txcpr;						/*!< The transmit channel cipher state */
@@ -69,7 +69,7 @@ QSC_EXPORT_API typedef struct qsc_qsmp_kex_server_state
 	uint64_t expiration;						/*!< The expiration time, in seconds from epoch */
 	uint64_t rxseq;								/*!< The receive channels packet sequence number  */
 	uint64_t txseq;								/*!< The transmit channels packet sequence number  */
-} qsc_qsmp_kex_server_state;
+} qsmp_kex_server_state;
 
 /* Helper Functions */
 
@@ -96,7 +96,7 @@ QSC_EXPORT_API void qsc_qsmp_server_encode_public_key(char output[QSC_QSMP_PUBKE
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-QSC_EXPORT_API void qsc_qsmp_server_connection_close(qsc_qsmp_kex_server_state* ctx, qsc_socket* sock, qsc_qsmp_errors error);
+QSC_EXPORT_API void qsc_qsmp_server_connection_close(qsmp_kex_server_state* ctx, qsc_socket* sock, qsc_qsmp_errors error);
 
 /**
 * \brief Send an error code to the remote host
@@ -112,7 +112,7 @@ QSC_EXPORT_API void qsc_qsmp_server_send_error(qsc_socket* sock, qsc_qsmp_errors
 * \param kctx: The keep-alive state
 * \param sock: A pointer to the initialized socket structure
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_send_keep_alive(qsc_qsmp_keep_alive_state* kctx, qsc_socket* sock);
+QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_send_keep_alive(qsmp_keep_alive_state* kctx, qsc_socket* sock);
 
 /**
 * \brief Encode a secret key structure and copy to a string
@@ -130,7 +130,7 @@ QSC_EXPORT_API void qsc_qsmp_server_serialize_signature_key(uint8_t output[QSC_Q
 * \param ctx: A pointer to the server state structure
 * \param ckey: [const] A pointer to a server key structure
 */
-QSC_EXPORT_API void qsc_qsmp_server_initialize(qsc_qsmp_kex_server_state* ctx, const qsc_qsmp_server_key* skey);
+QSC_EXPORT_API void qsc_qsmp_server_initialize(qsmp_kex_server_state* ctx, const qsc_qsmp_server_key* skey);
 
 /**
 * \brief Run the IPv4 networked key exchange function.
@@ -142,7 +142,7 @@ QSC_EXPORT_API void qsc_qsmp_server_initialize(qsc_qsmp_kex_server_state* ctx, c
 * \param address: The servers IPv4 address
 * \param port: The servers port number
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv4(qsc_qsmp_kex_server_state* ctx, qsc_socket* sock, const qsc_qsmp_server_key* skey, const qsc_ipinfo_ipv4_address* address, uint16_t port);
+QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv4(qsmp_kex_server_state* ctx, qsc_socket* sock, const qsc_qsmp_server_key* skey, const qsc_ipinfo_ipv4_address* address, uint16_t port);
 
 /**
 * \brief Run the IPv6 networked key exchange function.
@@ -154,7 +154,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv4(qsc_qsmp_kex_server_s
 * \param address: The servers IPv6 address
 * \param port: The servers port number
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv6(qsc_qsmp_kex_server_state* ctx, qsc_socket* sock, const qsc_qsmp_server_key* skey, const qsc_ipinfo_ipv6_address* address, uint16_t port);
+QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv6(qsmp_kex_server_state* ctx, qsc_socket* sock, const qsc_qsmp_server_key* skey, const qsc_ipinfo_ipv6_address* address, uint16_t port);
 
 /**
 * \brief Decrypt a message and copy it to the message output
@@ -166,7 +166,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv6(qsc_qsmp_kex_server_s
 *
 * \return: The function error state
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_decrypt_packet(qsc_qsmp_kex_server_state* ctx, const qsc_qsmp_packet* packetin, uint8_t* message, size_t* msglen);
+QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_decrypt_packet(qsmp_kex_server_state* ctx, const qsc_qsmp_packet* packetin, uint8_t* message, size_t* msglen);
 
 /**
 * \brief Encrypt a message and build an output packet
@@ -178,7 +178,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_decrypt_packet(qsc_qsmp_kex_serve
 *
 * \return: The function error state
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_encrypt_packet(qsc_qsmp_kex_server_state* ctx, uint8_t* message, size_t msglen, qsc_qsmp_packet* packetout);
+QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_encrypt_packet(qsmp_kex_server_state* ctx, uint8_t* message, size_t msglen, qsc_qsmp_packet* packetout);
 
 /**
 * \brief Generate a QSMP key-pair.

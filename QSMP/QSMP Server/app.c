@@ -9,8 +9,8 @@
 #include "../QSC/stringutils.h"
 #include "../QSC/async.h"
 
-static qsc_qsmp_keep_alive_state m_qsmp_keep_alive;
-static qsc_qsmp_kex_server_state m_qsmp_server_ctx;
+static qsmp_keep_alive_state m_qsmp_keep_alive;
+static qsmp_kex_server_state m_qsmp_server_ctx;
 
 static void qsmp_server_print_error(qsc_qsmp_errors error)
 {
@@ -317,10 +317,9 @@ static qsc_qsmp_errors qsmp_server_listen_ipv4(qsc_qsmp_server_key* prik)
 			{
 				/* convert the packet to bytes */
 				qsc_qsmp_server_encrypt_packet(&m_qsmp_server_ctx, (uint8_t*)sin, mlen, &pkt);
+				qsc_memutils_clear((uint8_t*)sin, mlen);
 				mlen = qsc_qsmp_packet_to_stream(&pkt, msgstr);
 				qsc_socket_send(&ssck, msgstr, mlen, qsc_socket_send_flag_none);
-				memset(sin, 0x00, mlen);
-				mlen = 0;
 			}
 
 			mlen = qsc_consoleutils_get_formatted_line(sin, sizeof(sin));

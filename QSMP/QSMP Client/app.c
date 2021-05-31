@@ -118,12 +118,12 @@ static void qsmp_client_print_banner()
 	qsc_consoleutils_print_line("");
 }
 
-static bool qsmp_client_dialogue(qsc_qsmp_client_key* ckey, qsc_ipinfo_ipv4_address* address)
+static bool qsmp_client_ipv4_dialogue(qsc_qsmp_client_key* ckey, qsc_ipinfo_ipv4_address* address)
 {
 	uint8_t pskey[QSC_QSMP_PUBKEY_STRING_SIZE];
 	char fpath[FILENAME_MAX + 1] = { 0 };
 	char sadd[QSC_IPINFO_IPV4_STRNLEN] = { 0 };
-	qsc_ipinfo_ipv4_address addv4t;
+	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	size_t slen;
 	bool res;
 
@@ -136,7 +136,8 @@ static bool qsmp_client_dialogue(qsc_qsmp_client_key* ckey, qsc_ipinfo_ipv4_addr
 	if (slen >= QSC_IPINFO_IPV4_MINLEN)
 	{
 		addv4t = qsc_ipinfo_ipv4_address_from_string(sadd);
-		res = qsc_ipinfo_ipv4_address_is_valid(&addv4t);
+		res = (qsc_ipinfo_ipv4_address_is_valid(&addv4t) == true && 
+			qsc_ipinfo_ipv4_address_is_zeroed(&addv4t) == false);
 
 		if (res == true)
 		{
@@ -210,10 +211,9 @@ static void qsmp_client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, qsc
 			{
 				/* convert the packet to bytes */
 				qsc_qsmp_client_encrypt_packet(&m_qsmp_client_ctx, (uint8_t*)sin, mlen, &pkt);
+				qsc_memutils_clear((uint8_t*)sin, mlen);
 				mlen = qsc_qsmp_packet_to_stream(&pkt, msgstr);
 				qsc_socket_send(&csck, msgstr, mlen, qsc_socket_send_flag_none);
-				memset(sin, 0x00, mlen);
-				mlen = 0;
 			}
 
 			mlen = qsc_consoleutils_get_formatted_line(sin, sizeof(sin));
@@ -240,7 +240,7 @@ int main(void)
 
 	while (ectr < 3)
 	{
-		res = qsmp_client_dialogue(&ckey, &addv4t);
+		res = qsmp_client_ipv4_dialogue(&ckey, &addv4t);
 
 		if (res == true)
 		{
