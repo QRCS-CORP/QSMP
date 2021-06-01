@@ -29,43 +29,43 @@
 * \copyright	GPL version 3 license (GPLv3)
 */
 
-#ifndef QSC_QSMP_SERVER_H
-#define QSC_QSMP_SERVER_H
+#ifndef QSMP_SERVER_H
+#define QSMP_SERVER_H
 
 #include "qsmp.h"
 #include "../QSC/rcs.h"
 #include "../QSC/socketserver.h"
 
 /*!
-* \struct qsc_qsmp_server_key
+* \struct qsmp_server_key
 * \brief The QSMP server key structure
 */
-QSC_EXPORT_API typedef struct qsc_qsmp_server_key
+typedef struct qsmp_server_key
 {
 	uint64_t expiration;						/*!< The expiration time, in seconds from epoch */
-	uint8_t config[QSC_QSMP_CONFIG_SIZE];		/*!< The primitive configuration string */
-	uint8_t keyid[QSC_QSMP_KEYID_SIZE];			/*!< The key identity string */
-	uint8_t sigkey[QSC_QSMP_SIGNKEY_SIZE];		/*!< The asymmetric signature signing-key */
-	uint8_t verkey[QSC_QSMP_VERIFYKEY_SIZE];	/*!< The asymmetric signature verification-key */
-} qsc_qsmp_server_key;
+	uint8_t config[QSMP_CONFIG_SIZE];		/*!< The primitive configuration string */
+	uint8_t keyid[QSMP_KEYID_SIZE];			/*!< The key identity string */
+	uint8_t sigkey[QSMP_SIGNKEY_SIZE];		/*!< The asymmetric signature signing-key */
+	uint8_t verkey[QSMP_VERIFYKEY_SIZE];	/*!< The asymmetric signature verification-key */
+} qsmp_server_key;
 
 /*!
 * \struct qsmp_kex_server_state
 * \brief The QSMP server state structure
 */
-QSC_EXPORT_API typedef struct qsmp_kex_server_state
+typedef struct qsmp_kex_server_state
 {
 	qsc_rcs_state rxcpr;						/*!< The receive channel cipher state */
 	qsc_rcs_state txcpr;						/*!< The transmit channel cipher state */
-	uint8_t config[QSC_QSMP_CONFIG_SIZE];		/*!< The primitive configuration string */
-	uint8_t keyid[QSC_QSMP_KEYID_SIZE];			/*!< The key identity string */
-	uint8_t pkhash[QSC_QSMP_PKCODE_SIZE];		/*!< The session token hash */
-	uint8_t prikey[QSC_QSMP_PRIVATEKEY_SIZE];	/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSC_QSMP_PUBLICKEY_SIZE];	/*!< The asymmetric cipher public key */
-	uint8_t sigkey[QSC_QSMP_SIGNKEY_SIZE];		/*!< The asymmetric signature signing-key */
-	uint8_t verkey[QSC_QSMP_VERIFYKEY_SIZE];	/*!< The asymmetric signature verification-key */
-	uint8_t token[QSC_QSMP_STOKEN_SIZE];		/*!< The session token */
-	qsc_qsmp_flags exflag;						/*!< The KEX position flag */
+	uint8_t config[QSMP_CONFIG_SIZE];		/*!< The primitive configuration string */
+	uint8_t keyid[QSMP_KEYID_SIZE];			/*!< The key identity string */
+	uint8_t pkhash[QSMP_PKCODE_SIZE];		/*!< The session token hash */
+	uint8_t prikey[QSMP_PRIVATEKEY_SIZE];	/*!< The asymmetric cipher private key */
+	uint8_t pubkey[QSMP_PUBLICKEY_SIZE];	/*!< The asymmetric cipher public key */
+	uint8_t sigkey[QSMP_SIGNKEY_SIZE];		/*!< The asymmetric signature signing-key */
+	uint8_t verkey[QSMP_VERIFYKEY_SIZE];	/*!< The asymmetric signature verification-key */
+	uint8_t token[QSMP_STOKEN_SIZE];		/*!< The session token */
+	qsmp_flags exflag;						/*!< The KEX position flag */
 	uint64_t expiration;						/*!< The expiration time, in seconds from epoch */
 	uint64_t rxseq;								/*!< The receive channels packet sequence number  */
 	uint64_t txseq;								/*!< The transmit channels packet sequence number  */
@@ -79,7 +79,7 @@ QSC_EXPORT_API typedef struct qsmp_kex_server_state
 * \param serverkey: A pointer to the output server key structure
 * \param input: The input encoded secret key string
 */
-QSC_EXPORT_API void qsc_qsmp_server_deserialize_signature_key(qsc_qsmp_server_key* serverkey, const uint8_t input[QSC_QSMP_SIGKEY_ENCODED_SIZE]);
+void qsmp_server_deserialize_signature_key(qsmp_server_key* serverkey, const uint8_t input[QSMP_SIGKEY_ENCODED_SIZE]);
 
 /**
 * \brief Encode a public key structure and copy to a string
@@ -88,7 +88,7 @@ QSC_EXPORT_API void qsc_qsmp_server_deserialize_signature_key(qsc_qsmp_server_ke
 * \param output: The output encoded public key string
 * \param serverkey: A pointer to the server key structure
 */
-QSC_EXPORT_API void qsc_qsmp_server_encode_public_key(char output[QSC_QSMP_PUBKEY_STRING_SIZE], const qsc_qsmp_server_key* serverkey);
+void qsmp_server_encode_public_key(char output[QSMP_PUBKEY_STRING_SIZE], const qsmp_server_key* serverkey);
 
 /**
 * \brief Close the remote session and dispose of resources
@@ -96,7 +96,7 @@ QSC_EXPORT_API void qsc_qsmp_server_encode_public_key(char output[QSC_QSMP_PUBKE
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-QSC_EXPORT_API void qsc_qsmp_server_connection_close(qsmp_kex_server_state* ctx, qsc_socket* sock, qsc_qsmp_errors error);
+void qsmp_server_connection_close(qsmp_kex_server_state* ctx, qsc_socket* sock, qsmp_errors error);
 
 /**
 * \brief Send an error code to the remote host
@@ -104,7 +104,7 @@ QSC_EXPORT_API void qsc_qsmp_server_connection_close(qsmp_kex_server_state* ctx,
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-QSC_EXPORT_API void qsc_qsmp_server_send_error(qsc_socket* sock, qsc_qsmp_errors error);
+void qsmp_server_send_error(qsc_socket* sock, qsmp_errors error);
 
 /**
 * \brief Send a keep-alive to the remote host
@@ -112,7 +112,7 @@ QSC_EXPORT_API void qsc_qsmp_server_send_error(qsc_socket* sock, qsc_qsmp_errors
 * \param kctx: The keep-alive state
 * \param sock: A pointer to the initialized socket structure
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_send_keep_alive(qsmp_keep_alive_state* kctx, qsc_socket* sock);
+qsmp_errors qsmp_server_send_keep_alive(qsmp_keep_alive_state* kctx, qsc_socket* sock);
 
 /**
 * \brief Encode a secret key structure and copy to a string
@@ -120,7 +120,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_send_keep_alive(qsmp_keep_alive_s
 * \param output: The output encoded public key string
 * \param serverkey: A pointer to the secret server key structure
 */
-QSC_EXPORT_API void qsc_qsmp_server_serialize_signature_key(uint8_t output[QSC_QSMP_SIGKEY_ENCODED_SIZE], const qsc_qsmp_server_key* serverkey);
+void qsmp_server_serialize_signature_key(uint8_t output[QSMP_SIGKEY_ENCODED_SIZE], const qsmp_server_key* serverkey);
 
 /* Primary Functions */
 
@@ -130,7 +130,7 @@ QSC_EXPORT_API void qsc_qsmp_server_serialize_signature_key(uint8_t output[QSC_Q
 * \param ctx: A pointer to the server state structure
 * \param ckey: [const] A pointer to a server key structure
 */
-QSC_EXPORT_API void qsc_qsmp_server_initialize(qsmp_kex_server_state* ctx, const qsc_qsmp_server_key* skey);
+void qsmp_server_initialize(qsmp_kex_server_state* ctx, const qsmp_server_key* skey);
 
 /**
 * \brief Run the IPv4 networked key exchange function.
@@ -142,7 +142,7 @@ QSC_EXPORT_API void qsc_qsmp_server_initialize(qsmp_kex_server_state* ctx, const
 * \param address: The servers IPv4 address
 * \param port: The servers port number
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv4(qsmp_kex_server_state* ctx, qsc_socket* sock, const qsc_qsmp_server_key* skey, const qsc_ipinfo_ipv4_address* address, uint16_t port);
+qsmp_errors qsmp_server_listen_ipv4(qsmp_kex_server_state* ctx, qsc_socket* sock, const qsmp_server_key* skey, const qsc_ipinfo_ipv4_address* address, uint16_t port);
 
 /**
 * \brief Run the IPv6 networked key exchange function.
@@ -154,7 +154,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv4(qsmp_kex_server_state
 * \param address: The servers IPv6 address
 * \param port: The servers port number
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv6(qsmp_kex_server_state* ctx, qsc_socket* sock, const qsc_qsmp_server_key* skey, const qsc_ipinfo_ipv6_address* address, uint16_t port);
+qsmp_errors qsmp_server_listen_ipv6(qsmp_kex_server_state* ctx, qsc_socket* sock, const qsmp_server_key* skey, const qsc_ipinfo_ipv6_address* address, uint16_t port);
 
 /**
 * \brief Decrypt a message and copy it to the message output
@@ -166,7 +166,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_listen_ipv6(qsmp_kex_server_state
 *
 * \return: The function error state
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_decrypt_packet(qsmp_kex_server_state* ctx, const qsc_qsmp_packet* packetin, uint8_t* message, size_t* msglen);
+qsmp_errors qsmp_server_decrypt_packet(qsmp_kex_server_state* ctx, const qsmp_packet* packetin, uint8_t* message, size_t* msglen);
 
 /**
 * \brief Encrypt a message and build an output packet
@@ -178,7 +178,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_decrypt_packet(qsmp_kex_server_st
 *
 * \return: The function error state
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_encrypt_packet(qsmp_kex_server_state* ctx, uint8_t* message, size_t msglen, qsc_qsmp_packet* packetout);
+qsmp_errors qsmp_server_encrypt_packet(qsmp_kex_server_state* ctx, uint8_t* message, size_t msglen, qsmp_packet* packetout);
 
 /**
 * \brief Generate a QSMP key-pair.
@@ -188,6 +188,6 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_server_encrypt_packet(qsmp_kex_server_st
 * \param prikey: The private key, a secret key known only by the server
 * \param keyid: The key identity string
 */
-QSC_EXPORT_API void qsc_qsmp_server_generate_keypair(qsc_qsmp_client_key* pubkey, qsc_qsmp_server_key* prikey, const uint8_t keyid[QSC_QSMP_KEYID_SIZE]);
+void qsmp_server_generate_keypair(qsmp_client_key* pubkey, qsmp_server_key* prikey, const uint8_t keyid[QSMP_KEYID_SIZE]);
 
 #endif

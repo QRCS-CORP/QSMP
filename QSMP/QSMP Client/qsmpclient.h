@@ -29,34 +29,34 @@
 * \copyright	GPL version 3 license (GPLv3)
 */
 
-#ifndef QSC_QSMP_CLIENT_H
-#define QSC_QSMP_CLIENT_H
+#ifndef QSMP_CLIENT_H
+#define QSMP_CLIENT_H
 
 #include "qsmp.h"
 #include "../QSC/rcs.h"
 #include "../QSC/socketclient.h"
 
 /*!
-* \struct qsc_qsmp_client_key
+* \struct qsmp_client_key
 * \brief The QSMP client state structure
 */
-QSC_EXPORT_API typedef struct qsc_qsmp_kex_client_state
+typedef struct qsmp_kex_client_state
 {
 	qsc_rcs_state rxcpr;						/*!< The receive channel cipher state */
 	qsc_rcs_state txcpr;						/*!< The transmit channel cipher state */
-	uint8_t config[QSC_QSMP_CONFIG_SIZE];		/*!< The primitive configuration string */
-	uint8_t keyid[QSC_QSMP_KEYID_SIZE];			/*!< The key identity string */
-	uint8_t mackey[QSC_QSMP_MACKEY_SIZE];		/*!< The intermediate mac key */
-	uint8_t pkhash[QSC_QSMP_PKCODE_SIZE];		/*!< The session token hash */
-	uint8_t prikey[QSC_QSMP_PRIVATEKEY_SIZE];	/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSC_QSMP_PUBLICKEY_SIZE];	/*!< The asymmetric cipher public key */
-	uint8_t token[QSC_QSMP_STOKEN_SIZE];		/*!< The session token */
-	uint8_t verkey[QSC_QSMP_VERIFYKEY_SIZE];	/*!< The asymmetric signature verification-key */
-	qsc_qsmp_flags exflag;						/*!< The KEX position flag */
+	uint8_t config[QSMP_CONFIG_SIZE];		/*!< The primitive configuration string */
+	uint8_t keyid[QSMP_KEYID_SIZE];			/*!< The key identity string */
+	uint8_t mackey[QSMP_MACKEY_SIZE];		/*!< The intermediate mac key */
+	uint8_t pkhash[QSMP_PKCODE_SIZE];		/*!< The session token hash */
+	uint8_t prikey[QSMP_PRIVATEKEY_SIZE];	/*!< The asymmetric cipher private key */
+	uint8_t pubkey[QSMP_PUBLICKEY_SIZE];	/*!< The asymmetric cipher public key */
+	uint8_t token[QSMP_STOKEN_SIZE];		/*!< The session token */
+	uint8_t verkey[QSMP_VERIFYKEY_SIZE];	/*!< The asymmetric signature verification-key */
+	qsmp_flags exflag;						/*!< The KEX position flag */
 	uint64_t expiration;						/*!< The expiration time, in seconds from epoch */
 	uint64_t rxseq;								/*!< The receive channels packet sequence number  */
 	uint64_t txseq;								/*!< The transmit channels packet sequence number  */
-} qsc_qsmp_kex_client_state;
+} qsmp_kex_client_state;
 
 
 /* Helper Functions */
@@ -67,7 +67,7 @@ QSC_EXPORT_API typedef struct qsc_qsmp_kex_client_state
 * \param clientkey: A pointer to the output client key
 * \param input: [const] The input encoded key
 */
-QSC_EXPORT_API void qsc_qsmp_client_decode_public_key(qsc_qsmp_client_key* clientkey, const char input[QSC_QSMP_PUBKEY_STRING_SIZE]);
+void qsmp_client_decode_public_key(qsmp_client_key* clientkey, const char input[QSMP_PUBKEY_STRING_SIZE]);
 
 /**
 * \brief Send an error code to the remote host
@@ -75,7 +75,7 @@ QSC_EXPORT_API void qsc_qsmp_client_decode_public_key(qsc_qsmp_client_key* clien
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-QSC_EXPORT_API void qsc_qsmp_client_send_error(qsc_socket* sock, qsc_qsmp_errors error);
+void qsmp_client_send_error(qsc_socket* sock, qsmp_errors error);
 
 /* Public Functions */
 
@@ -89,7 +89,7 @@ QSC_EXPORT_API void qsc_qsmp_client_send_error(qsc_socket* sock, qsc_qsmp_errors
 * \param address: The servers IPv4 address
 * \param port: The servers port number
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_client_connect_ipv4(qsc_qsmp_kex_client_state* ctx, qsc_socket* sock, const qsc_qsmp_client_key* ckey, const qsc_ipinfo_ipv4_address* address, uint16_t port);
+qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* sock, const qsmp_client_key* ckey, const qsc_ipinfo_ipv4_address* address, uint16_t port);
 
 /**
 * \brief Run the IPv6 networked key exchange function.
@@ -101,7 +101,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_client_connect_ipv4(qsc_qsmp_kex_client_
 * \param address: The servers IPv6 address structure
 * \param port: The servers port number
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_client_connect_ipv6(qsc_qsmp_kex_client_state* ctx, qsc_socket* sock, const qsc_qsmp_client_key* ckey, const qsc_ipinfo_ipv6_address* address, uint16_t port);
+qsmp_errors qsmp_client_connect_ipv6(qsmp_kex_client_state* ctx, qsc_socket* sock, const qsmp_client_key* ckey, const qsc_ipinfo_ipv6_address* address, uint16_t port);
 
 /**
 * \brief Close the remote session and dispose of resources
@@ -109,7 +109,7 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_client_connect_ipv6(qsc_qsmp_kex_client_
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-QSC_EXPORT_API void qsc_qsmp_client_connection_close(qsc_qsmp_kex_client_state* ctx, qsc_socket* sock, qsc_qsmp_errors error);
+void qsmp_client_connection_close(qsmp_kex_client_state* ctx, qsc_socket* sock, qsmp_errors error);
 
 /**
 * \brief Decrypt a message and copy it to the message output
@@ -121,7 +121,7 @@ QSC_EXPORT_API void qsc_qsmp_client_connection_close(qsc_qsmp_kex_client_state* 
 *
 * \return: The function error state
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_client_decrypt_packet(qsc_qsmp_kex_client_state* ctx, const qsc_qsmp_packet* packetin, uint8_t* message, size_t* msglen);
+qsmp_errors qsmp_client_decrypt_packet(qsmp_kex_client_state* ctx, const qsmp_packet* packetin, uint8_t* message, size_t* msglen);
 
 /**
 * \brief Encrypt a message and build an output packet
@@ -133,6 +133,6 @@ QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_client_decrypt_packet(qsc_qsmp_kex_clien
 *
 * \return: The function error state
 */
-QSC_EXPORT_API qsc_qsmp_errors qsc_qsmp_client_encrypt_packet(qsc_qsmp_kex_client_state* ctx, const uint8_t* message, size_t msglen, qsc_qsmp_packet* packetout);
+qsmp_errors qsmp_client_encrypt_packet(qsmp_kex_client_state* ctx, const uint8_t* message, size_t msglen, qsmp_packet* packetout);
 
 #endif

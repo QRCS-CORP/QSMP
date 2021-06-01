@@ -22,12 +22,6 @@
 #include "common.h"
 #include "../QSC/socketbase.h"
 
-#define QSMP_MESSAGE_MAX 10240
-#define QSMP_SERVER_PORT 2020
-
 static const char QSMP_PUBKEY_NAME[] = "\\pubkey.qpkey";
-
-void qsc_socket_exception_callback(qsc_socket* source, qsc_socket_exceptions error);
-void qsc_socket_receive_async_callback(qsc_socket* source, uint8_t* message, size_t msglen);
 
 #endif
