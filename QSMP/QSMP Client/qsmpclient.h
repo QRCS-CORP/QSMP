@@ -44,15 +44,15 @@ typedef struct qsmp_kex_client_state
 {
 	qsc_rcs_state rxcpr;						/*!< The receive channel cipher state */
 	qsc_rcs_state txcpr;						/*!< The transmit channel cipher state */
-	uint8_t config[QSMP_CONFIG_SIZE];		/*!< The primitive configuration string */
-	uint8_t keyid[QSMP_KEYID_SIZE];			/*!< The key identity string */
-	uint8_t mackey[QSMP_MACKEY_SIZE];		/*!< The intermediate mac key */
-	uint8_t pkhash[QSMP_PKCODE_SIZE];		/*!< The session token hash */
-	uint8_t prikey[QSMP_PRIVATEKEY_SIZE];	/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSMP_PUBLICKEY_SIZE];	/*!< The asymmetric cipher public key */
-	uint8_t token[QSMP_STOKEN_SIZE];		/*!< The session token */
-	uint8_t verkey[QSMP_VERIFYKEY_SIZE];	/*!< The asymmetric signature verification-key */
-	qsmp_flags exflag;						/*!< The KEX position flag */
+	uint8_t config[QSMP_CONFIG_SIZE];			/*!< The primitive configuration string */
+	uint8_t keyid[QSMP_KEYID_SIZE];				/*!< The key identity string */
+	uint8_t mackey[QSMP_MACKEY_SIZE];			/*!< The intermediate mac key */
+	uint8_t pkhash[QSMP_PKCODE_SIZE];			/*!< The session token hash */
+	uint8_t prikey[QSMP_PRIVATEKEY_SIZE];		/*!< The asymmetric cipher private key */
+	uint8_t pubkey[QSMP_PUBLICKEY_SIZE];		/*!< The asymmetric cipher public key */
+	uint8_t token[QSMP_STOKEN_SIZE];			/*!< The session token */
+	uint8_t verkey[QSMP_VERIFYKEY_SIZE];		/*!< The asymmetric signature verification-key */
+	qsmp_flags exflag;							/*!< The KEX position flag */
 	uint64_t expiration;						/*!< The expiration time, in seconds from epoch */
 	uint64_t rxseq;								/*!< The receive channels packet sequence number  */
 	uint64_t txseq;								/*!< The transmit channels packet sequence number  */

@@ -435,7 +435,7 @@ static const char QSMP_PUBKEY_FOOTER[] = "------END QSMP PUBLIC KEY BLOCK------"
 
 /* error code strings */
 
-#define QSMP_ERROR_STRING_DEPTH 20
+#define QSMP_ERROR_STRING_DEPTH 21
 #define QSMP_ERROR_STRING_WIDTH 128
 
 static const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_WIDTH] =
@@ -460,6 +460,7 @@ static const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_
 	"The packet was received out of sequence.",
 	"The keep alive check failed.",
 	"The keep alive has expired with no response",
+	"The key identity is unrecognized",
 };
 
 /*!
@@ -499,6 +500,7 @@ typedef enum qsmp_errors
 	qsmp_error_packet_unsequenced = 0x11,		/*!< The packet was received out of sequence */
 	qsmp_error_bad_keep_alive = 0x12,			/*!< The keep alive check failed */
 	qsmp_error_keep_alive_expired = 0x13,		/*!< The keep alive has expired with no response */
+	qsmp_error_key_unrecognized = 0x14,			/*!< The key identity is unrecognized */
 } qsmp_errors;
 
 /*!
@@ -563,10 +565,9 @@ typedef struct qsmp_keep_alive_state
 
 
 /**
-* \brief Populate a packet structure with an error message
+* \brief Clear a packet's state
 *
 * \param packet: A pointer to the packet structure
-* \param error: The error type
 */
 void qsmp_packet_clear(qsmp_packet* packet);
 

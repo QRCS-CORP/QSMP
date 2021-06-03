@@ -224,13 +224,13 @@ void gen_matrix(qsc_kyber_polyvec* a, const uint8_t* seed, int32_t transposed)
 				kstate.state[k] = 0;
 			}
 
-			qsc_shake_initialize(&kstate, keccak_rate_128, extseed, QSC_KYBER_SYMBYTES + 2);
-			qsc_shake_squeezeblocks(&kstate, keccak_rate_128, buf, maxnblocks);
+			qsc_shake_initialize(&kstate, qsc_keccak_rate_128, extseed, QSC_KYBER_SYMBYTES + 2);
+			qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_128, buf, maxnblocks);
 			ctr = rej_uniform(a[i].vec[j].coeffs, QSC_KYBER_N, buf, maxnblocks * QSC_KECCAK_128_RATE);
 
 			while (ctr < QSC_KYBER_N)
 			{
-				qsc_shake_squeezeblocks(&kstate, keccak_rate_128, buf, 1);
+				qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_128, buf, 1);
 				ctr += rej_uniform(a[i].vec[j].coeffs + ctr, QSC_KYBER_N - ctr, buf, QSC_KECCAK_128_RATE);
 			}
 		}

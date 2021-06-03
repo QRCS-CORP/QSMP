@@ -50,8 +50,8 @@ static void server_print_banner()
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Quantum Secure Messaging Protocol Server  *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.0.0.0a (A0)                       *");
-	qsc_consoleutils_print_line("* Date:      May 28, 2021                         *");
+	qsc_consoleutils_print_line("* Release:   v1.0.0.0d (A0)                       *");
+	qsc_consoleutils_print_line("* Date:      June 03, 2021                        *");
 	qsc_consoleutils_print_line("* Contact:   develop@vtdev.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
@@ -221,8 +221,10 @@ static qsmp_errors server_listen_ipv4(qsmp_server_key* prik)
 	qsc_memutils_clear((uint8_t*)&m_qsmp_server_ctx, sizeof(m_qsmp_server_ctx));
 	addt = qsc_ipinfo_ipv4_address_any();
 
+	/* initialize the server */
+	qsmp_server_initialize(&m_qsmp_server_ctx, prik);
 	/* begin listening on the port, when a client connects it triggers the key exchange*/
-	qerr = qsmp_server_listen_ipv4(&m_qsmp_server_ctx, &ssck, prik, &addt, QSMP_SERVER_PORT);
+	qerr = qsmp_server_listen_ipv4(&m_qsmp_server_ctx, &ssck, &addt, QSMP_SERVER_PORT);
 
 	if (qerr == qsmp_error_none)
 	{
@@ -253,7 +255,7 @@ static qsmp_errors server_listen_ipv4(qsmp_server_key* prik)
 				qsc_socket_send(&ssck, msgstr, mlen, qsc_socket_send_flag_none);
 			}
 
-			mlen = qsc_consoleutils_get_formatted_line(sin, sizeof(sin));
+			mlen = qsc_consoleutils_get_line(sin, sizeof(sin));
 			server_print_message("");
 		}
 
@@ -293,8 +295,8 @@ void qsc_socket_receive_async_callback(qsc_socket* source, uint8_t* message, siz
 		if (pkt.flag == qsmp_message_encrypted_message)
 		{
 			qsmp_server_decrypt_packet(&m_qsmp_server_ctx, &pkt, (uint8_t*)msgstr, &msglen);
-			qsc_consoleutils_print_line(msgstr);
-			qsc_consoleutils_print_safe("server> ");
+			qsc_consoleutils_print_formatted(msgstr, msglen);
+			server_print_message("");
 		}
 		else if (pkt.flag == qsmp_message_connection_terminate)
 		{

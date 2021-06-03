@@ -397,8 +397,8 @@ void qsc_dilithium_poly_uniform(qsc_dilithium_poly* a, const uint8_t seed[QSC_DI
 
 	tmps[QSC_DILITHIUM_SEED_SIZE] = (uint8_t)nonce;
 	tmps[QSC_DILITHIUM_SEED_SIZE + 1] = nonce >> 8;
-	qsc_shake_initialize(&kstate, keccak_rate_128, tmps, QSC_DILITHIUM_SEED_SIZE + 2);
-	qsc_shake_squeezeblocks(&kstate, keccak_rate_128, buf, NBLKS);
+	qsc_shake_initialize(&kstate, qsc_keccak_rate_128, tmps, QSC_DILITHIUM_SEED_SIZE + 2);
+	qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_128, buf, NBLKS);
 
 	ctr = rej_uniform(a->coeffs, QSC_DILITHIUM_N, buf, buflen);
 
@@ -412,7 +412,7 @@ void qsc_dilithium_poly_uniform(qsc_dilithium_poly* a, const uint8_t seed[QSC_DI
 		}
 
 		buflen = QSC_KECCAK_128_RATE + off;
-		qsc_shake_squeezeblocks(&kstate, keccak_rate_128, buf + off, 1);
+		qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_128, buf + off, 1);
 		ctr += rej_uniform(a->coeffs + ctr, QSC_DILITHIUM_N - ctr, buf, buflen);
 	}
 }
@@ -497,14 +497,14 @@ void qsc_dilithium_poly_uniform_eta(qsc_dilithium_poly* a, const uint8_t seed[QS
 
 	tmps[QSC_DILITHIUM_SEED_SIZE] = (uint8_t)nonce;
 	tmps[QSC_DILITHIUM_SEED_SIZE + 1] = nonce >> 8;
-	qsc_shake_initialize(&kstate, keccak_rate_128, tmps, QSC_DILITHIUM_SEED_SIZE + 2);
-	qsc_shake_squeezeblocks(&kstate, keccak_rate_128, buf, NBLKS);
+	qsc_shake_initialize(&kstate, qsc_keccak_rate_128, tmps, QSC_DILITHIUM_SEED_SIZE + 2);
+	qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_128, buf, NBLKS);
 
 	ctr = rej_eta(a->coeffs, QSC_DILITHIUM_N, buf, buflen);
 
 	while (ctr < QSC_DILITHIUM_N)
 	{
-		qsc_shake_squeezeblocks(&kstate, keccak_rate_128, buf, 1);
+		qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_128, buf, 1);
 		ctr += rej_eta(a->coeffs + ctr, QSC_DILITHIUM_N - ctr, buf, QSC_KECCAK_128_RATE);
 	}
 }
@@ -590,8 +590,8 @@ void qsc_dilithium_poly_uniform_gamma1m1(qsc_dilithium_poly* a, const uint8_t se
 
 	tmps[QSC_DILITHIUM_CRH_SIZE] = (uint8_t)nonce;
 	tmps[QSC_DILITHIUM_CRH_SIZE + 1] = nonce >> 8;
-	qsc_shake_initialize(&kstate, keccak_rate_256, tmps, QSC_DILITHIUM_CRH_SIZE + 2);
-	qsc_shake_squeezeblocks(&kstate, keccak_rate_256, buf, NBLKS);
+	qsc_shake_initialize(&kstate, qsc_keccak_rate_256, tmps, QSC_DILITHIUM_CRH_SIZE + 2);
+	qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_256, buf, NBLKS);
 	buflen = NBLKS * QSC_KECCAK_256_RATE;
 
 	ctr = rej_gamma1m1(a->coeffs, QSC_DILITHIUM_N, buf, buflen);
@@ -606,7 +606,7 @@ void qsc_dilithium_poly_uniform_gamma1m1(qsc_dilithium_poly* a, const uint8_t se
 		}
 
 		buflen = QSC_KECCAK_256_RATE + off;
-		qsc_shake_squeezeblocks(&kstate, keccak_rate_256, buf + off, 1);
+		qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_256, buf + off, 1);
 		ctr += rej_gamma1m1(a->coeffs + ctr, QSC_DILITHIUM_N - ctr, buf, buflen);
 	}
 }
@@ -1519,8 +1519,8 @@ void challenge(qsc_dilithium_poly* c, const uint8_t mu[QSC_DILITHIUM_CRH_SIZE], 
 		qsc_dilithium_polyw1_pack(inbuf + QSC_DILITHIUM_CRH_SIZE + (i * DILITHIUM_POLW1_SIZE_PACKED), &w1->vec[i]);
 	}
 
-	qsc_shake_initialize(&kstate, keccak_rate_256, inbuf, sizeof(inbuf));
-	qsc_shake_squeezeblocks(&kstate, keccak_rate_256, outbuf, 1);
+	qsc_shake_initialize(&kstate, qsc_keccak_rate_256, inbuf, sizeof(inbuf));
+	qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_256, outbuf, 1);
 	signs = 0;
 
 	for (i = 0; i < 8; ++i)
@@ -1541,7 +1541,7 @@ void challenge(qsc_dilithium_poly* c, const uint8_t mu[QSC_DILITHIUM_CRH_SIZE], 
 		{
 			if (pos >= QSC_KECCAK_256_RATE)
 			{
-				qsc_shake_squeezeblocks(&kstate, keccak_rate_256, outbuf, 1);
+				qsc_shake_squeezeblocks(&kstate, qsc_keccak_rate_256, outbuf, 1);
 				pos = 0;
 			}
 

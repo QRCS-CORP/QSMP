@@ -47,8 +47,8 @@ static void qsmp_client_print_banner()
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Quantum Secure Messaging Protocol Client  *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.0.0.0a (A0)                       *");
-	qsc_consoleutils_print_line("* Date:      May 28, 2021                         *");
+	qsc_consoleutils_print_line("* Release:   v1.0.0.0d (A0)                       *");
+	qsc_consoleutils_print_line("* Date:      June 03, 2021                        *");
 	qsc_consoleutils_print_line("* Contact:   develop@vtdev.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
@@ -152,7 +152,7 @@ static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, qsmp_cli
 				qsc_socket_send(&csck, msgstr, mlen, qsc_socket_send_flag_none);
 			}
 
-			mlen = qsc_consoleutils_get_formatted_line(sin, sizeof(sin));
+			mlen = qsc_consoleutils_get_line(sin, sizeof(sin));
 			qsc_consoleutils_print_safe("client> ");
 		}
 
@@ -195,7 +195,7 @@ void qsc_socket_receive_async_callback(qsc_socket* source, uint8_t* message, siz
 		if (pkt.flag == qsmp_message_encrypted_message)
 		{
 			qsmp_client_decrypt_packet(&m_qsmp_client_ctx, &pkt, (uint8_t*)msgstr, &msglen);
-			qsc_consoleutils_print_line(msgstr);
+			qsc_consoleutils_print_formatted(msgstr, msglen);
 			qsmp_client_print_message("");
 		}
 		else if (pkt.flag == qsmp_message_connection_terminate)
@@ -250,6 +250,8 @@ int main(void)
 		{
 			qsc_consoleutils_print_line("");
 		}
+
+		++ectr;
 	}
 
 	if (res == true)

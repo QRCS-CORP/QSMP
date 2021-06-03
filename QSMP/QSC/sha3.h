@@ -48,10 +48,10 @@
 * qsc_sha3_initialize(ctx.state);
 *
 * // update the message
-* qsc_sha3_update(&ctx, keccak_rate_512, msg, MSGLEN);
+* qsc_sha3_update(&ctx, qsc_keccak_rate_512, msg, MSGLEN);
 *
 * // finalize the message and generate the hash
-* qsc_sha3_finalize(&ctx, keccak_rate_512, hash);
+* qsc_sha3_finalize(&ctx, qsc_keccak_rate_512, hash);
 *
 * \endcode
 *
@@ -66,13 +66,13 @@
 * uint8_t code[QSC_KMAC_256_MAC_SIZE] = { 0 };
 *
 * // initialize the state with the key and optional custom array
-* qsc_kmac_initialize(&ctx, keccak_rate_256, key, sizeof(key), cust, sizeof(cust));
+* qsc_kmac_initialize(&ctx, qsc_keccak_rate_256, key, sizeof(key), cust, sizeof(cust));
 *
 * // process the message
-* 	qsc_kmac_update(&ctx, keccak_rate_256, msg, MSGLEN);
+* 	qsc_kmac_update(&ctx, qsc_keccak_rate_256, msg, MSGLEN);
 *
 * // finalize the message and generate the hash
-* qsc_kmac_finalize(&ctx, keccak_rate_256, code, sizeof(code));
+* qsc_kmac_finalize(&ctx, qsc_keccak_rate_256, code, sizeof(code));
 *
 * \endcode
 *
@@ -259,15 +259,15 @@ QSC_EXPORT_API typedef struct
 } qsc_keccak_state;
 
 /*!
-* \enum keccak_rate
+* \enum qsc_keccak_rate
 * \brief The Keccak rate; determines which security strength is used by the function, 128, 256, or 512-bit
 */
 QSC_EXPORT_API typedef enum
 {
-	keccak_rate_128 = QSC_KECCAK_128_RATE,
-	keccak_rate_256 = QSC_KECCAK_256_RATE,
-	keccak_rate_512 = QSC_KECCAK_512_RATE,
-} keccak_rate;
+	qsc_keccak_rate_128 = QSC_KECCAK_128_RATE,
+	qsc_keccak_rate_256 = QSC_KECCAK_256_RATE,
+	qsc_keccak_rate_512 = QSC_KECCAK_512_RATE,
+} qsc_keccak_rate;
 
 /**
 * \brief Absorb an input message into the Keccak state
@@ -279,7 +279,7 @@ QSC_EXPORT_API typedef enum
 * \param domain: The function domain id
 * \param rounds: The number of permutation rounds, the default is 24, maximum is 48
 */
-QSC_EXPORT_API void qsc_keccak_absorb(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* message, size_t msglen, uint8_t domain, size_t rounds);
+QSC_EXPORT_API void qsc_keccak_absorb(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* message, size_t msglen, uint8_t domain, size_t rounds);
 
 /**
 * \brief Absorb the custom, and name arrays into the Keccak state
@@ -292,7 +292,7 @@ QSC_EXPORT_API void qsc_keccak_absorb(qsc_keccak_state* ctx, keccak_rate rate, c
 * \param namelen: The byte length of the function name
 * \param rounds: The number of permutation rounds, the default is 24, maximum is 48
 */
-QSC_EXPORT_API void qsc_keccak_absorb_custom(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* custom, size_t custlen, const uint8_t* name, size_t namelen, size_t rounds);
+QSC_EXPORT_API void qsc_keccak_absorb_custom(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* custom, size_t custlen, const uint8_t* name, size_t namelen, size_t rounds);
 
 /**
 * \brief Absorb the custom, name, and key arrays into the Keccak state.
@@ -307,7 +307,7 @@ QSC_EXPORT_API void qsc_keccak_absorb_custom(qsc_keccak_state* ctx, keccak_rate 
 * \param namelen: The byte length of the function name
 * \param rounds: The number of permutation rounds, the default is 24, maximum is 48
 */
-QSC_EXPORT_API void qsc_keccak_absorb_key_custom(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* key, size_t keylen, const uint8_t* custom, size_t custlen, const uint8_t* name, size_t namelen, size_t rounds);
+QSC_EXPORT_API void qsc_keccak_absorb_key_custom(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* key, size_t keylen, const uint8_t* custom, size_t custlen, const uint8_t* name, size_t namelen, size_t rounds);
 
 /**
 * \brief Dispose of the Keccak state.
@@ -329,7 +329,7 @@ QSC_EXPORT_API void qsc_keccak_dispose(qsc_keccak_state* ctx);
 * \param domain: The function domain id
 * \param rounds: The number of permutation rounds, the default is 24, maximum is 48
 */
-QSC_EXPORT_API void qsc_keccak_finalize(qsc_keccak_state* ctx, keccak_rate rate, uint8_t* output, size_t outlen, uint8_t domain, size_t rounds);
+QSC_EXPORT_API void qsc_keccak_finalize(qsc_keccak_state* ctx, qsc_keccak_rate rate, uint8_t* output, size_t outlen, uint8_t domain, size_t rounds);
 
 /**
 * \brief The Keccak permute function.
@@ -369,7 +369,7 @@ QSC_EXPORT_API void qsc_keccak_permute_p1600u(uint64_t* state);
 * \param rate: The rate of absorption in bytes
 * \param rounds: The number of permutation rounds, the default and maximum is 24
 */
-QSC_EXPORT_API void qsc_keccak_squeezeblocks(qsc_keccak_state* ctx, uint8_t* output, size_t nblocks, keccak_rate rate, size_t rounds);
+QSC_EXPORT_API void qsc_keccak_squeezeblocks(qsc_keccak_state* ctx, uint8_t* output, size_t nblocks, qsc_keccak_rate rate, size_t rounds);
 
 /**
 * \brief Initializes a Keccak state structure, must be called before message processing.
@@ -390,7 +390,7 @@ QSC_EXPORT_API void qsc_keccak_state_reset(qsc_keccak_state* ctx);
 * \param msglen: The number of message bytes to process
 * \param rounds: The number of permutation rounds, the default and maximum is 24
 */
-QSC_EXPORT_API void qsc_keccak_update(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* message, size_t msglen, size_t rounds);
+QSC_EXPORT_API void qsc_keccak_update(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* message, size_t msglen, size_t rounds);
 
 /* sha3 */
 
@@ -442,7 +442,7 @@ QSC_EXPORT_API void qsc_sha3_compute512(uint8_t* output, const uint8_t* message,
 * \param message: [const] The input message byte array
 * \param msglen: The number of message bytes to process
 */
-QSC_EXPORT_API void qsc_sha3_update(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* message, size_t msglen);
+QSC_EXPORT_API void qsc_sha3_update(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* message, size_t msglen);
 
 /**
 * \brief Finalize the message state and returns the hash value in output.
@@ -458,7 +458,7 @@ QSC_EXPORT_API void qsc_sha3_update(qsc_keccak_state* ctx, keccak_rate rate, con
 * \param rate: The rate of absorption in bytes
 * \param output: The output byte array; receives the hash code
 */
-QSC_EXPORT_API void qsc_sha3_finalize(qsc_keccak_state* ctx, keccak_rate rate, uint8_t* output);
+QSC_EXPORT_API void qsc_sha3_finalize(qsc_keccak_state* ctx, qsc_keccak_rate rate, uint8_t* output);
 
 /**
 * \brief Initialize the SHA3 state
@@ -519,7 +519,7 @@ QSC_EXPORT_API void qsc_shake512_compute(uint8_t* output, size_t outlen, const u
 * \param key: [const] The input key byte array
 * \param keylen: The number of key bytes to process
 */
-QSC_EXPORT_API void qsc_shake_initialize(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* key, size_t keylen);
+QSC_EXPORT_API void qsc_shake_initialize(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* key, size_t keylen);
 
 /**
 * \brief The SHAKE squeeze function.
@@ -534,7 +534,7 @@ QSC_EXPORT_API void qsc_shake_initialize(qsc_keccak_state* ctx, keccak_rate rate
 * \param output: The output byte array
 * \param nblocks: The number of blocks to extract
 */
-QSC_EXPORT_API void qsc_shake_squeezeblocks(qsc_keccak_state* ctx, keccak_rate rate, uint8_t* output, size_t nblocks);
+QSC_EXPORT_API void qsc_shake_squeezeblocks(qsc_keccak_state* ctx, qsc_keccak_rate rate, uint8_t* output, size_t nblocks);
 
 /* cshake */
 
@@ -600,7 +600,7 @@ QSC_EXPORT_API void qsc_cshake512_compute(uint8_t* output, size_t outlen, const 
 * \param custom: [const] The customization string
 * \param custlen: The byte length of the customization string
 */
-QSC_EXPORT_API void qsc_cshake_initialize(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* key, size_t keylen, const uint8_t* name, size_t namelen, const uint8_t* custom, size_t custlen);
+QSC_EXPORT_API void qsc_cshake_initialize(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* key, size_t keylen, const uint8_t* name, size_t namelen, const uint8_t* custom, size_t custlen);
 
 /**
 * \brief The cSHAKE squeeze function.
@@ -615,7 +615,7 @@ QSC_EXPORT_API void qsc_cshake_initialize(qsc_keccak_state* ctx, keccak_rate rat
 * \param output: The output byte array
 * \param nblocks: The number of blocks to extract
 */
-QSC_EXPORT_API void qsc_cshake_squeezeblocks(qsc_keccak_state* ctx, keccak_rate rate, uint8_t* output, size_t nblocks);
+QSC_EXPORT_API void qsc_cshake_squeezeblocks(qsc_keccak_state* ctx, qsc_keccak_rate rate, uint8_t* output, size_t nblocks);
 
 /**
 * \brief The cSHAKE update function.
@@ -630,7 +630,7 @@ QSC_EXPORT_API void qsc_cshake_squeezeblocks(qsc_keccak_state* ctx, keccak_rate 
 * \param key: The input key byte array
 * \param keylen: The number of key bytes to process
 */
-QSC_EXPORT_API void qsc_cshake_update(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* key, size_t keylen);
+QSC_EXPORT_API void qsc_cshake_update(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* key, size_t keylen);
 
 /* kmac */
 
@@ -693,7 +693,7 @@ QSC_EXPORT_API void qsc_kmac512_compute(uint8_t* output, size_t outlen, const ui
 * \param message: [const] The message input byte array
 * \param msglen: The number of message bytes to process
 */
-QSC_EXPORT_API void qsc_kmac_update(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* message, size_t msglen);
+QSC_EXPORT_API void qsc_kmac_update(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* message, size_t msglen);
 
 /**
 * \brief The KMAC finalize function.
@@ -707,7 +707,7 @@ QSC_EXPORT_API void qsc_kmac_update(qsc_keccak_state* ctx, keccak_rate rate, con
 * \param output: The output byte array
 * \param outlen: The number of bytes to extract
 */
-QSC_EXPORT_API void qsc_kmac_finalize(qsc_keccak_state* ctx, keccak_rate rate, uint8_t* output, size_t outlen);
+QSC_EXPORT_API void qsc_kmac_finalize(qsc_keccak_state* ctx, qsc_keccak_rate rate, uint8_t* output, size_t outlen);
 
 /**
 * \brief Initialize a KMAC instance.
@@ -721,7 +721,7 @@ QSC_EXPORT_API void qsc_kmac_finalize(qsc_keccak_state* ctx, keccak_rate rate, u
 * \param custom: [const] The customization string
 * \param custlen: The byte length of the customization string
 */
-QSC_EXPORT_API void qsc_kmac_initialize(qsc_keccak_state* ctx, keccak_rate rate, const uint8_t* key, size_t keylen, const uint8_t* custom, size_t custlen);
+QSC_EXPORT_API void qsc_kmac_initialize(qsc_keccak_state* ctx, qsc_keccak_rate rate, const uint8_t* key, size_t keylen, const uint8_t* custom, size_t custlen);
 
 /* kpa - Keccak-based Parallel Authentication */
 
@@ -775,7 +775,7 @@ QSC_EXPORT_API typedef struct
 	uint8_t buffer[QSC_KPA_PARALLELISM * QSC_KECCAK_STATE_BYTE_SIZE];
 	size_t position;
 	size_t processed;
-	keccak_rate rate;
+	qsc_keccak_rate rate;
 } qsc_kpa_state;
 
 /**

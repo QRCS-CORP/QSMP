@@ -252,6 +252,47 @@ void qsc_consoleutils_print_hex(const uint8_t* input, size_t inputlen, size_t li
 	}
 }
 
+void qsc_consoleutils_print_formatted(const char* input, size_t inputlen)
+{
+	assert(input != NULL);
+
+	if (input != NULL)
+	{
+		size_t i;
+		const char FLG = '\\';
+		const char RPC[] = "\\";
+		char inp;
+
+		for (i = 0; i < inputlen; ++i)
+		{
+			inp = input[i];
+
+			if (inp != FLG)
+			{
+#if defined(QSC_SYSTEM_OS_WINDOWS)
+				printf_s("%c", inp);
+#else
+				printf("%c", inp);
+#endif
+			}
+			else
+			{
+#if defined(QSC_SYSTEM_OS_WINDOWS)
+				printf_s(RPC);
+#else
+				printf(RPC);
+#endif
+			}
+		}
+	}
+}
+
+void qsc_consoleutils_print_formatted_line(const char* input, size_t inputlen)
+{
+	qsc_consoleutils_print_formatted(input, inputlen);
+	qsc_consoleutils_print_line("");
+}
+
 void qsc_consoleutils_print_safe(const char* input)
 {
 	assert(input != NULL);

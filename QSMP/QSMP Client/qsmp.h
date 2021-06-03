@@ -524,10 +524,9 @@ typedef struct qsmp_keep_alive_state
 
 
 /**
-* \brief Populate a packet structure with an error message
+* \brief Clear a packet's state
 *
 * \param packet: A pointer to the packet structure
-* \param error: The error type
 */
 void qsmp_packet_clear(qsmp_packet* packet);
 
