@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="app.c">
+    <ClCompile Include="appsrv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="qsmp.c">
@@ -26,7 +26,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="app.h">
+    <ClInclude Include="appsrv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common.h">

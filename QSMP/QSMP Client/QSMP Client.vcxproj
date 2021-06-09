@@ -143,7 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="app.c" />
+    <ClCompile Include="appclt.c" />
     <ClCompile Include="qsmp.c" />
     <ClCompile Include="qsmpclient.c" />
   </ItemGroup>
@@ -153,7 +153,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="app.h" />
+    <ClInclude Include="appclt.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="qsmp.h" />
     <ClInclude Include="qsmpclient.h" />

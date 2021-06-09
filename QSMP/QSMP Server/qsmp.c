@@ -18,7 +18,7 @@ const char* qsmp_error_to_string(qsmp_errors error)
 
 void qsmp_packet_clear(qsmp_packet* packet)
 {
-	packet->flag = (uint8_t)qsmp_message_none;
+	packet->flag = (uint8_t)qsmp_flag_none;
 	packet->msglen = 0;
 	packet->sequence = 0;
 	qsc_memutils_clear(packet->message, sizeof(packet->message));
@@ -30,7 +30,7 @@ void qsmp_packet_error_message(qsmp_packet* packet, qsmp_errors error)
 
 	if (packet != NULL)
 	{
-		packet->flag = qsmp_message_error_condition;
+		packet->flag = qsmp_flag_error_condition;
 		packet->message[0] = (uint8_t)error;
 		packet->msglen = 1;
 		packet->sequence = QSMP_SEQUENCE_TERMINATOR;

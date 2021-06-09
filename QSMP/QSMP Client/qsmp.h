@@ -468,23 +468,23 @@ typedef enum qsmp_errors
 */
 typedef enum qsmp_flags
 {
-	qsmp_message_none = 0x00,					/*!< No flag was specified */
-	qsmp_message_connect_request = 0x01,		/*!< The QSMP key-exchange client connection request flag  */
-	qsmp_message_connect_response = 0x02,		/*!< The QSMP key-exchange server connection response flag */
-	qsmp_message_exstart_request = 0x03,		/*!< The QSMP key-exchange client exstart request flag */
-	qsmp_message_exstart_response = 0x04,		/*!< The QSMP key-exchange server exstart response flag */
-	qsmp_message_exchange_request = 0x05,		/*!< The QSMP key-exchange client exchange request flag */
-	qsmp_message_exchange_response = 0x06,		/*!< The QSMP key-exchange server exchange response flag */
-	qsmp_message_establish_request = 0x07,		/*!< The QSMP key-exchange client establish request flag */
-	qsmp_message_establish_response = 0x08,		/*!< The QSMP key-exchange server establish response flag */
-	qsmp_message_remote_connected = 0x09,		/*!< The remote host is connected to the VPN */
-	qsmp_message_remote_terminated = 0x0A,		/*!< The remote host has terminated the connection */
-	qsmp_message_session_established = 0x0B,	/*!< The VPN is in the established state */
-	qsmp_message_encrypted_message = 0x0C,		/*!< The message has been encrypted by the VPN */
-	qsmp_message_connection_terminate = 0x0D,	/*!< The connection is to be terminated */
-	qsmp_message_unrecognized_protocol = 0x0E,	/*!< The protocol string is not recognized */
-	qsmp_message_keep_alive_request = 0x0F,		/*!< The packet contains a keep alive request */
-	qsmp_message_error_condition = 0xFF,		/*!< The connection experienced an error */
+	qsmp_flag_none = 0x00,						/*!< No flag was specified */
+	qsmp_flag_connect_request = 0x01,			/*!< The QSMP key-exchange client connection request flag  */
+	qsmp_flag_connect_response = 0x02,			/*!< The QSMP key-exchange server connection response flag */
+	qsmp_flag_exstart_request = 0x03,			/*!< The QSMP key-exchange client exstart request flag */
+	qsmp_flag_exstart_response = 0x04,			/*!< The QSMP key-exchange server exstart response flag */
+	qsmp_flag_exchange_request = 0x05,			/*!< The QSMP key-exchange client exchange request flag */
+	qsmp_flag_exchange_response = 0x06,			/*!< The QSMP key-exchange server exchange response flag */
+	qsmp_flag_establish_request = 0x07,			/*!< The QSMP key-exchange client establish request flag */
+	qsmp_flag_establish_response = 0x08,		/*!< The QSMP key-exchange server establish response flag */
+	qsmp_flag_remote_connected = 0x09,			/*!< The remote host is connected to the VPN */
+	qsmp_flag_remote_terminated = 0x0A,			/*!< The remote host has terminated the connection */
+	qsmp_flag_session_established = 0x0B,		/*!< The VPN is in the established state */
+	qsmp_flag_encrypted_message = 0x0C,			/*!< The message has been encrypted by the VPN */
+	qsmp_flag_connection_terminate = 0x0D,		/*!< The connection is to be terminated */
+	qsmp_flag_unrecognized_protocol = 0x0E,		/*!< The protocol string is not recognized */
+	qsmp_flag_keep_alive_request = 0x0F,		/*!< The packet contains a keep alive request */
+	qsmp_flag_error_condition = 0xFF,			/*!< The connection experienced an error */
 } qsmp_flags;
 
 /*!
@@ -493,9 +493,9 @@ typedef enum qsmp_flags
 */
 typedef struct qsmp_packet
 {
-	uint8_t flag;									/*!< The packet flag */
-	uint32_t msglen;								/*!< The packets message length */
-	uint64_t sequence;								/*!< The packet sequence number */
+	uint8_t flag;								/*!< The packet flag */
+	uint32_t msglen;							/*!< The packets message length */
+	uint64_t sequence;							/*!< The packet sequence number */
 	uint8_t message[QSMP_MESSAGE_MAX];			/*!< The packets message data */
 } qsmp_packet;
 
@@ -505,7 +505,7 @@ typedef struct qsmp_packet
 */
 typedef struct qsmp_client_key
 {
-	uint64_t expiration;							/*!< The expiration time, in seconds from epoch */
+	uint64_t expiration;						/*!< The expiration time, in seconds from epoch */
 	uint8_t config[QSMP_CONFIG_SIZE];			/*!< The primitive configuration string */
 	uint8_t keyid[QSMP_KEYID_SIZE];				/*!< The key identity string */
 	uint8_t verkey[QSMP_VERIFYKEY_SIZE];		/*!< The asymmetric signatures verification-key */
@@ -517,9 +517,9 @@ typedef struct qsmp_client_key
 */
 typedef struct qsmp_keep_alive_state
 {
-	uint64_t etime;										/*!< The keep alive epoch time  */
-	uint64_t seqctr;									/*!< The keep alive packet sequence number  */
-	bool recd;											/*!< The keep alive response received status  */
+	uint64_t etime;								/*!< The keep alive epoch time  */
+	uint64_t seqctr;							/*!< The keep alive packet sequence number  */
+	bool recd;									/*!< The keep alive response received status  */
 } qsmp_keep_alive_state;
 
 
