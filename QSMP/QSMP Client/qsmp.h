@@ -170,7 +170,7 @@
 #define QSMP_CONFIG_SIZE 40
 
 #if defined(QSMP_PUBKEY_SPHINCS)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s2_rcs-256_sha3-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s2_sha3-256_rcs-256";
 #else
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s2_sha3-256_rcs-256 ";
 #endif
@@ -363,7 +363,7 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s2_
 * \def QSMP_ESTABLISH_REQUEST_SIZE
 * \brief The key-exchange establish stage request packet size
 */
-#define QSMP_ESTABLISH_REQUEST_SIZE (QSMP_HEADER_SIZE)
+#define QSMP_ESTABLISH_REQUEST_SIZE (QSMP_KEYID_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
 /*!
 * \def QSMP_CONNECT_RESPONSE_SIZE
 * \brief The key-exchange connect stage response packet size
@@ -383,7 +383,7 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s2_
 * \def QSMP_ESTABLISH_RESPONSE_SIZE
 * \brief The key-exchange establish stage response packet size
 */
-#define QSMP_ESTABLISH_RESPONSE_SIZE (QSMP_HEADER_SIZE + 1)
+#define QSMP_ESTABLISH_RESPONSE_SIZE (QSMP_KEYID_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
 
 /* public key encoding constants */
 
@@ -396,31 +396,33 @@ static const char QSMP_PUBKEY_FOOTER[] = "------END QSMP PUBLIC KEY BLOCK------"
 
 /* error code strings */
 
-#define QSMP_ERROR_STRING_DEPTH 20
+#define QSMP_ERROR_STRING_DEPTH 22
 #define QSMP_ERROR_STRING_WIDTH 128
 
 static const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_WIDTH] =
 {
 	"No error was detected.",
 	"The symmetric cipher had an authentication failure.",
-	"The random generator has failed.",
-	"The QSMP public key has expired.",
-	"The packet flag was unexpected.",
-	"The asymmetric cipher failed to decapsulate the shared secret.",
+	"The keep alive check failed.",
 	"The communications channel has failed.",
-	"The public-key hash is invalid.",
-	"The expected input was invalid.",
-	"The receiver failed at the network layer.",
-	"The transmitter failed at the network layer.",
 	"The device could not make a connnection to the remote host.",
 	"The transmission failed at the kex connection phase.",
+	"The asymmetric cipher failed to decapsulate the shared secret.",
+	"The transmission failed at the kex establish phase.",
 	"The transmission failed at the kex exstart phase.",
 	"The transmission failed at the kex exchange phase.",
-	"The transmission failed at the kex establish phase.",
-	"The protocol string was not recognized.",
+	"The public-key hash is invalid.",
+	"The expected input was invalid.",
+	"The packet flag was unexpected.",
+	"The keep alive has expired with no response.",
+	"The QSMP public key has expired.",
+	"The key identity is unrecognized.",
 	"The packet was received out of sequence.",
-	"The keep alive check failed.",
-	"The keep alive has expired with no response",
+	"The random generator has failed.",
+	"The receiver failed at the network layer.",
+	"The transmitter failed at the network layer.",
+	"The expected data could not be verified.",
+	"The protocol string was not recognized.",
 };
 
 /*!
@@ -441,25 +443,27 @@ typedef enum qsmp_configuration
 typedef enum qsmp_errors
 {
 	qsmp_error_none = 0x00,						/*!< No error was detected */
-	qsmp_error_auth_failure = 0x01,				/*!< The symmetric cipher had an authentication failure */
-	qsmp_error_random_failure = 0x02,			/*!< The random generator has failed */
-	qsmp_error_key_expired = 0x03,				/*!< The QSMP public key has expired  */
-	qsmp_error_invalid_request = 0x04,			/*!< The packet flag was unexpected */
-	qsmp_error_decapsulation_failure = 0x05,	/*!< The asymmetric cipher failed to decapsulate the shared secret */
-	qsmp_error_channel_down = 0x06,				/*!< The communications channel has failed */
-	qsmp_error_hash_invalid = 0x07,				/*!< The public-key hash is invalid */
-	qsmp_error_invalid_input = 0x08,			/*!< The expected input was invalid */
-	qsmp_error_receive_failure = 0x09,			/*!< The receiver failed at the network layer */
-	qsmp_error_transmit_failure = 0x0A,			/*!< The transmitter failed at the network layer */
-	qsmp_error_connection_failure = 0x0B,		/*!< The device could not make a connnection to the remote host */
-	qsmp_error_connect_failure = 0x0C,			/*!< The transmission failed at the kex connection phase */
-	qsmp_error_exstart_failure = 0x0D,			/*!< The transmission failed at the kex exstart phase */
-	qsmp_error_exchange_failure = 0x0E,			/*!< The transmission failed at the kex exchange phase */
-	qsmp_error_establish_failure = 0x0F,		/*!< The transmission failed at the kex establish phase */
-	qsmp_error_unknown_protocol = 0x10,			/*!< The protocol string was not recognized */
-	qsmp_error_packet_unsequenced = 0x11,		/*!< The packet was received out of sequence */
-	qsmp_error_bad_keep_alive = 0x12,			/*!< The keep alive check failed */
-	qsmp_error_keep_alive_expired = 0x13,		/*!< The keep alive has expired with no response */
+	qsmp_error_authentication_failure = 0x01,	/*!< The symmetric cipher had an authentication failure */
+	qsmp_error_bad_keep_alive = 0x02,			/*!< The keep alive check failed */
+	qsmp_error_channel_down = 0x03,				/*!< The communications channel has failed */
+	qsmp_error_connection_failure = 0x04,		/*!< The device could not make a connection to the remote host */
+	qsmp_error_connect_failure = 0x05,			/*!< The transmission failed at the kex connection phase */
+	qsmp_error_decapsulation_failure = 0x06,	/*!< The asymmetric cipher failed to decapsulate the shared secret */
+	qsmp_error_establish_failure = 0x07,		/*!< The transmission failed at the kex establish phase */
+	qsmp_error_exstart_failure = 0x08,			/*!< The transmission failed at the kex exstart phase */
+	qsmp_error_exchange_failure = 0x09,			/*!< The transmission failed at the kex exchange phase */
+	qsmp_error_hash_invalid = 0x0A,				/*!< The public-key hash is invalid */
+	qsmp_error_invalid_input = 0x0B,			/*!< The expected input was invalid */
+	qsmp_error_invalid_request = 0x0C,			/*!< The packet flag was unexpected */
+	qsmp_error_keep_alive_expired = 0x0D,		/*!< The keep alive has expired with no response */
+	qsmp_error_key_expired = 0x0E,				/*!< The QSMP public key has expired  */
+	qsmp_error_key_unrecognized = 0x0F,			/*!< The key identity is unrecognized */
+	qsmp_error_packet_unsequenced = 0x10,		/*!< The packet was received out of sequence */
+	qsmp_error_random_failure = 0x11,			/*!< The random generator has failed */
+	qsmp_error_receive_failure = 0x12,			/*!< The receiver failed at the network layer */
+	qsmp_error_transmit_failure = 0x13,			/*!< The transmitter failed at the network layer */
+	qsmp_error_verify_failure = 0x14,			/*!< The expected data could not be verified */
+	qsmp_error_unknown_protocol = 0x15,			/*!< The protocol string was not recognized */
 } qsmp_errors;
 
 /*!
@@ -471,19 +475,20 @@ typedef enum qsmp_flags
 	qsmp_flag_none = 0x00,						/*!< No flag was specified */
 	qsmp_flag_connect_request = 0x01,			/*!< The QSMP key-exchange client connection request flag  */
 	qsmp_flag_connect_response = 0x02,			/*!< The QSMP key-exchange server connection response flag */
-	qsmp_flag_exstart_request = 0x03,			/*!< The QSMP key-exchange client exstart request flag */
-	qsmp_flag_exstart_response = 0x04,			/*!< The QSMP key-exchange server exstart response flag */
-	qsmp_flag_exchange_request = 0x05,			/*!< The QSMP key-exchange client exchange request flag */
-	qsmp_flag_exchange_response = 0x06,			/*!< The QSMP key-exchange server exchange response flag */
-	qsmp_flag_establish_request = 0x07,			/*!< The QSMP key-exchange client establish request flag */
-	qsmp_flag_establish_response = 0x08,		/*!< The QSMP key-exchange server establish response flag */
-	qsmp_flag_remote_connected = 0x09,			/*!< The remote host is connected to the VPN */
-	qsmp_flag_remote_terminated = 0x0A,			/*!< The remote host has terminated the connection */
-	qsmp_flag_session_established = 0x0B,		/*!< The VPN is in the established state */
-	qsmp_flag_encrypted_message = 0x0C,			/*!< The message has been encrypted by the VPN */
-	qsmp_flag_connection_terminate = 0x0D,		/*!< The connection is to be terminated */
-	qsmp_flag_unrecognized_protocol = 0x0E,		/*!< The protocol string is not recognized */
-	qsmp_flag_keep_alive_request = 0x0F,		/*!< The packet contains a keep alive request */
+	qsmp_flag_connection_terminate = 0x03,		/*!< The connection is to be terminated */
+	qsmp_flag_encrypted_message = 0x04,			/*!< The message has been encrypted by the VPN */
+	qsmp_flag_exstart_request = 0x05,			/*!< The QSMP key-exchange client exstart request flag */
+	qsmp_flag_exstart_response = 0x06,			/*!< The QSMP key-exchange server exstart response flag */
+	qsmp_flag_exchange_request = 0x07,			/*!< The QSMP key-exchange client exchange request flag */
+	qsmp_flag_exchange_response = 0x08,			/*!< The QSMP key-exchange server exchange response flag */
+	qsmp_flag_establish_request = 0x09,			/*!< The QSMP key-exchange client establish request flag */
+	qsmp_flag_establish_response = 0x0A,		/*!< The QSMP key-exchange server establish response flag */
+	qsmp_flag_keep_alive_request = 0x0B,		/*!< The packet contains a keep alive request */
+	qsmp_flag_remote_connected = 0x0C,			/*!< The remote host is connected to the VPN */
+	qsmp_flag_remote_terminated = 0x0D,			/*!< The remote host has terminated the connection */
+	qsmp_flag_session_established = 0x0E,		/*!< The VPN is in the established request state */
+	qsmp_flag_session_establish_verify = 0x0F,	/*!< The VPN is in the established verify state */
+	qsmp_flag_unrecognized_protocol = 0x10,		/*!< The protocol string is not recognized */
 	qsmp_flag_error_condition = 0xFF,			/*!< The connection experienced an error */
 } qsmp_flags;
 

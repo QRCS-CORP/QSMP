@@ -23,7 +23,7 @@
 
 /* Private Functions */
 
-static void qsmp_client_dispose(qsmp_kex_client_state* ctx)
+static void client_state_dispose(qsmp_kex_client_state* ctx)
 {
 	assert(ctx != NULL);
 
@@ -37,27 +37,32 @@ static void qsmp_client_dispose(qsmp_kex_client_state* ctx)
 	}
 }
 
-static void qsmp_client_kex_reset(qsmp_kex_client_state* ctx)
+static void client_kex_reset(qsmp_kex_client_state* ctx)
 {
-	qsc_memutils_clear(ctx->config, QSMP_CONFIG_SIZE);
-	qsc_memutils_clear(ctx->keyid, QSMP_KEYID_SIZE);
-	qsc_memutils_clear(ctx->mackey, QSMP_MACKEY_SIZE);
-	qsc_memutils_clear(ctx->pkhash, QSMP_PKCODE_SIZE);
-	qsc_memutils_clear(ctx->prikey, QSMP_PRIVATEKEY_SIZE);
-	qsc_memutils_clear(ctx->pubkey, QSMP_PUBLICKEY_SIZE);
-	qsc_memutils_clear(ctx->token, QSMP_STOKEN_SIZE);
-	qsc_memutils_clear(ctx->verkey, QSMP_VERIFYKEY_SIZE);
-	ctx->expiration = 0;
+	assert(ctx != NULL);
+
+	if (ctx != NULL)
+	{
+		qsc_memutils_clear(ctx->config, QSMP_CONFIG_SIZE);
+		qsc_memutils_clear(ctx->keyid, QSMP_KEYID_SIZE);
+		qsc_memutils_clear(ctx->mackey, QSMP_MACKEY_SIZE);
+		qsc_memutils_clear(ctx->pkhash, QSMP_PKCODE_SIZE);
+		qsc_memutils_clear(ctx->prikey, QSMP_PRIVATEKEY_SIZE);
+		qsc_memutils_clear(ctx->pubkey, QSMP_PUBLICKEY_SIZE);
+		qsc_memutils_clear(ctx->token, QSMP_STOKEN_SIZE);
+		qsc_memutils_clear(ctx->verkey, QSMP_VERIFYKEY_SIZE);
+		ctx->expiration = 0;
+	}
 }
 
-static void qsmp_client_initialize(qsmp_kex_client_state* ctx, const qsmp_client_key* ckey)
+static void client_state_initialize(qsmp_kex_client_state* ctx, const qsmp_client_key* ckey)
 {
 	assert(ckey != NULL);
 	assert(ctx != NULL);
 
 	if (ckey != NULL && ctx != NULL)
 	{
-		qsmp_client_dispose(ctx);
+		client_state_dispose(ctx);
 		qsc_memutils_copy(ctx->keyid, ckey->keyid, QSMP_KEYID_SIZE);
 		qsc_memutils_copy(ctx->config, QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
 		qsc_memutils_copy(ctx->verkey, ckey->verkey, QSMP_VERIFYKEY_SIZE);
@@ -66,7 +71,7 @@ static void qsmp_client_initialize(qsmp_kex_client_state* ctx, const qsmp_client
 	}
 }
 
-static qsmp_errors qsmp_client_connection_request(qsmp_kex_client_state* ctx, qsmp_packet* packetout)
+static qsmp_errors client_connect_request(qsmp_kex_client_state* ctx, qsmp_packet* packetout)
 {
 	assert(ctx != NULL);
 	assert(packetout != NULL);
@@ -75,8 +80,6 @@ static qsmp_errors qsmp_client_connection_request(qsmp_kex_client_state* ctx, qs
 	qsmp_errors qerr;
 	uint64_t tm;
 
-	qerr = qsmp_error_invalid_input;
-
 	if (ctx != NULL && packetout != NULL)
 	{
 		tm = qsc_timestamp_epochtime_seconds();
@@ -84,6 +87,7 @@ static qsmp_errors qsmp_client_connection_request(qsmp_kex_client_state* ctx, qs
 		if (tm <= ctx->expiration)
 		{
 			qsc_memutils_clear(ctx->token, QSMP_STOKEN_SIZE);
+
 			/* generate the session token */
 			if (qsc_acp_generate(ctx->token, QSMP_STOKEN_SIZE) == true)
 			{
@@ -119,11 +123,15 @@ static qsmp_errors qsmp_client_connection_request(qsmp_kex_client_state* ctx, qs
 			ctx->exflag = qsmp_flag_none;
 		}
 	}
+	else
+	{
+		qerr = qsmp_error_invalid_input;
+	}
 
 	return qerr;
 }
 
-static qsmp_errors qsmp_client_exstart_request(qsmp_kex_client_state* ctx, const qsmp_packet* packetin, qsmp_packet* packetout)
+static qsmp_errors client_exstart_request(qsmp_kex_client_state* ctx, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
 	assert(ctx != NULL);
 	assert(packetin != NULL);
@@ -134,8 +142,6 @@ static qsmp_errors qsmp_client_exstart_request(qsmp_kex_client_state* ctx, const
 	uint8_t khash[QSMP_PKCODE_SIZE] = { 0 };
 	size_t mlen;
 	size_t slen;
-
-	qerr = qsmp_error_invalid_input;
 
 	if (ctx != NULL && packetin != NULL && packetout != NULL)
 	{
@@ -193,7 +199,7 @@ static qsmp_errors qsmp_client_exstart_request(qsmp_kex_client_state* ctx, const
 			}
 			else
 			{
-				qerr = qsmp_error_auth_failure;
+				qerr = qsmp_error_authentication_failure;
 				ctx->exflag = qsmp_flag_none;
 			}
 		}
@@ -203,19 +209,21 @@ static qsmp_errors qsmp_client_exstart_request(qsmp_kex_client_state* ctx, const
 			ctx->exflag = qsmp_flag_none;
 		}
 	}
+	else
+	{
+		qerr = qsmp_error_invalid_input;
+	}
 
 	return qerr;
 }
 
-static qsmp_errors qsmp_client_exchange_request(qsmp_kex_client_state* ctx, const qsmp_packet* packetin, qsmp_packet* packetout)
+static qsmp_errors client_exchange_request(qsmp_kex_client_state* ctx, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
 	assert(ctx != NULL);
 	assert(packetin != NULL);
 	assert(packetout != NULL);
 
 	qsmp_errors qerr;
-
-	qerr = qsmp_error_invalid_input;
 
 	if (ctx != NULL && packetin != NULL && packetout != NULL)
 	{
@@ -226,26 +234,34 @@ static qsmp_errors qsmp_client_exchange_request(qsmp_kex_client_state* ctx, cons
 
 			/* generate the channel-2 keypair */
 			qsmp_cipher_generate_keypair(ctx->pubkey, ctx->prikey, qsc_acp_generate);
+
 			/* generate a mac-key and copy it to state */
-			qsc_acp_generate(ctx->mackey, QSMP_MACKEY_SIZE);
-			/* copy the mac-key and the encapsulation-key to the message */
-			qsc_memutils_copy(msg, ctx->mackey, QSMP_MACKEY_SIZE);
-			qsc_memutils_copy(((uint8_t*)msg + QSMP_MACKEY_SIZE), ctx->pubkey, QSMP_PUBLICKEY_SIZE);
+			if (qsc_acp_generate(ctx->mackey, QSMP_MACKEY_SIZE) == true)
+			{
+				/* copy the mac-key and the encapsulation-key to the message */
+				qsc_memutils_copy(msg, ctx->mackey, QSMP_MACKEY_SIZE);
+				qsc_memutils_copy(((uint8_t*)msg + QSMP_MACKEY_SIZE), ctx->pubkey, QSMP_PUBLICKEY_SIZE);
 
-			/* assemble the exchange-request packet */
-			qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
-			packetout->flag = qsmp_flag_exchange_request;
-			packetout->msglen = QSMP_MACKEY_SIZE + QSMP_PUBLICKEY_SIZE + QSC_RCS256_MAC_SIZE;
-			packetout->sequence = ctx->txseq;
+				/* assemble the exchange-request packet */
+				qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
+				packetout->flag = qsmp_flag_exchange_request;
+				packetout->msglen = QSMP_MACKEY_SIZE + QSMP_PUBLICKEY_SIZE + QSC_RCS256_MAC_SIZE;
+				packetout->sequence = ctx->txseq;
 
-			/* serialize the packet header and add it to associated data */
-			qsmp_packet_header_serialize(packetout, hdr);
-			qsc_rcs_set_associated(&ctx->txcpr, hdr, QSMP_HEADER_SIZE);
-			/* encrypt the public encryption key using the channel-1 VPN */
-			qsc_rcs_transform(&ctx->txcpr, packetout->message, msg, sizeof(msg));
+				/* serialize the packet header and add it to associated data */
+				qsmp_packet_header_serialize(packetout, hdr);
+				qsc_rcs_set_associated(&ctx->txcpr, hdr, QSMP_HEADER_SIZE);
+				/* encrypt the public encryption key using the channel-1 VPN */
+				qsc_rcs_transform(&ctx->txcpr, packetout->message, msg, sizeof(msg));
 
-			qerr = qsmp_error_none;
-			ctx->exflag = qsmp_flag_exchange_request;
+				qerr = qsmp_error_none;
+				ctx->exflag = qsmp_flag_exchange_request;
+			}
+			else
+			{
+				qerr = qsmp_error_random_failure;
+				ctx->exflag = qsmp_flag_none;
+			}
 		}
 		else
 		{
@@ -253,19 +269,21 @@ static qsmp_errors qsmp_client_exchange_request(qsmp_kex_client_state* ctx, cons
 			ctx->exflag = qsmp_flag_none;
 		}
 	}
+	else
+	{
+		qerr = qsmp_error_invalid_input;
+	}
 
 	return qerr;
 }
 
-static qsmp_errors qsmp_client_establish_request(qsmp_kex_client_state* ctx, const qsmp_packet* packetin, qsmp_packet* packetout)
+static qsmp_errors client_establish_request(qsmp_kex_client_state* ctx, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
 	assert(ctx != NULL);
 	assert(packetin != NULL);
 	assert(packetout != NULL);
 
 	qsmp_errors qerr;
-
-	qerr = qsmp_error_invalid_input;
 
 	if (ctx != NULL && packetin != NULL && packetout != NULL)
 	{
@@ -285,6 +303,7 @@ static qsmp_errors qsmp_client_establish_request(qsmp_kex_client_state* ctx, con
 				if (qsmp_cipher_decapsulate(sec, ((uint8_t*)packetin->message + QSMP_MACTAG_SIZE), ctx->prikey) == true)
 				{
 					qsc_keccak_state kstate;
+					uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
 					uint8_t prnd[QSC_KECCAK_256_RATE] = { 0 };
 
 					/* expand the shared secret */
@@ -303,11 +322,18 @@ static qsmp_errors qsmp_client_establish_request(qsmp_kex_client_state* ctx, con
 					/* assemble the establish-request packet */
 					qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
 					packetout->flag = qsmp_flag_establish_request;
-					packetout->msglen = 0;
+					packetout->msglen = QSMP_KEYID_SIZE + QSMP_MACTAG_SIZE;
 					packetout->sequence = ctx->txseq;
 
+					/* serialize the packet header and add it to the associated data */
+					qsmp_packet_header_serialize(packetout, hdr);
+					qsc_rcs_set_associated(&ctx->txcpr, hdr, QSMP_HEADER_SIZE);
+
+					/* encrypt the kid message */
+					qsc_rcs_transform(&ctx->txcpr, packetout->message, ctx->keyid, QSMP_KEYID_SIZE);
+
 					qerr = qsmp_error_none;
-					ctx->exflag = qsmp_flag_session_established;
+					ctx->exflag = qsmp_flag_session_establish_verify;
 				}
 				else
 				{
@@ -317,7 +343,7 @@ static qsmp_errors qsmp_client_establish_request(qsmp_kex_client_state* ctx, con
 			}
 			else
 			{
-				qerr = qsmp_error_auth_failure;
+				qerr = qsmp_error_authentication_failure;
 				ctx->exflag = qsmp_flag_none;
 			}
 		}
@@ -327,12 +353,71 @@ static qsmp_errors qsmp_client_establish_request(qsmp_kex_client_state* ctx, con
 			ctx->exflag = qsmp_flag_none;
 		}
 	}
+	else
+	{
+		qerr = qsmp_error_invalid_input;
+	}
 
 	return qerr;
 }
 
-static qsmp_errors qsmp_client_kex(qsmp_kex_client_state* ctx, qsc_socket* sock, const qsmp_client_key* ckey)
+static qsmp_errors client_establish_verify(qsmp_kex_client_state* ctx, const qsmp_packet* packetin)
 {
+	assert(ctx != NULL);
+	assert(packetin != NULL);
+
+	uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
+	uint8_t msg[QSMP_KEYID_SIZE] = { 0 };
+	qsmp_errors qerr;
+
+	if (ctx != NULL && packetin != NULL)
+	{
+		if (ctx->exflag == qsmp_flag_session_establish_verify && packetin->flag == qsmp_flag_establish_response)
+		{
+			/* serialize the packet header and add it to associated data */
+			qsmp_packet_header_serialize(packetin, hdr);
+			qsc_rcs_set_associated(&ctx->rxcpr, hdr, QSMP_HEADER_SIZE);
+
+			/* authenticate and decrypt the cipher-text */
+			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - QSMP_MACTAG_SIZE) == true)
+			{
+				if (qsc_intutils_verify(ctx->keyid, msg, QSMP_KEYID_SIZE) == 0)
+				{
+					ctx->exflag = qsmp_flag_session_established;
+					qerr = qsmp_error_none;
+				}
+				else
+				{
+					ctx->exflag = qsmp_flag_none;
+					qerr = qsmp_error_verify_failure;
+				}
+			}
+			else
+			{
+				ctx->exflag = qsmp_flag_none;
+				qerr = qsmp_error_authentication_failure;
+			}
+		}
+		else
+		{
+			qerr = qsmp_error_invalid_request;
+			ctx->exflag = qsmp_flag_none;
+		}
+	}
+	else
+	{
+		qerr = qsmp_error_invalid_input;
+	}
+
+	return qerr;
+}
+
+static qsmp_errors client_key_exchange(qsmp_kex_client_state* ctx, qsc_socket* sock, const qsmp_client_key* ckey)
+{
+	assert(ctx != NULL);
+	assert(sock != NULL);
+	assert(ckey != NULL);
+
 	uint8_t spct[QSMP_MESSAGE_MAX + 1] = { 0 };
 	qsmp_packet reqt = { 0 };
 	qsmp_packet resp = { 0 };
@@ -341,239 +426,254 @@ static qsmp_errors qsmp_client_kex(qsmp_kex_client_state* ctx, qsc_socket* sock,
 	size_t rlen;
 	size_t slen;
 
-	/* initialize the client */
-	qsmp_client_initialize(ctx, ckey);
-	/* create the connection request packet */
-	qerr = qsmp_client_connection_request(ctx, &reqt);
-
-	if (qerr == qsmp_error_none)
+	if (ctx != NULL && sock != NULL && ckey != NULL)
 	{
-		/* convert the packet to bytes */
-		plen = qsmp_packet_to_stream(&reqt, spct);
-		/* send the connection request */
-		slen = qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
-		qsc_memutils_clear(spct, sizeof(spct));
+		/* initialize the client */
+		client_state_initialize(ctx, ckey);
+		/* create the connection request packet */
+		qerr = client_connect_request(ctx, &reqt);
 
-		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
+		if (qerr == qsmp_error_none)
 		{
-			ctx->txseq += 1;
-			/* blocking receive waits for server */
-			rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
-
-			if (rlen == QSMP_CONNECT_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
-			{
-				/* convert server response to packet */
-				qsmp_stream_to_packet(spct, &resp);
-				qsc_memutils_clear(spct, sizeof(spct));
-
-				if (resp.sequence == ctx->rxseq)
-				{
-					ctx->rxseq += 1;
-
-					if (resp.flag == qsmp_flag_connect_response)
-					{
-						/* clear the request packet */
-						qsmp_packet_clear(&reqt);
-						/* create the exstart request packet */
-						qerr = qsmp_client_exstart_request(ctx, &resp, &reqt);
-					}
-					else
-					{
-						/* if we receive an error, set the error flag from the packet */
-						if (resp.flag == qsmp_flag_error_condition)
-						{
-							qerr = (qsmp_errors)resp.message[0];
-						}
-						else
-						{
-							qerr = qsmp_error_connect_failure;
-						}
-					}
-				}
-				else
-				{
-					qerr = qsmp_error_packet_unsequenced;
-				}
-			}
-			else
-			{
-				qerr = qsmp_error_receive_failure;
-			}
-		}
-		else
-		{
-			qerr = qsmp_error_transmit_failure;
-		}
-	}
-	else
-	{
-		qerr = qsmp_error_connection_failure;
-	}
-
-	if (qerr == qsmp_error_none)
-	{
-		qsmp_packet_clear(&resp);
-		plen = qsmp_packet_to_stream(&reqt, spct);
-		/* send exstart request */
-		slen = qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
-		qsc_memutils_clear(spct, sizeof(spct));
-
-		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
-		{
-			ctx->txseq += 1;
-			/* wait for exstart response */
-			rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
-
-			if (rlen == QSMP_EXSTART_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
-			{
-				qsmp_stream_to_packet(spct, &resp);
-				qsc_memutils_clear(spct, sizeof(spct));
-
-				if (resp.sequence == ctx->rxseq)
-				{
-					ctx->rxseq += 1;
-
-					if (resp.flag == qsmp_flag_exstart_response)
-					{
-						qsmp_packet_clear(&reqt);
-						/* create the exchange request packet */
-						qerr = qsmp_client_exchange_request(ctx, &resp, &reqt);
-					}
-					else
-					{
-						if (resp.flag == qsmp_flag_error_condition)
-						{
-							qerr = (qsmp_errors)resp.message[0];
-						}
-						else
-						{
-							qerr = qsmp_error_exstart_failure;
-						}
-					}
-				}
-				else
-				{
-					qerr = qsmp_error_packet_unsequenced;
-				}
-			}
-			else
-			{
-				qerr = qsmp_error_receive_failure;
-			}
-		}
-		else
-		{
-			qerr = qsmp_error_transmit_failure;
-		}
-	}
-	else
-	{
-		qerr = qsmp_error_exstart_failure;
-	}
-
-	if (qerr == qsmp_error_none)
-	{
-		qsmp_packet_clear(&resp);
-		plen = qsmp_packet_to_stream(&reqt, spct);
-		slen = qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
-		qsc_memutils_clear(spct, sizeof(spct));
-
-		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
-		{
-			ctx->txseq += 1;
-			rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
-
-			if (rlen == QSMP_EXCHANGE_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
-			{
-				qsmp_stream_to_packet(spct, &resp);
-				qsc_memutils_clear(spct, sizeof(spct));
-
-				if (resp.sequence == ctx->rxseq)
-				{
-					ctx->rxseq += 1;
-
-					if (resp.flag == qsmp_flag_exchange_response)
-					{
-						qsmp_packet_clear(&reqt);
-						/* create the establish request packet */
-						qerr = qsmp_client_establish_request(ctx, &resp, &reqt);
-					}
-					else
-					{
-						if (resp.flag == qsmp_flag_error_condition)
-						{
-							qerr = (qsmp_errors)resp.message[0];
-						}
-						else
-						{
-							qerr = qsmp_error_exchange_failure;
-						}
-					}
-				}
-				else
-				{
-					qerr = qsmp_error_packet_unsequenced;
-				}
-			}
-			else
-			{
-				qerr = qsmp_error_receive_failure;
-			}
-		}
-		else
-		{
-			qerr = qsmp_error_transmit_failure;
-		}
-	}
-	else
-	{
-		qerr = qsmp_error_exchange_failure;
-	}
-
-	if (qerr == qsmp_error_none)
-	{
-		qsmp_packet_clear(&resp);
-		plen = qsmp_packet_to_stream(&reqt, spct);
-		slen = qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
-		qsc_memutils_clear(spct, sizeof(spct));
-
-		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
-		{
-			ctx->txseq += 1;
-			rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
-			qsmp_stream_to_packet(spct, &resp);
+			/* convert the packet to bytes */
+			plen = qsmp_packet_to_stream(&reqt, spct);
+			/* send the connection request */
+			slen = qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
 			qsc_memutils_clear(spct, sizeof(spct));
 
-			if (rlen != QSMP_ESTABLISH_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE || (qsmp_flags)resp.message[0] != qsmp_flag_session_established)
+			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 			{
-				qerr = qsmp_error_receive_failure;
+				ctx->txseq += 1;
+				/* blocking receive waits for server */
+				rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+
+				if (rlen == QSMP_CONNECT_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+				{
+					/* convert server response to packet */
+					qsmp_stream_to_packet(spct, &resp);
+					qsc_memutils_clear(spct, sizeof(spct));
+
+					if (resp.sequence == ctx->rxseq)
+					{
+						ctx->rxseq += 1;
+
+						if (resp.flag == qsmp_flag_connect_response)
+						{
+							/* clear the request packet */
+							qsmp_packet_clear(&reqt);
+							/* create the exstart request packet */
+							qerr = client_exstart_request(ctx, &resp, &reqt);
+						}
+						else
+						{
+							/* if we receive an error, set the error flag from the packet */
+							if (resp.flag == qsmp_flag_error_condition)
+							{
+								qerr = (qsmp_errors)resp.message[0];
+							}
+							else
+							{
+								qerr = qsmp_error_connect_failure;
+							}
+						}
+					}
+					else
+					{
+						qerr = qsmp_error_packet_unsequenced;
+					}
+				}
+				else
+				{
+					qerr = qsmp_error_receive_failure;
+				}
 			}
 			else
 			{
-				ctx->rxseq += 1;
+				qerr = qsmp_error_transmit_failure;
 			}
 		}
-		else
+
+		if (qerr == qsmp_error_none)
 		{
-			qerr = qsmp_error_transmit_failure;
+			qsmp_packet_clear(&resp);
+			plen = qsmp_packet_to_stream(&reqt, spct);
+			/* send exstart request */
+			slen = qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
+			qsc_memutils_clear(spct, sizeof(spct));
+
+			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
+			{
+				ctx->txseq += 1;
+				/* wait for exstart response */
+				rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+
+				if (rlen == QSMP_EXSTART_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+				{
+					qsmp_stream_to_packet(spct, &resp);
+					qsc_memutils_clear(spct, sizeof(spct));
+
+					if (resp.sequence == ctx->rxseq)
+					{
+						ctx->rxseq += 1;
+
+						if (resp.flag == qsmp_flag_exstart_response)
+						{
+							qsmp_packet_clear(&reqt);
+							/* create the exchange request packet */
+							qerr = client_exchange_request(ctx, &resp, &reqt);
+						}
+						else
+						{
+							if (resp.flag == qsmp_flag_error_condition)
+							{
+								qerr = (qsmp_errors)resp.message[0];
+							}
+							else
+							{
+								qerr = qsmp_error_exstart_failure;
+							}
+						}
+					}
+					else
+					{
+						qerr = qsmp_error_packet_unsequenced;
+					}
+				}
+				else
+				{
+					qerr = qsmp_error_receive_failure;
+				}
+			}
+			else
+			{
+				qerr = qsmp_error_transmit_failure;
+			}
+		}
+
+		if (qerr == qsmp_error_none)
+		{
+			qsmp_packet_clear(&resp);
+			plen = qsmp_packet_to_stream(&reqt, spct);
+			slen = qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
+			qsc_memutils_clear(spct, sizeof(spct));
+
+			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
+			{
+				ctx->txseq += 1;
+				rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+
+				if (rlen == QSMP_EXCHANGE_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+				{
+					qsmp_stream_to_packet(spct, &resp);
+					qsc_memutils_clear(spct, sizeof(spct));
+
+					if (resp.sequence == ctx->rxseq)
+					{
+						ctx->rxseq += 1;
+
+						if (resp.flag == qsmp_flag_exchange_response)
+						{
+							qsmp_packet_clear(&reqt);
+							/* create the establish request packet */
+							qerr = client_establish_request(ctx, &resp, &reqt);
+						}
+						else
+						{
+							if (resp.flag == qsmp_flag_error_condition)
+							{
+								qerr = (qsmp_errors)resp.message[0];
+							}
+							else
+							{
+								qerr = qsmp_error_exchange_failure;
+							}
+						}
+					}
+					else
+					{
+						qerr = qsmp_error_packet_unsequenced;
+					}
+				}
+				else
+				{
+					qerr = qsmp_error_receive_failure;
+				}
+			}
+			else
+			{
+				qerr = qsmp_error_transmit_failure;
+			}
+		}
+
+		if (qerr == qsmp_error_none)
+		{
+			qsmp_packet_clear(&resp);
+			plen = qsmp_packet_to_stream(&reqt, spct);
+			slen = qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
+			qsc_memutils_clear(spct, sizeof(spct));
+
+			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
+			{
+				ctx->txseq += 1;
+				rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+				qsmp_stream_to_packet(spct, &resp);
+				qsc_memutils_clear(spct, sizeof(spct));
+
+				if (rlen == QSMP_ESTABLISH_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+				{
+					if (resp.sequence == ctx->rxseq)
+					{
+						ctx->rxseq += 1;
+
+						if (resp.flag == qsmp_flag_establish_response)
+						{
+							/* verify the exchange  */
+							qerr = client_establish_verify(ctx, &resp);
+						}
+						else
+						{
+							if (resp.flag == qsmp_flag_error_condition)
+							{
+								qerr = (qsmp_errors)resp.message[0];
+							}
+							else
+							{
+								qerr = qsmp_error_establish_failure;
+							}
+						}
+					}
+					else
+					{
+						qerr = qsmp_error_packet_unsequenced;
+					}
+				}
+				else
+				{
+					qerr = qsmp_error_receive_failure;
+				}
+			}
+			else
+			{
+				qerr = qsmp_error_transmit_failure;
+			}
+		}
+
+		client_kex_reset(ctx);
+
+		if (qerr != qsmp_error_none)
+		{
+			if (sock->connection_status == qsc_socket_state_connected)
+			{
+				qsmp_client_send_error(sock, qerr);
+				qsc_socket_shut_down(sock, qsc_socket_shut_down_flag_both);
+			}
+
+			client_state_dispose(ctx);
 		}
 	}
 	else
 	{
-		qerr = qsmp_error_establish_failure;
-	}
-
-	qsmp_client_kex_reset(ctx);
-
-	if (qerr != qsmp_error_none)
-	{
-		if (sock->connection_status == qsc_socket_state_connected)
-		{
-			qsmp_client_send_error(sock, qerr);
-			qsc_socket_shut_down(sock, qsc_socket_shut_down_flag_both);
-		}
-
-		qsmp_client_dispose(ctx);
+		qerr = qsmp_error_invalid_input;
 	}
 
 	return qerr;
@@ -613,18 +713,23 @@ void qsmp_client_decode_public_key(qsmp_client_key* clientkey, const char input[
 
 void qsmp_client_send_error(qsc_socket* sock, qsmp_errors error)
 {
+	assert(sock != NULL);
+
 	qsmp_packet resp = { 0 };
 	uint8_t spct[QSMP_MESSAGE_MAX] = { 0 };
 	size_t plen;
 
-	if (qsc_socket_is_connected(sock) == true)
+	if (sock != NULL)
 	{
-		resp.flag = qsmp_flag_error_condition;
-		resp.sequence = 0xFF;
-		resp.msglen = 1;
-		resp.message[0] = (uint8_t)error;
-		plen = qsmp_packet_to_stream(&resp, spct);
-		qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
+		if (qsc_socket_is_connected(sock) == true)
+		{
+			resp.flag = qsmp_flag_error_condition;
+			resp.sequence = 0xFF;
+			resp.msglen = 1;
+			resp.message[0] = (uint8_t)error;
+			plen = qsmp_packet_to_stream(&resp, spct);
+			qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
+		}
 	}
 }
 
@@ -632,44 +737,62 @@ void qsmp_client_send_error(qsc_socket* sock, qsmp_errors error)
 
 void qsmp_client_connection_close(qsmp_kex_client_state* ctx, qsc_socket* sock, qsmp_errors error)
 {
-	if (qsc_socket_is_connected(sock) == true)
+	assert(ctx != NULL);
+	assert(sock != NULL);
+
+	if (ctx != NULL && sock != NULL)
 	{
-		qsmp_packet resp = { 0 };
-		uint8_t spct[QSMP_MESSAGE_MAX] = { 0 };
-		size_t plen;
+		if (qsc_socket_is_connected(sock) == true)
+		{
+			qsmp_packet resp = { 0 };
+			uint8_t spct[QSMP_MESSAGE_MAX] = { 0 };
+			size_t plen;
 
-		/* send a disconnect message */
-		resp.flag = qsmp_flag_connection_terminate;
-		resp.sequence = QSMP_SEQUENCE_TERMINATOR;
-		resp.msglen = 1;
-		resp.message[0] = (uint8_t)error;
-		plen = qsmp_packet_to_stream(&resp, spct);
-		qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
+			/* send a disconnect message */
+			resp.flag = qsmp_flag_connection_terminate;
+			resp.sequence = QSMP_SEQUENCE_TERMINATOR;
+			resp.msglen = 1;
+			resp.message[0] = (uint8_t)error;
+			plen = qsmp_packet_to_stream(&resp, spct);
+			qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
 
-		/* close the socket */
-		qsc_socket_close_socket(sock);
+			/* close the socket */
+			qsc_socket_close_socket(sock);
+		}
+
+		/* dispose of resources */
+		client_state_dispose(ctx);
 	}
-
-	/* dispose of resources */
-	qsmp_client_dispose(ctx);
 }
 
 qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* sock, const qsmp_client_key* ckey, const qsc_ipinfo_ipv4_address* address, uint16_t port)
 {
+	assert(ctx != NULL);
+	assert(sock != NULL);
+	assert(ckey != NULL);
+	assert(address != NULL);
+
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
-	qerr = qsmp_error_none;
-	qsc_socket_client_initialize(sock);
-	serr = qsc_socket_client_connect_ipv4(sock, address, port);
-
-	if (serr == qsc_socket_exception_success)
+	if (ctx != NULL && sock != NULL && ckey != NULL && address != NULL)
 	{
-		qerr = qsmp_client_kex(ctx, sock, ckey);
+		qerr = qsmp_error_none;
+		qsc_socket_client_initialize(sock);
+		serr = qsc_socket_client_connect_ipv4(sock, address, port);
+
+		if (serr == qsc_socket_exception_success)
+		{
+			qerr = client_key_exchange(ctx, sock, ckey);
+		}
+		else
+		{
+			qerr = qsmp_error_connection_failure;
+		}
 	}
 	else
 	{
-		qerr = qsmp_error_connection_failure;
+		qerr = qsmp_error_invalid_input;
 	}
 
 	return qerr;
@@ -677,20 +800,32 @@ qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* soc
 
 qsmp_errors qsmp_client_connect_ipv6(qsmp_kex_client_state* ctx, qsc_socket* sock, const qsmp_client_key* ckey, const qsc_ipinfo_ipv6_address* address, uint16_t port)
 {
+	assert(ctx != NULL);
+	assert(sock != NULL);
+	assert(ckey != NULL);
+	assert(address != NULL);
+
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
-	qerr = qsmp_error_none;
-	qsc_socket_client_initialize(sock);
-	serr = qsc_socket_client_connect_ipv6(sock, address, port);
-
-	if (serr == qsc_socket_exception_success)
+	if (ctx != NULL && sock != NULL && ckey != NULL && address != NULL)
 	{
-		qerr = qsmp_client_kex(ctx, sock, ckey);
+		qerr = qsmp_error_none;
+		qsc_socket_client_initialize(sock);
+		serr = qsc_socket_client_connect_ipv6(sock, address, port);
+
+		if (serr == qsc_socket_exception_success)
+		{
+			qerr = client_key_exchange(ctx, sock, ckey);
+		}
+		else
+		{
+			qerr = qsmp_error_connection_failure;
+		}
 	}
 	else
 	{
-		qerr = qsmp_error_connection_failure;
+		qerr = qsmp_error_invalid_input;
 	}
 
 	return qerr;
@@ -705,8 +840,6 @@ qsmp_errors qsmp_client_decrypt_packet(qsmp_kex_client_state* ctx, const qsmp_pa
 
 	uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
 	qsmp_errors qerr;
-
-	qerr = qsmp_error_invalid_input;
 
 	if (ctx != NULL && message != NULL && msglen != NULL && packetin != NULL)
 	{
@@ -729,7 +862,7 @@ qsmp_errors qsmp_client_decrypt_packet(qsmp_kex_client_state* ctx, const qsmp_pa
 				else
 				{
 					*msglen = 0;
-					qerr = qsmp_error_auth_failure; 
+					qerr = qsmp_error_authentication_failure; 
 				}
 			}
 			else if (ctx->exflag != qsmp_flag_keep_alive_request)
@@ -744,6 +877,10 @@ qsmp_errors qsmp_client_decrypt_packet(qsmp_kex_client_state* ctx, const qsmp_pa
 			qerr = qsmp_error_packet_unsequenced;
 		}
 	}
+	else
+	{
+		qerr = qsmp_error_invalid_input;
+	}
 
 	return qerr;
 }
@@ -755,8 +892,6 @@ qsmp_errors qsmp_client_encrypt_packet(qsmp_kex_client_state* ctx, const uint8_t
 	assert(packetout != NULL);
 
 	qsmp_errors qerr;
-
-	qerr = qsmp_error_invalid_input;
 
 	if (ctx != NULL && packetout != NULL && message != NULL)
 	{
@@ -783,6 +918,10 @@ qsmp_errors qsmp_client_encrypt_packet(qsmp_kex_client_state* ctx, const uint8_t
 		{
 			qerr = qsmp_error_channel_down;
 		}
+	}
+	else
+	{
+		qerr = qsmp_error_invalid_input;
 	}
 
 	return qerr;

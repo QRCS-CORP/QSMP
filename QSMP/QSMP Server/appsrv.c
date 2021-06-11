@@ -55,8 +55,8 @@ static void server_print_banner()
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Quantum Secure Messaging Protocol Server  *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.0.0.0d (A0)                       *");
-	qsc_consoleutils_print_line("* Date:      June 3, 2021                         *");
+	qsc_consoleutils_print_line("* Release:   v1.0.0.0e (A0)                       *");
+	qsc_consoleutils_print_line("* Date:      June 10, 2021                        *");
 	qsc_consoleutils_print_line("* Contact:   develop@vtdev.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
@@ -235,11 +235,12 @@ static qsmp_errors server_listen_ipv4(qsmp_server_key* prik)
 	{
 		qsc_consoleutils_print_safe("server> Connected to remote host: ");
 		qsc_consoleutils_print_line((char*)ssck.address);
+		server_print_message("Type 'qsmp quit' to exit.");
 
-		/* start the keep-alive mechanism */
+		/* after key exchange has succeeded, start the keep-alive mechanism on a new thread */
 		qsc_async_thread_initialize(server_keep_alive_loop, &ssck);
 
-		/* send and receive loops */
+		/* initialize send and receive loops */
 		memset((char*)&actx, 0x00, sizeof(qsc_socket_receive_async_state));
 		actx.callback = qsc_socket_receive_async_callback;
 		actx.error = qsc_socket_exception_callback;
