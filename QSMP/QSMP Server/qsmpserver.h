@@ -96,15 +96,17 @@ void qsmp_server_encode_public_key(char output[QSMP_PUBKEY_STRING_SIZE], const q
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-void qsmp_server_send_error(qsc_socket* sock, qsmp_errors error);
+void qsmp_server_send_error(const qsc_socket* sock, qsmp_errors error);
 
 /**
 * \brief Send a keep-alive to the remote host
 *
 * \param kctx: The keep-alive state
 * \param sock: A pointer to the initialized socket structure
+*
+* \return: The function error state
 */
-qsmp_errors qsmp_server_send_keep_alive(qsmp_keep_alive_state* kctx, qsc_socket* sock);
+qsmp_errors qsmp_server_send_keep_alive(qsmp_keep_alive_state* kctx, const qsc_socket* sock);
 
 /**
 * \brief Encode a secret key structure and copy to a string
@@ -122,7 +124,7 @@ void qsmp_server_serialize_signature_key(uint8_t output[QSMP_SIGKEY_ENCODED_SIZE
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-void qsmp_server_connection_close(qsmp_kex_server_state* ctx, qsc_socket* sock, qsmp_errors error);
+void qsmp_server_connection_close(qsmp_kex_server_state* ctx, const qsc_socket* sock, qsmp_errors error);
 
 /**
 * \brief Initialize a server state structure
@@ -141,6 +143,8 @@ void qsmp_server_initialize(qsmp_kex_server_state* ctx, const qsmp_server_key* s
 * \param skey: A pointer to the server private-key structure
 * \param address: The servers IPv4 address
 * \param port: The servers port number
+*
+* \return: The function error state
 */
 qsmp_errors qsmp_server_listen_ipv4(qsmp_kex_server_state* ctx, qsc_socket* sock, const qsc_ipinfo_ipv4_address* address, uint16_t port);
 
@@ -153,6 +157,8 @@ qsmp_errors qsmp_server_listen_ipv4(qsmp_kex_server_state* ctx, qsc_socket* sock
 * \param skey: A pointer to the server private-key structure
 * \param address: The servers IPv6 address
 * \param port: The servers port number
+*
+* \return: The function error state
 */
 qsmp_errors qsmp_server_listen_ipv6(qsmp_kex_server_state* ctx, qsc_socket* sock, const qsc_ipinfo_ipv6_address* address, uint16_t port);
 
@@ -178,7 +184,7 @@ qsmp_errors qsmp_server_decrypt_packet(qsmp_kex_server_state* ctx, const qsmp_pa
 *
 * \return: The function error state
 */
-qsmp_errors qsmp_server_encrypt_packet(qsmp_kex_server_state* ctx, uint8_t* message, size_t msglen, qsmp_packet* packetout);
+qsmp_errors qsmp_server_encrypt_packet(qsmp_kex_server_state* ctx, const uint8_t* message, size_t msglen, qsmp_packet* packetout);
 
 /**
 * \brief Generate a QSMP key-pair.

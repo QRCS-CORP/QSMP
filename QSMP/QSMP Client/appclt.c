@@ -18,7 +18,7 @@ static void client_print_error(qsmp_errors error)
 {
 	const char* msg;
 
-	msg = qsmp_error_to_string(qsmp_error_bad_keep_alive);
+	msg = qsmp_error_to_string(error);
 
 	if (msg != NULL)
 	{
@@ -59,7 +59,7 @@ static void client_print_banner()
 	qsc_consoleutils_print_line("");
 }
 
-static bool client_ipv4_dialogue(qsmp_client_key* ckey, qsc_ipinfo_ipv4_address* address)
+static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_key* ckey)
 {
 	uint8_t pskey[QSMP_PUBKEY_STRING_SIZE];
 	char fpath[FILENAME_MAX + 1] = { 0 };
@@ -100,23 +100,30 @@ static bool client_ipv4_dialogue(qsmp_client_key* ckey, qsc_ipinfo_ipv4_address*
 		client_print_message("");
 		slen = qsc_consoleutils_get_formatted_line(fpath, sizeof(fpath));
 
-		if (qsc_filetools_file_exists(fpath) == true && qsc_stringutils_string_contains(fpath, QSMP_PUBKEY_NAME) == true)
+		if (slen > 0)
 		{
-			qsc_filetools_copy_file_to_stream(fpath, pskey, sizeof(pskey));
-			qsmp_client_decode_public_key(ckey, pskey);
-			res = true;
-		}
-		else
-		{
-			res = false;
-			client_print_message("The path is invalid or inaccessable.");
+			if (qsc_filetools_file_exists(fpath) == true && qsc_stringutils_string_contains(fpath, QSMP_PUBKEY_NAME) == true)
+			{
+				qsc_filetools_copy_file_to_stream(fpath, pskey, sizeof(pskey));
+				res = qsmp_client_decode_public_key(ckey, pskey);
+
+				if (res == false)
+				{
+					client_print_message("The public key is invalid.");
+				}
+			}
+			else
+			{
+				res = false;
+				client_print_message("The path is invalid or inaccessable.");
+			}
 		}
 	}
 
 	return res;
 }
 
-static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, qsmp_client_key* ckey)
+static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, const qsmp_client_key* ckey)
 {
 	qsc_socket_receive_async_state actx = { 0 };
 	qsc_socket csck = { 0 };
@@ -138,8 +145,8 @@ static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, qsmp_cli
 		/* send and receive loops */
 
 		memset((char*)&actx, 0x00, sizeof(qsc_socket_receive_async_state));
-		actx.callback = qsc_socket_receive_async_callback;
-		actx.error = qsc_socket_exception_callback;
+		actx.callback = &qsc_socket_receive_async_callback;
+		actx.error = &qsc_socket_exception_callback;
 		actx.source = &csck;
 		qsc_socket_receive_async(&actx);
 
@@ -178,7 +185,7 @@ static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, qsmp_cli
 	}
 }
 
-void qsc_socket_exception_callback(qsc_socket* source, qsc_socket_exceptions error)
+void qsc_socket_exception_callback(const qsc_socket* source, qsc_socket_exceptions error)
 {
 	assert(source != NULL);
 
@@ -191,7 +198,7 @@ void qsc_socket_exception_callback(qsc_socket* source, qsc_socket_exceptions err
 	}
 }
 
-void qsc_socket_receive_async_callback(qsc_socket* source, uint8_t* message, size_t msglen)
+void qsc_socket_receive_async_callback(const qsc_socket* source, const uint8_t* message, size_t msglen)
 {
 	assert(message != NULL);
 	assert(source != NULL);
@@ -262,7 +269,7 @@ int main(void)
 
 	while (ectr < 3)
 	{
-		res = client_ipv4_dialogue(&ckey, &addv4t);
+		res = client_ipv4_dialogue(&addv4t, &ckey);
 
 		if (res == true)
 		{

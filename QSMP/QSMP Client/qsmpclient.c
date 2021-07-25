@@ -7,20 +7,6 @@
 #include "../QSC/stringutils.h"
 #include "../QSC/timestamp.h"
 
-#if defined(QSMP_PUBKEY_SPHINCS)
-#	define qsmp_cipher_generate_keypair qsc_mceliece_generate_keypair
-#	define qsmp_cipher_decapsulate qsc_mceliece_decapsulate
-#	define qsmp_cipher_encapsulate qsc_mceliece_encapsulate
-#	define qsmp_signature_sign qsc_sphincsplus_sign
-#	define qsmp_signature_verify qsc_sphincsplus_verify
-#else
-#	define qsmp_cipher_generate_keypair qsc_kyber_generate_keypair
-#	define qsmp_cipher_decapsulate qsc_kyber_decapsulate
-#	define qsmp_cipher_encapsulate qsc_kyber_encapsulate
-#	define qsmp_signature_sign qsc_dilithium_sign
-#	define qsmp_signature_verify qsc_dilithium_verify
-#endif
-
 /* Private Functions */
 
 static void client_state_dispose(qsmp_kex_client_state* ctx)
@@ -156,7 +142,7 @@ static qsmp_errors client_exstart_request(qsmp_kex_client_state* ctx, const qsmp
 				uint8_t phash[QSC_SHA3_256_HASH_SIZE] = { 0 };
 				uint8_t pubk[QSMP_PUBLICKEY_SIZE] = { 0 };
 
-				qsc_memutils_copy(pubk, ((uint8_t*)packetin->message + mlen), QSMP_PUBLICKEY_SIZE);
+				qsc_memutils_copy(pubk, (packetin->message + mlen), QSMP_PUBLICKEY_SIZE);
 
 				/* verify the public key hash */
 				qsc_sha3_compute256(phash, pubk, QSMP_PUBLICKEY_SIZE);
@@ -292,7 +278,7 @@ static qsmp_errors client_establish_request(qsmp_kex_client_state* ctx, const qs
 			uint8_t kcode[QSMP_MACTAG_SIZE] = { 0 };
 
 			/* mac the cipher-text */
-			qsc_kmac256_compute(kcode, QSMP_MACTAG_SIZE, ((uint8_t*)packetin->message + QSMP_MACTAG_SIZE), QSMP_CIPHERTEXT_SIZE, ctx->mackey, QSMP_MACKEY_SIZE, NULL, 0);
+			qsc_kmac256_compute(kcode, QSMP_MACTAG_SIZE, (packetin->message + QSMP_MACTAG_SIZE), QSMP_CIPHERTEXT_SIZE, ctx->mackey, QSMP_MACKEY_SIZE, NULL, 0);
 
 			/* verify the mac code against the embedded cipher-text mac */
 			if (qsc_intutils_verify(packetin->message, kcode, QSMP_MACTAG_SIZE) == 0)
@@ -300,7 +286,7 @@ static qsmp_errors client_establish_request(qsmp_kex_client_state* ctx, const qs
 				uint8_t sec[QSMP_SECRET_SIZE] = { 0 };
 
 				/* decapsulate the shared secret */
-				if (qsmp_cipher_decapsulate(sec, ((uint8_t*)packetin->message + QSMP_MACTAG_SIZE), ctx->prikey) == true)
+				if (qsmp_cipher_decapsulate(sec, (packetin->message + QSMP_MACTAG_SIZE), ctx->prikey) == true)
 				{
 					qsc_keccak_state kstate;
 					uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
@@ -681,37 +667,41 @@ static qsmp_errors client_key_exchange(qsmp_kex_client_state* ctx, qsc_socket* s
 
 /* Helper Functions */
 
-void qsmp_client_decode_public_key(qsmp_client_key* clientkey, const char input[QSMP_PUBKEY_STRING_SIZE])
+bool qsmp_client_decode_public_key(qsmp_client_key* clientkey, const char input[QSMP_PUBKEY_STRING_SIZE])
 {
 	assert(clientkey != NULL);
 
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
-	char keyid[QSMP_KEYID_SIZE] = { 0 };
 	char tmpvk[QSMP_PUBKEY_ENCODING_SIZE] = { 0 };
 	size_t spos;
 	size_t slen;
+	bool res;
+
+	res = false;
 
 	if (clientkey != NULL)
 	{
 		spos = sizeof(QSMP_PUBKEY_HEADER) + sizeof(QSMP_PUBKEY_VERSION) + sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1;
 		slen = QSMP_CONFIG_SIZE - 1;
-		qsc_memutils_copy(clientkey->config, ((uint8_t*)input + spos), slen);
+		qsc_memutils_copy(clientkey->config, (input + spos), slen);
 
 		spos += slen + sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 3;
-		qsc_intutils_hex_to_bin(((char*)input + spos), clientkey->keyid, QSMP_KEYID_SIZE * 2);
+		qsc_intutils_hex_to_bin((input + spos), clientkey->keyid, QSMP_KEYID_SIZE * 2);
 
 		spos += (QSMP_KEYID_SIZE * 2) + sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX);
 		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
-		qsc_memutils_copy(dtm, ((uint8_t*)input + spos), slen);
+		qsc_memutils_copy(dtm, (input + spos), slen);
 		clientkey->expiration = qsc_timestamp_datetime_to_seconds(dtm);
 		spos += QSC_TIMESTAMP_STRING_SIZE;
 
-		qsc_stringutils_remove_line_breaks(tmpvk, sizeof(tmpvk), ((char*)input + spos), (QSMP_PUBKEY_STRING_SIZE - (spos + sizeof(QSMP_PUBKEY_FOOTER))));
-		qsc_encoding_base64_decode(clientkey->verkey, QSMP_VERIFYKEY_SIZE, tmpvk, QSMP_PUBKEY_ENCODING_SIZE);
+		qsc_stringutils_remove_line_breaks(tmpvk, sizeof(tmpvk), (input + spos), (QSMP_PUBKEY_STRING_SIZE - (spos + sizeof(QSMP_PUBKEY_FOOTER))));
+		res = qsc_encoding_base64_decode(clientkey->verkey, QSMP_VERIFYKEY_SIZE, tmpvk, QSMP_PUBKEY_ENCODING_SIZE);
 	}
+
+	return res;
 }
 
-void qsmp_client_send_error(qsc_socket* sock, qsmp_errors error)
+void qsmp_client_send_error(const qsc_socket* sock, qsmp_errors error)
 {
 	assert(sock != NULL);
 
@@ -735,7 +725,7 @@ void qsmp_client_send_error(qsc_socket* sock, qsmp_errors error)
 
 /* Public Functions */
 
-void qsmp_client_connection_close(qsmp_kex_client_state* ctx, qsc_socket* sock, qsmp_errors error)
+void qsmp_client_connection_close(qsmp_kex_client_state* ctx, const qsc_socket* sock, qsmp_errors error)
 {
 	assert(ctx != NULL);
 	assert(sock != NULL);
@@ -775,9 +765,11 @@ qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* soc
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
+	qerr = qsmp_error_invalid_input;
+
 	if (ctx != NULL && sock != NULL && ckey != NULL && address != NULL)
 	{
-		qerr = qsmp_error_none;
+
 		qsc_socket_client_initialize(sock);
 		serr = qsc_socket_client_connect_ipv4(sock, address, port);
 
@@ -808,9 +800,10 @@ qsmp_errors qsmp_client_connect_ipv6(qsmp_kex_client_state* ctx, qsc_socket* soc
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
+	qerr = qsmp_error_invalid_input;
+
 	if (ctx != NULL && sock != NULL && ckey != NULL && address != NULL)
 	{
-		qerr = qsmp_error_none;
 		qsc_socket_client_initialize(sock);
 		serr = qsc_socket_client_connect_ipv6(sock, address, port);
 
@@ -840,6 +833,8 @@ qsmp_errors qsmp_client_decrypt_packet(qsmp_kex_client_state* ctx, const qsmp_pa
 
 	uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
 	qsmp_errors qerr;
+
+	qerr = qsmp_error_invalid_input;
 
 	if (ctx != NULL && message != NULL && msglen != NULL && packetin != NULL)
 	{

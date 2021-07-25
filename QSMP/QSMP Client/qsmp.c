@@ -45,8 +45,8 @@ void qsmp_packet_header_deserialize(const uint8_t* header, qsmp_packet* packet)
 	if (header != NULL && packet != NULL)
 	{
 		packet->flag = header[0];
-		packet->msglen = qsc_intutils_le8to32(((uint8_t*)header + sizeof(uint8_t)));
-		packet->sequence = qsc_intutils_le8to64(((uint8_t*)header + sizeof(uint8_t) + sizeof(uint32_t)));
+		packet->msglen = qsc_intutils_le8to32((header + sizeof(uint8_t)));
+		packet->sequence = qsc_intutils_le8to64((header + sizeof(uint8_t) + sizeof(uint32_t)));
 	}
 }
 
@@ -58,8 +58,8 @@ void qsmp_packet_header_serialize(const qsmp_packet* packet, uint8_t* header)
 	if (header != NULL && packet != NULL)
 	{
 		header[0] = packet->flag;
-		qsc_intutils_le32to8(((uint8_t*)header + sizeof(uint8_t)), packet->msglen);
-		qsc_intutils_le64to8(((uint8_t*)header + sizeof(uint8_t) + sizeof(uint32_t)), packet->sequence);
+		qsc_intutils_le32to8((header + sizeof(uint8_t)), packet->msglen);
+		qsc_intutils_le64to8((header + sizeof(uint8_t) + sizeof(uint32_t)), packet->sequence);
 	}
 }
 
@@ -75,12 +75,12 @@ size_t qsmp_packet_to_stream(const qsmp_packet* packet, uint8_t* pstream)
 	if (packet != NULL && pstream != NULL)
 	{
 		pstream[0] = packet->flag;
-		qsc_intutils_le32to8(((uint8_t*)pstream + sizeof(uint8_t)), packet->msglen);
-		qsc_intutils_le64to8(((uint8_t*)pstream + sizeof(uint8_t) + sizeof(uint32_t)), packet->sequence);
+		qsc_intutils_le32to8((pstream + sizeof(uint8_t)), packet->msglen);
+		qsc_intutils_le64to8((pstream + sizeof(uint8_t) + sizeof(uint32_t)), packet->sequence);
 
 		if (packet->msglen <= QSMP_MESSAGE_MAX)
 		{
-			qsc_memutils_copy(((uint8_t*)pstream + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint64_t)), (uint8_t*)&packet->message, packet->msglen);
+			qsc_memutils_copy((pstream + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint64_t)), packet->message, packet->msglen);
 			res = QSMP_HEADER_SIZE + packet->msglen;
 		}
 	}
@@ -96,12 +96,12 @@ void qsmp_stream_to_packet(const uint8_t* pstream, qsmp_packet* packet)
 	if (packet != NULL && pstream != NULL)
 	{
 		packet->flag = pstream[0];
-		packet->msglen = qsc_intutils_le8to32(((uint8_t*)pstream + sizeof(uint8_t)));
-		packet->sequence = qsc_intutils_le8to64(((uint8_t*)pstream + sizeof(uint8_t) + sizeof(uint32_t)));
+		packet->msglen = qsc_intutils_le8to32((pstream + sizeof(uint8_t)));
+		packet->sequence = qsc_intutils_le8to64((pstream + sizeof(uint8_t) + sizeof(uint32_t)));
 
 		if (packet->msglen <= QSMP_MESSAGE_MAX)
 		{
-			qsc_memutils_copy((uint8_t*)&packet->message, ((uint8_t*)pstream + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint64_t)), packet->msglen);
+			qsc_memutils_copy(packet->message, (pstream + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint64_t)), packet->msglen);
 		}
 	}
 }

@@ -16,145 +16,161 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-/**
-* \file qsmp.h
-* \brief <b>QSMP support header</b> \n
-* Common parameters and functions of the qsmp client and server implementations.
-*
-* \author		John G. Underhill
-* \version		1.0.0.0a
-* \date			February 1, 2021
-* \updated		May 24, 2021
-* \contact:		develop@vtdev.com
-* \copyright	GPL version 3 license (GPLv3)
-*
-* \remarks
-* \section Param Sets:
-* kyber-dilithium-rcs256-shake256
-* mceliece-sphincs-rcs256-shake256
-*
-* \section Overview
-* Legend:
-* C	-The client host
-* S	-The server host
-* cng	-The cryptographic configuration string
-* cprrx	-A receive channels symmetric cipher instance
-* cprtx	-A transmit channels symmetric cipher instance
-* cpt	-The symmetric ciphers cipher-text
-* cpta	-The asymmetric ciphers cipher-text
-* kid	-The public keys unique identity string
-* pekh	-The public asymmetric encryption key hash
-* psk	-The public signature verification key
-* sec	-The shared secret derived from asymmetric encapsulation and decapsulation
-* spkh	-The signed hash of the asymmetric public encapsulation-key
-* sth	-The session hash token, a hash of the session token, the configuration string, and the public signature verification-key
-* stok	-A random string used as the session-token in the key exchange
-* DAsk	-The asymmetric encapsulation function and public key
-* EAsk	-The asymmetric decapsulation function and secret key
-* Dk	-The symmetric decryption function and key
-* Ek	-The symmetric encryption function and key
-* Exp	-The key expansion function: cSHAKE
-* H	-The hash function: sha3
-* Mmk	-The MAC function and key: KMAC
-* SAsk	-Sign with the secret signature key
-* VApk	-Verify a signature the public signature key
-*
-* Key Exchange Sequence
-* 7.1 Connect Request:
-* The client first checks the expiration date on the public key, if invalid, it queries the server for a new public verification key.
-* The client sends a connection request with its configuration string, key identity, and a random session token. The key identity (kid) is a multi-part 16-byte address and key identification string, used to identify the intended target server and corresponding key.
-* The client stores a hash of the session token, the configuration string, and the public asymmetric signature verification-key.
-* sth = H(stok || cfg || psk)
-* The client then sends the public-key identity string, configuration string, and the session token to the server.
-* C{kid, cfg, stok}->S
-*
-* Connect Response:
-* The server responds with either an error message, or a response packet. The error message can be busy, unrecognized, or unauthorized. Any error during the key exchange will generate an error-packet sent to the remote host, which will trigger a tear down of the connection on both sides.
-* The server first checks that it has the requested public signature verification-key, using the key-identity string, then verifies that it has a compatible protocol configuration. The server stores a hash of the session token, the configuration string, and the public signature verification-key to create the session token hash.
-* sth = H(stok || cfg || psk)
-* The server then generates an asymmetric encryption key-pair, stores the secret key, hashes the public key, and then signs the hash of the public encryption key using the asymmetric signature scheme. This signed hash can itself be signed by a ‘chain of trust’ model, like PGP or X509, using a signature verification extension to this protocol.
-* pekh = H(pke)
-* spkh = Ssk(pekh)
-* The server sends a response message containing a signed hash of a public asymmetric encryption-key, and a copy of that key.
-* S{spkh, pke}->C
-*
-* Exstart Request:
-* The client verifies the signature of the public encryption keys hash, then generates its own hash of the public key, and compares them. If the hash matches, the client uses the public-key to encapsulate a shared secret.
-* cph = Vsk(H(pk)) cph := ph
-* cpta = EApk(sec)
-* The client then expands the shared secret and session token hash, and uses the output to key the clients transmit-channel symmetric cipher.
-* k,n = Exp(sec || sth)
-* cprtx(k,n)
-* The client transmits the cipher-text to the server.
-* C{cpta}->S
-*
-* Exstart Response:
-* The server decapsulates the shared-secret, combines it with the session token hash, and keys the servers receive-channel cipher. The channel-1 VPN is now established.
-* sec = DApk(cpta)
-* k,n = Exp(sec, sth)
-* cprrx(k,n)
-* The server sends the client an established message for the first channel.
-* S{m}->C
-*
-* Exchange Request:
-* The client generates and stores an asymmetric cipher key-pair. The client generates a MAC key and stores it to state. The server then encrypts the MAC key and the asymmetric encapsulation-key using the channel-1 VPN, and sends the encrypted MAC and encapsulation keys to the server.
-* pk,sk = G(cfg)
-* cpt = Ek(pk)
-* C{mk,cpt}->S
-*
-* Exchange Response:
-* The server decrypts the MAC and encapsulation keys, and uses the encapsulation-key to encapsulate a shared-secret for channel 2. The server then uses the MAC key received from the client, to MAC ciphertext, appending a MAC code to the message.
-* mk,pk = Dk(cpt)
-* cpta = EApk(sec)
-* The server then expands the shared secret and session token hash, and creates the symmetric ciphers key and nonce.
-* k,n = Exp(sec, sth)
-* The MAC function is keyed with the MAC key sent by the client, the ciphertext is added to the MAC, and the output code is prepended to the message.
-* cc = Mmk(cpta)
-* The server’s channel-2 transmission channel is initialized, and the authenticated cipher-text is sent to the client.
-* cprtx(k,n)
-* S{cc, cpta}->C
-*
-* Established Request:
-* The client uses the stored MAC key to key the MAC function, then adds the ciphertext to the hash. The client compares the hash code appended to the ciphertext with the one generated with the MAC function before decapsulation the shared key.
-* mc = Mmk(cpta), mc := cc
-* The client then decapsulates the shared secret, combines it with the session token hash, and expands it.
-* sec = DAsk(cpta)
-* k,n = Exp(sec, sth)
-* The client then keys the clients receive channel, the second VPN is established, and the client sends an established message.
-* cprrx(k,n)
-* C{m}->S
-*
-* Established Response:
-* The server sends the client an established message, acknowledging both channels are established.
-* S{m}->C
-*
-* Transmission:
-* The host, client or server, transmitting a message, first encrypts the message, updates the MAC function with the cipher-text, and appends a MAC code to the end of the cipher-text.
-* The serialized packet header, including the message size, key identity, and sequence number, is added to the MAC state through the additional-data parameter of the authenticated stream cipher RCS. This unique data is added to the MAC function with every packet, along with the encrypted cipher-text.
-* (cpt || mc) = Ek(sh, m)
-* The packet is decrypted by serializing the packet header and adding it to the MAC state, then finalizing the MAC on the cipher-text and comparing the output code with the code appended to the cipher-text. If the code matches, the cipher-text is decrypted, and the message passed up to the application.
-* m = Dk(sh, cpt) == 0 ? m : NULL
-*/
+ /**
+ * \file qsmp.h
+ * \brief <b>QSMP support header</b> \n
+ * Common parameters and functions of the qsmp client and server implementations.
+ *
+ * \author		John G. Underhill
+ * \version		1.0.0.0a
+ * \date			February 1, 2021
+ * \updated		May 24, 2021
+ * \contact:		develop@vtdev.com
+ * \copyright	GPL version 3 license (GPLv3)
+ *
+ * \remarks
+ * \section Param Sets:
+ * kyber-dilithium-rcs256-shake256
+ * mceliece-sphincs-rcs256-shake256
+ *
+ * \section Overview
+ * Legend:
+ * C	-The client host
+ * S	-The server host
+ * cng	-The cryptographic configuration string
+ * cprrx	-A receive channels symmetric cipher instance
+ * cprtx	-A transmit channels symmetric cipher instance
+ * cpt	-The symmetric ciphers cipher-text
+ * cpta	-The asymmetric ciphers cipher-text
+ * kid	-The public keys unique identity string
+ * pekh	-The public asymmetric encryption key hash
+ * psk	-The public signature verification key
+ * sec	-The shared secret derived from asymmetric encapsulation and decapsulation
+ * spkh	-The signed hash of the asymmetric public encapsulation-key
+ * sth	-The session hash token, a hash of the session token, the configuration string, and the public signature verification-key
+ * stok	-A random string used as the session-token in the key exchange
+ * DAsk	-The asymmetric encapsulation function and public key
+ * EAsk	-The asymmetric decapsulation function and secret key
+ * Dk	-The symmetric decryption function and key
+ * Ek	-The symmetric encryption function and key
+ * Exp	-The key expansion function: cSHAKE
+ * H	-The hash function: sha3
+ * Mmk	-The MAC function and key: KMAC
+ * SAsk	-Sign with the secret signature key
+ * VApk	-Verify a signature the public signature key
+ *
+ * Key Exchange Sequence
+ * 7.1 Connect Request:
+ * The client first checks the expiration date on the public key, if invalid, it queries the server for a new public verification key.
+ * The client sends a connection request with its configuration string, key identity, and a random session token. The key identity (kid) is a multi-part 16-byte address and key identification string, used to identify the intended target server and corresponding key.
+ * The client stores a hash of the session token, the configuration string, and the public asymmetric signature verification-key.
+ * sth = H(stok || cfg || psk)
+ * The client then sends the public-key identity string, configuration string, and the session token to the server.
+ * C{kid, cfg, stok}->S
+ *
+ * Connect Response:
+ * The server responds with either an error message, or a response packet. The error message can be busy, unrecognized, or unauthorized. Any error during the key exchange will generate an error-packet sent to the remote host, which will trigger a tear down of the connection on both sides.
+ * The server first checks that it has the requested public signature verification-key, using the key-identity string, then verifies that it has a compatible protocol configuration. The server stores a hash of the session token, the configuration string, and the public signature verification-key to create the session token hash.
+ * sth = H(stok || cfg || psk)
+ * The server then generates an asymmetric encryption key-pair, stores the secret key, hashes the public key, and then signs the hash of the public encryption key using the asymmetric signature scheme. This signed hash can itself be signed by a ‘chain of trust’ model, like PGP or X509, using a signature verification extension to this protocol.
+ * pekh = H(pke)
+ * spkh = Ssk(pekh)
+ * The server sends a response message containing a signed hash of a public asymmetric encryption-key, and a copy of that key.
+ * S{spkh, pke}->C
+ *
+ * Exstart Request:
+ * The client verifies the signature of the public encryption keys hash, then generates its own hash of the public key, and compares them. If the hash matches, the client uses the public-key to encapsulate a shared secret.
+ * cph = Vsk(H(pk)) cph := ph
+ * cpta = EApk(sec)
+ * The client then expands the shared secret and session token hash, and uses the output to key the clients transmit-channel symmetric cipher.
+ * k,n = Exp(sec || sth)
+ * cprtx(k,n)
+ * The client transmits the cipher-text to the server.
+ * C{cpta}->S
+ *
+ * Exstart Response:
+ * The server decapsulates the shared-secret, combines it with the session token hash, and keys the servers receive-channel cipher. The channel-1 VPN is now established.
+ * sec = DApk(cpta)
+ * k,n = Exp(sec, sth)
+ * cprrx(k,n)
+ * The server sends the client an established message for the first channel.
+ * S{m}->C
+ *
+ * Exchange Request:
+ * The client generates and stores an asymmetric cipher key-pair. The client generates a MAC key and stores it to state. The server then encrypts the MAC key and the asymmetric encapsulation-key using the channel-1 VPN, and sends the encrypted MAC and encapsulation keys to the server.
+ * pk,sk = G(cfg)
+ * cpt = Ek(pk)
+ * C{mk,cpt}->S
+ *
+ * Exchange Response:
+ * The server decrypts the MAC and encapsulation keys, and uses the encapsulation-key to encapsulate a shared-secret for channel 2. The server then uses the MAC key received from the client, to MAC ciphertext, appending a MAC code to the message.
+ * mk,pk = Dk(cpt)
+ * cpta = EApk(sec)
+ * The server then expands the shared secret and session token hash, and creates the symmetric ciphers key and nonce.
+ * k,n = Exp(sec, sth)
+ * The MAC function is keyed with the MAC key sent by the client, the ciphertext is added to the MAC, and the output code is prepended to the message.
+ * cc = Mmk(cpta)
+ * The server’s channel-2 transmission channel is initialized, and the authenticated cipher-text is sent to the client.
+ * cprtx(k,n)
+ * S{cc, cpta}->C
+ *
+ * Established Request:
+ * The client uses the stored MAC key to key the MAC function, then adds the ciphertext to the hash. The client compares the hash code appended to the ciphertext with the one generated with the MAC function before decapsulation the shared key.
+ * mc = Mmk(cpta), mc := cc
+ * The client then decapsulates the shared secret, combines it with the session token hash, and expands it.
+ * sec = DAsk(cpta)
+ * k,n = Exp(sec, sth)
+ * The client then keys the clients receive channel, the second VPN is established, and the client sends an established message.
+ * cprrx(k,n)
+ * C{m}->S
+ *
+ * Established Response:
+ * The server sends the client an established message, acknowledging both channels are established.
+ * S{m}->C
+ *
+ * Transmission:
+ * The host, client or server, transmitting a message, first encrypts the message, updates the MAC function with the cipher-text, and appends a MAC code to the end of the cipher-text.
+ * The serialized packet header, including the message size, key identity, and sequence number, is added to the MAC state through the additional-data parameter of the authenticated stream cipher RCS. This unique data is added to the MAC function with every packet, along with the encrypted cipher-text.
+ * (cpt || mc) = Ek(sh, m)
+ * The packet is decrypted by serializing the packet header and adding it to the MAC state, then finalizing the MAC on the cipher-text and comparing the output code with the code appended to the cipher-text. If the code matches, the cipher-text is decrypted, and the message passed up to the application.
+ * m = Dk(sh, cpt) == 0 ? m : NULL
+ */
 
 #ifndef QSMP_H
 #define QSMP_H
 
-/*!
-* \def QSMP_PUBKEY_SPHINCS
-* \brief Sets the asymmetric cryptographic primitive-set to Sphincs+/McEliece, default is Dilithium/Kyber.
-* Note: You may have to increase the stack reserve size on both projects, McEliece and Sphincs+ use a lot of resources.
-*/
-#if !defined(QSMP_PUBKEY_SPHINCS)
-//#	define QSMP_PUBKEY_SPHINCS
-#endif
+ /*!
+ * \def QSMP_CONFIG_DILITHIUM_KYBER
+ * \brief Sets the asymmetric cryptographic primitive-set to Dilithium/Kyber.
+ */
+ //#define QSMP_CONFIG_DILITHIUM_KYBER
+
+  /*!
+  * \def QSMP_CONFIG_DILITHIUM_NTRU
+  * \brief Sets the asymmetric cryptographic primitive-set to Falcon/NTRU, default is Dilithium/Kyber.
+  */
+#define QSMP_CONFIG_DILITHIUM_NTRU
+
+  /*!
+  * \def QSMP_CONFIG_SPHINCS_MCELIECE
+  * \brief Sets the asymmetric cryptographic primitive-set to Sphincs+/McEliece, default is Dilithium/Kyber.
+  * Note: You may have to increase the stack reserve size on both projects, McEliece and Sphincs+ use a lot of resources.
+  */
+  //#define QSMP_CONFIG_SPHINCS_MCELIECE
 
 #include "common.h"
-#if defined(QSMP_PUBKEY_SPHINCS)
-#	include "../QSC/mceliece.h"
-#	include "../QSC/sphincsplus.h"
-#else
+
+#if defined(QSMP_CONFIG_DILITHIUM_KYBER)
 #	include "../QSC/dilithium.h"
 #	include "../QSC/kyber.h"
+#elif defined(QSMP_CONFIG_DILITHIUM_NTRU)
+#	include "../QSC/dilithium.h"
+#	include "../QSC/ntru.h"
+#elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
+#	include "../QSC/sphincsplus.h"
+#	include "../QSC/mceliece.h"
+#else
+#	error Invalid parameter set!
 #endif
 
 /*!
@@ -169,13 +185,178 @@
 */
 #define QSMP_CONFIG_SIZE 40
 
-#if defined(QSMP_PUBKEY_SPHINCS)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s2_sha3-256_rcs-256";
+#if defined(QSMP_CONFIG_DILITHIUM_NTRU)
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		if defined(QSC_NTRU_S1HPS2048509)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium_s3_ntru-s1_sha3-256_rcs-256  ";
+#		elif defined(QSC_NTRU_HPSS32048677)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_ntru-s3_sha3-256_rcs-256  ";
+#		elif defined(QSC_NTRU_S5HPS4096821)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_ntru-s5_sha3-256_rcs-256  ";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		if defined(QSC_NTRU_S1HPS2048509)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s1_sha3-256_rcs-256  ";
+#		elif defined(QSC_NTRU_HPSS32048677)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s3_sha3-256_rcs-256  ";
+#		elif defined(QSC_NTRU_S5HPS4096821)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s5_sha3-256_rcs-256  ";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	else
+#		error Invalid parameter set!
+#	endif
+#elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
+#	if defined(QSC_SPHINCSPLUS_S3S192SHAKERS)
+#		if defined(QSC_MCELIECE_S3N4608T96)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s3_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6688T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s4_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6960T119)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s5_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N8192T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s6_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERF)
+#		if defined(QSC_MCELIECE_S3N4608T96)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3_mceliece-s3_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6688T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3_mceliece-s4_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6960T119)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3_mceliece-s5_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N8192T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3_mceliece-s6_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+#		if defined(QSC_MCELIECE_S3N4608T96)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s4_mceliece-s3_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6688T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s4_mceliece-s4_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6960T119)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s4_mceliece-s5_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N8192T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s4_mceliece-s6_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
+#		if defined(QSC_MCELIECE_S3N4608T96)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s3_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6688T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s4_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6960T119)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s5_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N8192T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	else
+#		error Invalid parameter set!
+#	endif
+#elif defined(QSMP_CONFIG_DILITHIUM_KYBER)
+#	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
+#		if defined(QSC_KYBER_S3Q3329N256K3)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s3_sha3-256_rcs-256 ";
+#		elif defined(QSC_KYBER_S5Q3329N256K4)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s5_sha3-256_rcs-256 ";
+#		elif defined(QSC_KYBER_S6Q3329N256K5)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s6_sha3-256_rcs-256 ";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
+#		if defined(QSC_KYBER_S3Q3329N256K3)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_kyber-s3_sha3-256_rcs-256 ";
+#		elif defined(QSC_KYBER_S5Q3329N256K4)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_kyber-s5_sha3-256_rcs-256 ";
+#		elif defined(QSC_KYBER_S6Q3329N256K5)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_kyber-s6_sha3-256_rcs-256 ";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
+#		if defined(QSC_KYBER_S3Q3329N256K3)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s3_sha3-256_rcs-256 ";
+#		elif defined(QSC_KYBER_S5Q3329N256K4)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s5_sha3-256_rcs-256 ";
+#		elif defined(QSC_KYBER_S6Q3329N256K5)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s6_sha3-256_rcs-256 ";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	else
+#		error Invalid parameter set!
+#	endif
 #else
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s2_sha3-256_rcs-256 ";
+#	error Invalid parameter set!
 #endif
 
-#if defined(QSMP_PUBKEY_SPHINCS)
+#if defined(QSMP_CONFIG_DILITHIUM_NTRU)
+/*!
+* \def QSMP_CIPHERTEXT_SIZE
+* \brief The byte size of the asymmetric cipher-text array
+*/
+#	define QSMP_CIPHERTEXT_SIZE (QSC_NTRU_CIPHERTEXT_SIZE)
+/*!
+* \def QSMP_PRIVATEKEY_SIZE
+* \brief The byte size of the asymmetric cipher private-key array
+*/
+#	define QSMP_PRIVATEKEY_SIZE (QSC_NTRU_PRIVATEKEY_SIZE)
+/*!
+* \def QSMP_PUBLICKEY_SIZE
+* \brief The byte size of the asymmetric cipher public-key array
+*/
+#	define QSMP_PUBLICKEY_SIZE (QSC_NTRU_PUBLICKEY_SIZE)
+/*!
+* \def QSMP_SIGNKEY_SIZE
+* \brief The byte size of the asymmetric signature signing-key array
+*/
+#	define QSMP_SIGNKEY_SIZE (QSC_DILITHIUM_PRIVATEKEY_SIZE)
+/*!
+* \def QSMP_VERIFYKEY_SIZE
+* \brief The byte size of the asymmetric signature verification-key array
+*/
+#	define QSMP_VERIFYKEY_SIZE (QSC_DILITHIUM_PUBLICKEY_SIZE)
+/*!
+* \def QSMP_SIGNATURE_SIZE
+* \brief The byte size of the asymmetric signature array
+*/
+#	define QSMP_SIGNATURE_SIZE (QSC_DILITHIUM_SIGNATURE_SIZE)
+/*!
+* \def QSMP_PUBKEY_ENCODING_SIZE
+* \brief The byte size of the encoded QSMP public-key
+*/
+#	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
+#		define QSMP_PUBKEY_ENCODING_SIZE 1752
+#	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
+#		define QSMP_PUBKEY_ENCODING_SIZE 2604
+#	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
+#		define QSMP_PUBKEY_ENCODING_SIZE 3456
+#	else
+#		error invalid dilithium parameter!
+#	endif
+/*!
+* \def QSMP_PUBKEY_STRING_SIZE
+* \brief The string size of the serialized QSMP client-key structure
+*/
+#	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
+#		define QSMP_PUBKEY_STRING_SIZE 2006
+#	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
+#		define QSMP_PUBKEY_STRING_SIZE 2871
+#	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
+#		define QSMP_PUBKEY_STRING_SIZE 3737
+#	else
+#		error invalid dilithium parameter!
+#	endif
+#elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
 /*!
 * \def QSMP_CIPHERTEXT_SIZE
 * \brief The byte size of the cipher-text array
@@ -210,12 +391,32 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s2_
 * \def QSMP_PUBKEY_ENCODING_SIZE
 * \brief The byte size of the encoded QSMP public-key
 */
-#	define QSMP_PUBKEY_ENCODING_SIZE 44
+#	if defined(QSC_SPHINCSPLUS_S3S192SHAKERS)
+#		define QSMP_PUBKEY_ENCODING_SIZE 64
+#	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERF)
+#		define QSMP_PUBKEY_ENCODING_SIZE 64
+#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+#		define QSMP_PUBKEY_ENCODING_SIZE 88
+#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
+#		define QSMP_PUBKEY_ENCODING_SIZE 88
+#	else
+#		error invalid sphincs+ parameter!
+#	endif
 /*!
 * \def QSMP_PUBKEY_STRING_SIZE
 * \brief The string size of the serialized QSMP client-key structure
 */
-#	define QSMP_PUBKEY_STRING_SIZE 272
+#	if defined(QSC_SPHINCSPLUS_S3S192SHAKERS)
+#		define QSMP_PUBKEY_STRING_SIZE 292
+#	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERF)
+#		define QSMP_PUBKEY_STRING_SIZE 292
+#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
+#		define QSMP_PUBKEY_STRING_SIZE 316
+#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
+#		define QSMP_PUBKEY_STRING_SIZE 316
+#	else
+#		error invalid sphincs+ parameter!
+#	endif
 #else
 /*!
 * \def QSMP_CIPHERTEXT_SIZE
@@ -251,12 +452,28 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s2_
 * \def QSMP_PUBKEY_ENCODING_SIZE
 * \brief The byte size of the encoded QSMP public-key
 */
-#	define QSMP_PUBKEY_ENCODING_SIZE 1964
+#	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
+#		define QSMP_PUBKEY_ENCODING_SIZE 1752
+#	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
+#		define QSMP_PUBKEY_ENCODING_SIZE 2604
+#	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
+#		define QSMP_PUBKEY_ENCODING_SIZE 3456
+#	else
+#		error invalid dilithium parameter!
+#	endif
 /*!
 * \def QSMP_PUBKEY_STRING_SIZE
 * \brief The string size of the serialized QSMP client-key structure
 */
-#	define QSMP_PUBKEY_STRING_SIZE 2222
+#	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
+#		define QSMP_PUBKEY_STRING_SIZE 2006
+#	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
+#		define QSMP_PUBKEY_STRING_SIZE 2871
+#	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
+#		define QSMP_PUBKEY_STRING_SIZE 3737
+#	else
+#		error invalid dilithium parameter!
+#	endif
 #endif
 
 /*!
@@ -447,11 +664,11 @@ typedef enum qsmp_errors
 	qsmp_error_bad_keep_alive = 0x02,			/*!< The keep alive check failed */
 	qsmp_error_channel_down = 0x03,				/*!< The communications channel has failed */
 	qsmp_error_connection_failure = 0x04,		/*!< The device could not make a connection to the remote host */
-	qsmp_error_connect_failure = 0x05,			/*!< The transmission failed at the kex connection phase */
+	qsmp_error_connect_failure = 0x05,			/*!< The transmission failed at the KEX connection phase */
 	qsmp_error_decapsulation_failure = 0x06,	/*!< The asymmetric cipher failed to decapsulate the shared secret */
-	qsmp_error_establish_failure = 0x07,		/*!< The transmission failed at the kex establish phase */
-	qsmp_error_exstart_failure = 0x08,			/*!< The transmission failed at the kex exstart phase */
-	qsmp_error_exchange_failure = 0x09,			/*!< The transmission failed at the kex exchange phase */
+	qsmp_error_establish_failure = 0x07,		/*!< The transmission failed at the KEX establish phase */
+	qsmp_error_exstart_failure = 0x08,			/*!< The transmission failed at the KEX exstart phase */
+	qsmp_error_exchange_failure = 0x09,			/*!< The transmission failed at the KEX exchange phase */
 	qsmp_error_hash_invalid = 0x0A,				/*!< The public-key hash is invalid */
 	qsmp_error_invalid_input = 0x0B,			/*!< The expected input was invalid */
 	qsmp_error_invalid_request = 0x0C,			/*!< The packet flag was unexpected */
@@ -486,7 +703,7 @@ typedef enum qsmp_flags
 	qsmp_flag_keep_alive_request = 0x0B,		/*!< The packet contains a keep alive request */
 	qsmp_flag_remote_connected = 0x0C,			/*!< The remote host is connected to the VPN */
 	qsmp_flag_remote_terminated = 0x0D,			/*!< The remote host has terminated the connection */
-	qsmp_flag_session_established = 0x0E,		/*!< The VPN is in the established request state */
+	qsmp_flag_session_established = 0x0E,		/*!< The VPN is in the established state */
 	qsmp_flag_session_establish_verify = 0x0F,	/*!< The VPN is in the established verify state */
 	qsmp_flag_unrecognized_protocol = 0x10,		/*!< The protocol string is not recognized */
 	qsmp_flag_error_condition = 0xFF,			/*!< The connection experienced an error */
@@ -527,6 +744,28 @@ typedef struct qsmp_keep_alive_state
 	bool recd;									/*!< The keep alive response received status  */
 } qsmp_keep_alive_state;
 
+#if defined(QSMP_CONFIG_DILITHIUM_NTRU)
+#	define qsmp_cipher_generate_keypair qsc_ntru_generate_keypair
+#	define qsmp_cipher_decapsulate qsc_ntru_decapsulate
+#	define qsmp_cipher_encapsulate qsc_ntru_encapsulate
+#	define qsmp_signature_generate_keypair qsc_dilithium_generate_keypair
+#	define qsmp_signature_sign qsc_dilithium_sign
+#	define qsmp_signature_verify qsc_dilithium_verify
+#elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
+#	define qsmp_cipher_generate_keypair qsc_mceliece_generate_keypair
+#	define qsmp_cipher_decapsulate qsc_mceliece_decapsulate
+#	define qsmp_cipher_encapsulate qsc_mceliece_encapsulate
+#	define qsmp_signature_generate_keypair qsc_sphincsplus_generate_keypair
+#	define qsmp_signature_sign qsc_sphincsplus_sign
+#	define qsmp_signature_verify qsc_sphincsplus_verify
+#else
+#	define qsmp_cipher_generate_keypair qsc_kyber_generate_keypair
+#	define qsmp_cipher_decapsulate qsc_kyber_decapsulate
+#	define qsmp_cipher_encapsulate qsc_kyber_encapsulate
+#	define qsmp_signature_generate_keypair qsc_dilithium_generate_keypair
+#	define qsmp_signature_sign qsc_dilithium_sign
+#	define qsmp_signature_verify qsc_dilithium_verify
+#endif
 
 /**
 * \brief Clear a packet's state

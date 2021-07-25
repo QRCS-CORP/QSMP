@@ -66,8 +66,10 @@ typedef struct qsmp_kex_client_state
 *
 * \param clientkey: A pointer to the output client key
 * \param input: [const] The input encoded key
+*
+* \return: Returns true for success
 */
-void qsmp_client_decode_public_key(qsmp_client_key* clientkey, const char input[QSMP_PUBKEY_STRING_SIZE]);
+bool qsmp_client_decode_public_key(qsmp_client_key* clientkey, const char input[QSMP_PUBKEY_STRING_SIZE]);
 
 /**
 * \brief Send an error code to the remote host
@@ -75,7 +77,7 @@ void qsmp_client_decode_public_key(qsmp_client_key* clientkey, const char input[
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-void qsmp_client_send_error(qsc_socket* sock, qsmp_errors error);
+void qsmp_client_send_error(const qsc_socket* sock, qsmp_errors error);
 
 /* Public Functions */
 
@@ -88,6 +90,8 @@ void qsmp_client_send_error(qsc_socket* sock, qsmp_errors error);
 * \param ckey: A pointer to the client public-key structure
 * \param address: The servers IPv4 address
 * \param port: The servers port number
+*
+* \return: The function error state
 */
 qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* sock, const qsmp_client_key* ckey, const qsc_ipinfo_ipv4_address* address, uint16_t port);
 
@@ -100,6 +104,8 @@ qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* soc
 * \param ckey: A pointer to the client public-key structure
 * \param address: The servers IPv6 address structure
 * \param port: The servers port number
+*
+* \return: The function error state
 */
 qsmp_errors qsmp_client_connect_ipv6(qsmp_kex_client_state* ctx, qsc_socket* sock, const qsmp_client_key* ckey, const qsc_ipinfo_ipv6_address* address, uint16_t port);
 
@@ -109,7 +115,7 @@ qsmp_errors qsmp_client_connect_ipv6(qsmp_kex_client_state* ctx, qsc_socket* soc
 * \param sock: A pointer to the initialized socket structure
 * \param error: The error code
 */
-void qsmp_client_connection_close(qsmp_kex_client_state* ctx, qsc_socket* sock, qsmp_errors error);
+void qsmp_client_connection_close(qsmp_kex_client_state* ctx, const qsc_socket* sock, qsmp_errors error);
 
 /**
 * \brief Decrypt a message and copy it to the message output

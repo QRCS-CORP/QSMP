@@ -8,28 +8,10 @@
 #include "../QSC/timestamp.h"
 #include "../QSC/async.h"
 
-#if defined(QSMP_PUBKEY_SPHINCS)
-#	define qsmp_cipher_generate_keypair qsc_mceliece_generate_keypair
-#	define qsmp_cipher_decapsulate qsc_mceliece_decapsulate
-#	define qsmp_cipher_encapsulate qsc_mceliece_encapsulate
-#	define qsmp_signature_generate_keypair qsc_sphincsplus_generate_keypair
-#	define qsmp_signature_sign qsc_sphincsplus_sign
-#	define qsmp_signature_verify qsc_sphincsplus_verify
-#else
-#	define qsmp_cipher_generate_keypair qsc_kyber_generate_keypair
-#	define qsmp_cipher_decapsulate qsc_kyber_decapsulate
-#	define qsmp_cipher_encapsulate qsc_kyber_encapsulate
-#	define qsmp_signature_generate_keypair qsc_dilithium_generate_keypair
-#	define qsmp_signature_sign qsc_dilithium_sign
-#	define qsmp_signature_verify qsc_dilithium_verify
-#endif
-
 /* Private Functions */
 
 static void server_state_dispose(qsmp_kex_server_state* ctx)
 {
-	assert(ctx != NULL);
-
 	if (ctx != NULL)
 	{
 		qsc_rcs_dispose(&ctx->rxcpr);
@@ -42,15 +24,18 @@ static void server_state_dispose(qsmp_kex_server_state* ctx)
 
 static void server_kex_reset(qsmp_kex_server_state* ctx)
 {
-	qsc_memutils_clear(ctx->config, QSMP_CONFIG_SIZE);
-	qsc_memutils_clear(ctx->keyid, QSMP_KEYID_SIZE);
-	qsc_memutils_clear(ctx->pkhash, QSMP_PKCODE_SIZE);
-	qsc_memutils_clear(ctx->prikey, QSMP_PRIVATEKEY_SIZE);
-	qsc_memutils_clear(ctx->pubkey, QSMP_PUBLICKEY_SIZE);
-	qsc_memutils_clear(ctx->token, QSMP_STOKEN_SIZE);
-	qsc_memutils_clear(ctx->sigkey, QSMP_SIGNKEY_SIZE);
-	qsc_memutils_clear(ctx->verkey, QSMP_VERIFYKEY_SIZE);
-	ctx->expiration = 0;
+	if (ctx != NULL)
+	{
+		qsc_memutils_clear(ctx->config, QSMP_CONFIG_SIZE);
+		qsc_memutils_clear(ctx->keyid, QSMP_KEYID_SIZE);
+		qsc_memutils_clear(ctx->pkhash, QSMP_PKCODE_SIZE);
+		qsc_memutils_clear(ctx->prikey, QSMP_PRIVATEKEY_SIZE);
+		qsc_memutils_clear(ctx->pubkey, QSMP_PUBLICKEY_SIZE);
+		qsc_memutils_clear(ctx->token, QSMP_STOKEN_SIZE);
+		qsc_memutils_clear(ctx->sigkey, QSMP_SIGNKEY_SIZE);
+		qsc_memutils_clear(ctx->verkey, QSMP_VERIFYKEY_SIZE);
+		ctx->expiration = 0;
+	}
 }
 
 static bool server_key_exists(const uint8_t keyid[QSMP_KEYID_SIZE], const uint8_t* cmpid)
@@ -78,6 +63,8 @@ static qsmp_errors server_connect_response(qsmp_kex_server_state* ctx, const qsm
 	uint64_t tm;
 	size_t mlen;
 
+	qerr = qsmp_error_invalid_input;
+
 	if (ctx != NULL && packetin != NULL && packetout != NULL)
 	{
 		if (packetin->flag == qsmp_flag_connect_request)
@@ -91,9 +78,9 @@ static qsmp_errors server_connect_response(qsmp_kex_server_state* ctx, const qsm
 				if (tm <= ctx->expiration)
 				{
 					/* copy the token to state */
-					qsc_memutils_copy(ctx->token, ((uint8_t*)packetin->message + QSMP_KEYID_SIZE), QSMP_STOKEN_SIZE);
+					qsc_memutils_copy(ctx->token, (packetin->message + QSMP_KEYID_SIZE), QSMP_STOKEN_SIZE);
 					/* get a copy of the configuration string */
-					qsc_memutils_copy(confs, ((uint8_t*)packetin->message + QSMP_KEYID_SIZE + QSMP_STOKEN_SIZE), QSMP_CONFIG_SIZE);
+					qsc_memutils_copy(confs, (packetin->message + QSMP_KEYID_SIZE + QSMP_STOKEN_SIZE), QSMP_CONFIG_SIZE);
 
 					/* compare the state configuration string to the message configuration string */
 					if (qsc_stringutils_compare_strings(confs, QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE) == true)
@@ -116,7 +103,7 @@ static qsmp_errors server_connect_response(qsmp_kex_server_state* ctx, const qsm
 
 						/* hash the public encryption key */
 						qsc_sha3_compute256(phash, ctx->pubkey, QSMP_PUBLICKEY_SIZE);
-
+						
 						/* sign the hash and add it to the message */
 						mlen = 0;
 						qsmp_signature_sign(packetout->message, &mlen, phash, QSC_SHA3_256_HASH_SIZE, ctx->sigkey, qsc_acp_generate);
@@ -172,6 +159,8 @@ static qsmp_errors server_exstart_response(qsmp_kex_server_state* ctx, const qsm
 
 	qsmp_errors qerr;
 
+	qerr = qsmp_error_invalid_input;
+
 	if (ctx != NULL && packetin != NULL && packetout != NULL)
 	{
 		if (ctx->exflag == qsmp_flag_connect_response && packetin->flag == qsmp_flag_exstart_request)
@@ -202,7 +191,7 @@ static qsmp_errors server_exstart_response(qsmp_kex_server_state* ctx, const qsm
 				/* assemble the exstart-response packet */
 				qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
 				packetout->flag = qsmp_flag_exstart_response;
-				packetout->message[0] = (uint8_t)qsmp_flag_remote_connected; // TODO: is this needed?
+				packetout->message[0] = (uint8_t)qsmp_flag_remote_connected;
 				packetout->msglen = 1;
 				packetout->sequence = ctx->txseq;
 
@@ -236,6 +225,8 @@ static qsmp_errors server_exchange_response(qsmp_kex_server_state* ctx, const qs
 	assert(packetout != NULL);
 
 	qsmp_errors qerr;
+
+	qerr = qsmp_error_invalid_input;
 
 	if (ctx != NULL && packetin != NULL && packetout != NULL)
 	{
@@ -316,6 +307,8 @@ static qsmp_errors server_establish_response(qsmp_kex_server_state* ctx, const q
 
 	qsmp_errors qerr;
 
+	qerr = qsmp_error_invalid_input;
+
 	if (ctx != NULL && packetin != NULL && packetout != NULL)
 	{
 		if (ctx->exflag == qsmp_flag_exchange_response && packetin->flag == qsmp_flag_establish_request)
@@ -385,6 +378,8 @@ static qsmp_errors server_key_exchange(qsmp_kex_server_state* ctx, qsc_socket* s
 	size_t plen;
 	size_t rlen;
 	size_t slen;
+
+	qerr = qsmp_error_invalid_input;
 
 	/* blocking receive waits for client */
 	rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
@@ -623,7 +618,7 @@ static qsmp_errors server_key_exchange(qsmp_kex_server_state* ctx, qsc_socket* s
 
 /* Helper Functions */
 
-void qsmp_server_connection_close(qsmp_kex_server_state* ctx, qsc_socket* sock, qsmp_errors error)
+void qsmp_server_connection_close(qsmp_kex_server_state* ctx, const qsc_socket* sock, qsmp_errors error)
 {
 	if (qsc_socket_is_connected(sock) == true)
 	{
@@ -653,14 +648,13 @@ void qsmp_server_deserialize_signature_key(qsmp_server_key* skey, const uint8_t 
 
 	qsc_memutils_copy(skey->config, input, QSMP_CONFIG_SIZE);
 	pos = QSMP_CONFIG_SIZE;
-	skey->expiration = qsc_intutils_le8to64(((uint8_t*)input + pos));
+	skey->expiration = qsc_intutils_le8to64((input + pos));
 	pos += QSMP_TIMESTAMP_SIZE;
-	qsc_memutils_copy(skey->keyid, ((uint8_t*)input + pos), QSMP_KEYID_SIZE);
+	qsc_memutils_copy(skey->keyid, (input + pos), QSMP_KEYID_SIZE);
 	pos += QSMP_KEYID_SIZE;
-	qsc_memutils_copy(skey->sigkey, ((uint8_t*)input + pos), QSMP_SIGNKEY_SIZE);
+	qsc_memutils_copy(skey->sigkey, (input + pos), QSMP_SIGNKEY_SIZE);
 	pos += QSMP_SIGNKEY_SIZE;
-	qsc_memutils_copy(skey->verkey, ((uint8_t*)input + pos), QSMP_VERIFYKEY_SIZE);
-	pos += QSMP_VERIFYKEY_SIZE;
+	qsc_memutils_copy(skey->verkey, (input + pos), QSMP_VERIFYKEY_SIZE);
 }
 
 void qsmp_server_encode_public_key(char output[QSMP_PUBKEY_STRING_SIZE], const qsmp_server_key* skey)
@@ -672,12 +666,9 @@ void qsmp_server_encode_public_key(char output[QSMP_PUBKEY_STRING_SIZE], const q
 	char tmpvk[QSMP_PUBKEY_ENCODING_SIZE] = { 0 };
 	size_t slen;
 	size_t spos;
-	size_t tpos;
 
 	if (skey != NULL)
 	{
-		spos = 0;
-		tpos = 0;
 		slen = sizeof(QSMP_PUBKEY_HEADER) - 1;
 		qsc_memutils_copy(output, QSMP_PUBKEY_HEADER, slen);
 		spos = slen;
@@ -685,54 +676,54 @@ void qsmp_server_encode_public_key(char output[QSMP_PUBKEY_STRING_SIZE], const q
 		++spos;
 
 		slen = sizeof(QSMP_PUBKEY_VERSION) - 1;
-		qsc_memutils_copy(((char*)output + spos), QSMP_PUBKEY_VERSION, slen);
+		qsc_memutils_copy((output + spos), QSMP_PUBKEY_VERSION, slen);
 		spos += slen;
 		output[spos] = '\n';
 		++spos;
 
 		slen = sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1;
-		qsc_memutils_copy(((char*)output + spos), QSMP_PUBKEY_CONFIG_PREFIX, slen);
+		qsc_memutils_copy((output + spos), QSMP_PUBKEY_CONFIG_PREFIX, slen);
 		spos += slen;
 		slen = sizeof(QSMP_CONFIG_STRING) - 1;
-		qsc_memutils_copy(((char*)output + spos), QSMP_CONFIG_STRING, slen);
+		qsc_memutils_copy((output + spos), QSMP_CONFIG_STRING, slen);
 		spos += slen;
 		output[spos] = '\n';
 		++spos;
 
 		slen = sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1;
-		qsc_memutils_copy(((char*)output + spos), QSMP_PUBKEY_KEYID_PREFIX, slen);
+		qsc_memutils_copy((output + spos), QSMP_PUBKEY_KEYID_PREFIX, slen);
 		spos += slen;
 		qsc_intutils_bin_to_hex(skey->keyid, hexid, QSMP_KEYID_SIZE);
 		slen = sizeof(hexid);
-		qsc_memutils_copy(((char*)output + spos), hexid, slen);
+		qsc_memutils_copy((output + spos), hexid, slen);
 		spos += slen;
 		output[spos] = '\n';
 		++spos;
 
 		slen = sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1;
-		qsc_memutils_copy(((char*)output + spos), QSMP_PUBKEY_EXPIRATION_PREFIX, slen);
+		qsc_memutils_copy((output + spos), QSMP_PUBKEY_EXPIRATION_PREFIX, slen);
 		spos += slen;
 		qsc_timestamp_seconds_to_datetime(skey->expiration, dtm);
 		slen = sizeof(dtm) - 1;
-		qsc_memutils_copy(((char*)output + spos), dtm, slen);
+		qsc_memutils_copy((output + spos), dtm, slen);
 		spos += slen;
 		output[spos] = '\n';
 		++spos;
 
 		slen = QSMP_VERIFYKEY_SIZE;
 		qsc_encoding_base64_encode(tmpvk, QSMP_PUBKEY_ENCODING_SIZE, skey->verkey, slen);
-		spos += qsc_stringutils_add_line_breaks(((char*)output + spos), QSMP_PUBKEY_STRING_SIZE - spos, QSMP_PUBKEY_LINE_LENGTH, tmpvk, sizeof(tmpvk));
+		spos += qsc_stringutils_add_line_breaks((output + spos), QSMP_PUBKEY_STRING_SIZE - spos, QSMP_PUBKEY_LINE_LENGTH, tmpvk, sizeof(tmpvk));
 		output[spos] = '\n';
 		++spos;
 
 		slen = sizeof(QSMP_PUBKEY_FOOTER) - 1;
-		qsc_memutils_copy(((char*)output + spos), QSMP_PUBKEY_FOOTER, slen);
+		qsc_memutils_copy((output + spos), QSMP_PUBKEY_FOOTER, slen);
 		spos += slen;
 		output[spos] = '\n';
 	}
 }
 
-void qsmp_server_send_error(qsc_socket* sock, qsmp_errors error)
+void qsmp_server_send_error(const qsc_socket* sock, qsmp_errors error)
 {
 	if (qsc_socket_is_connected(sock) == true)
 	{
@@ -746,7 +737,7 @@ void qsmp_server_send_error(qsc_socket* sock, qsmp_errors error)
 	}
 }
 
-qsmp_errors qsmp_server_send_keep_alive(qsmp_keep_alive_state* kctx, qsc_socket* sock)
+qsmp_errors qsmp_server_send_keep_alive(qsmp_keep_alive_state* kctx, const qsc_socket* sock)
 {
 	qsmp_errors qerr;
 
@@ -787,14 +778,13 @@ void qsmp_server_serialize_signature_key(uint8_t output[QSMP_SIGKEY_ENCODED_SIZE
 
 	qsc_memutils_copy(output, skey->config, QSMP_CONFIG_SIZE);
 	pos = QSMP_CONFIG_SIZE;
-	qsc_intutils_le64to8(((uint8_t*)output + pos), skey->expiration);
+	qsc_intutils_le64to8((output + pos), skey->expiration);
 	pos += QSMP_TIMESTAMP_SIZE;
-	qsc_memutils_copy(((uint8_t*)output + pos), skey->keyid, QSMP_KEYID_SIZE);
+	qsc_memutils_copy((output + pos), skey->keyid, QSMP_KEYID_SIZE);
 	pos += QSMP_KEYID_SIZE;
-	qsc_memutils_copy(((uint8_t*)output + pos), skey->sigkey, QSMP_SIGNKEY_SIZE);
+	qsc_memutils_copy((output + pos), skey->sigkey, QSMP_SIGNKEY_SIZE);
 	pos += QSMP_SIGNKEY_SIZE;
-	qsc_memutils_copy(((uint8_t*)output + pos), skey->verkey, QSMP_VERIFYKEY_SIZE);
-	pos += QSMP_VERIFYKEY_SIZE;
+	qsc_memutils_copy((output + pos), skey->verkey, QSMP_VERIFYKEY_SIZE);
 }
 
 /* Primary Functions */
@@ -822,7 +812,7 @@ qsmp_errors qsmp_server_listen_ipv4(qsmp_kex_server_state* ctx, qsc_socket* sock
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
-	qerr = qsmp_error_none;
+	qerr = qsmp_error_invalid_input;
 	qsc_socket_server_initialize(sock);
 	qsc_socket_server_initialize(&srvs);
 
@@ -846,7 +836,7 @@ qsmp_errors qsmp_server_listen_ipv6(qsmp_kex_server_state* ctx, qsc_socket* sock
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
-	qerr = qsmp_error_none;
+	qerr = qsmp_error_invalid_input;
 	qsc_socket_server_initialize(sock);
 	qsc_socket_server_initialize(&srvs);
 
@@ -916,7 +906,7 @@ qsmp_errors qsmp_server_decrypt_packet(qsmp_kex_server_state* ctx, const qsmp_pa
 	return qerr;
 }
 
-qsmp_errors qsmp_server_encrypt_packet(qsmp_kex_server_state* ctx, uint8_t* message, size_t msglen, qsmp_packet* packetout)
+qsmp_errors qsmp_server_encrypt_packet(qsmp_kex_server_state* ctx, const uint8_t* message, size_t msglen, qsmp_packet* packetout)
 {
 	assert(ctx != NULL);
 	assert(message != NULL);

@@ -21,7 +21,7 @@ static void server_print_error(qsmp_errors error)
 {
 	const char* msg;
 
-	msg = qsmp_error_to_string(qsmp_error_bad_keep_alive);
+	msg = qsmp_error_to_string(error);
 
 	if (msg != NULL)
 	{
@@ -183,7 +183,7 @@ static bool server_key_dialogue(qsmp_server_key* prik, qsmp_client_key* pubk, ui
 	return res;
 }
 
-static qsmp_errors server_keep_alive_loop(qsc_socket* sock)
+static qsmp_errors server_keep_alive_loop(const qsc_socket* sock)
 {
 	qsc_async_mutex mtx;
 	qsmp_errors qerr;
@@ -209,7 +209,7 @@ static qsmp_errors server_keep_alive_loop(qsc_socket* sock)
 	return qerr;
 }
 
-static qsmp_errors server_listen_ipv4(qsmp_server_key* prik)
+static qsmp_errors server_listen_ipv4(const qsmp_server_key* prik)
 {
 	qsc_socket_receive_async_state actx = { 0 };
 	qsc_socket ssck = { 0 };
@@ -217,8 +217,6 @@ static qsmp_errors server_listen_ipv4(qsmp_server_key* prik)
 	qsc_ipinfo_ipv4_address addt = { 0 };
 	
 	uint8_t msgstr[QSMP_MESSAGE_MAX] = { 0 };
-	uint8_t spub[QSMP_PUBKEY_STRING_SIZE] = { 0 };
-	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0 };
 	char sin[QSMP_MESSAGE_MAX + 1] = { 0 };
 	qsmp_errors qerr;
 	size_t mlen;
@@ -238,12 +236,12 @@ static qsmp_errors server_listen_ipv4(qsmp_server_key* prik)
 		server_print_message("Type 'qsmp quit' to exit.");
 
 		/* after key exchange has succeeded, start the keep-alive mechanism on a new thread */
-		qsc_async_thread_initialize(server_keep_alive_loop, &ssck);
+		qsc_async_thread_initialize(&server_keep_alive_loop, &ssck);
 
 		/* initialize send and receive loops */
 		memset((char*)&actx, 0x00, sizeof(qsc_socket_receive_async_state));
-		actx.callback = qsc_socket_receive_async_callback;
-		actx.error = qsc_socket_exception_callback;
+		actx.callback = &qsc_socket_receive_async_callback;
+		actx.error = &qsc_socket_exception_callback;
 		actx.source = &ssck;
 		qsc_socket_receive_async(&actx);
 
@@ -284,17 +282,17 @@ static qsmp_errors server_listen_ipv4(qsmp_server_key* prik)
 	return qerr;
 }
 
-void qsc_socket_exception_callback(qsc_socket* source, qsc_socket_exceptions error)
+void qsc_socket_exception_callback(const qsc_socket* source, qsc_socket_exceptions error)
 {
 	assert(source != NULL);
 
 	if (source != NULL)
 	{
-		server_print_error(error);
+		server_print_error((qsmp_errors)error);
 	}
 }
 
-void qsc_socket_receive_async_callback(qsc_socket* source, uint8_t* message, size_t msglen)
+void qsc_socket_receive_async_callback(const qsc_socket* source, const uint8_t* message, size_t msglen)
 {
 	assert(message != NULL);
 	assert(source != NULL);
