@@ -156,7 +156,7 @@ static qsmp_errors client_exstart_request(qsmp_kex_client_state* ctx, const qsmp
 					qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
 					qsmp_cipher_encapsulate(sec, packetout->message, pubk, qsc_acp_generate);
 
-					/* expand the secret with cshake adding the public verification keys hash; prand = Exp(pv || sec) */
+					/* expand the secret with cshake adding the public verification keys hash; prand = Exp(sec, pkh) */
 					qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, sec, QSMP_SECRET_SIZE, NULL, 0, ctx->pkhash, QSMP_PKCODE_SIZE);
 					qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1);
 
@@ -237,7 +237,7 @@ static qsmp_errors client_exchange_request(qsmp_kex_client_state* ctx, const qsm
 				/* serialize the packet header and add it to associated data */
 				qsmp_packet_header_serialize(packetout, hdr);
 				qsc_rcs_set_associated(&ctx->txcpr, hdr, QSMP_HEADER_SIZE);
-				/* encrypt the public encryption key using the channel-1 VPN */
+				/* encrypt the public encryption key using the channel-1 */
 				qsc_rcs_transform(&ctx->txcpr, packetout->message, msg, sizeof(msg));
 
 				qerr = qsmp_error_none;

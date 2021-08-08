@@ -173,7 +173,7 @@ static qsmp_errors server_exstart_response(qsmp_kex_server_state* ctx, const qsm
 				uint8_t prnd[QSC_KECCAK_256_RATE] = { 0 };
 				qsc_keccak_state kstate = { 0 };
 
-				/* expand the secret with cshake adding the public verification keys hash; prand = Exp(pkh || sec) */
+				/* expand the secret with cshake adding the public verification keys hash; prand = Exp(sec, pkh) */
 				qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, sec, QSMP_SECRET_SIZE, NULL, 0, ctx->pkhash, QSMP_PKCODE_SIZE);
 				qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 1);
 
@@ -186,7 +186,7 @@ static qsmp_errors server_exstart_response(qsmp_kex_server_state* ctx, const qsm
 				kp.infolen = 0;
 				qsc_rcs_initialize(&ctx->rxcpr, &kp, false);
 
-				/* channel-1 VPN is established */
+				/* channel-1 is established */
 
 				/* assemble the exstart-response packet */
 				qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);

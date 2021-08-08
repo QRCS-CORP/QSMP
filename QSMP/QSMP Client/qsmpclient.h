@@ -19,14 +19,13 @@
 /**
 * \file qsmp.h
 * \brief <b>QSMP Client functions</b> \n
-* Functions used to implement the client in the Quantum Secure Messaging Protocol (QSMP) VPN.
+* Functions used to implement the client in the Quantum Secure Messaging Protocol (QSMP).
 *
 * \author		John G. Underhill
 * \version		1.0.0.0a
 * \date			February 1, 2021
 * \updated		May 26, 2021
 * \contact:		develop@vtdev.com
-* \copyright	GPL version 3 license (GPLv3)
 */
 
 #ifndef QSMP_CLIENT_H
