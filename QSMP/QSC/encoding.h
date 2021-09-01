@@ -82,9 +82,4 @@ QSC_EXPORT_API size_t qsc_encoding_base64_encoded_size(size_t length);
 */
 QSC_EXPORT_API bool qsc_encoding_base64_is_valid_char(char c);
 
-/**
-* \brief Test the encoding and decoding functions
-*/
-QSC_EXPORT_API void qsc_encoding_self_test();
-
 #endif

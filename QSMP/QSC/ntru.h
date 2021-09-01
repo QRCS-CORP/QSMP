@@ -154,6 +154,11 @@
 #	error "The NTRU parameter set is invalid!"
 #endif
 
+/*!
+* \def QSC_NTRU_SEED_SIZE
+* \brief The byte size of the seed array
+*/
+#define QSC_NTRU_SEED_SIZE 32
 
 /*!
 * \def QSC_NTRU_SHAREDSECRET_SIZE
@@ -178,6 +183,17 @@
 QSC_EXPORT_API bool qsc_ntru_decapsulate(uint8_t* secret, const uint8_t* ciphertext, const uint8_t* privatekey);
 
 /**
+* \brief Decrypts the shared secret for a given cipher-text using a private-key
+* Used in conjunction with the encrypt function.
+*
+* \param secret: Pointer to the output shared secret key, an array of QSC_KYBER_SHAREDSECRET_SIZE constant size
+* \param ciphertext: [const] Pointer to the cipher-text array of QSC_KYBER_CIPHERTEXT_SIZE constant size
+* \param privatekey: [const] Pointer to the secret-key array of QSC_KYBER_PRIVATEKEY_SIZE constant size
+* \return Returns true for success
+*/
+QSC_EXPORT_API bool qsc_ntru_decrypt(uint8_t* secret, const uint8_t* ciphertext, const uint8_t* privatekey);
+
+/**
 * \brief Generates cipher-text and encapsulates a shared secret key using a public-key
 *
 * \warning Ciphertext array must be sized to the QSC_NTRU_CIPHERTEXT_SIZE.
@@ -188,6 +204,19 @@ QSC_EXPORT_API bool qsc_ntru_decapsulate(uint8_t* secret, const uint8_t* ciphert
 * \param rng_generate: A pointer to the random generator function
 */
 QSC_EXPORT_API void qsc_ntru_encapsulate(uint8_t* secret, uint8_t* ciphertext, const uint8_t* publickey, bool (*rng_generate)(uint8_t*, size_t));
+
+/**
+* \brief Generates cipher-text and encapsulates a shared secret key using a public-key
+* Used in conjunction with the encrypt function.
+*
+* \warning Ciphertext array must be sized to the QSC_KYBER_CIPHERTEXT_SIZE.
+*
+* \param secret: Pointer to the shared secret key, a uint8_t array of QSC_KYBER_SHAREDSECRET_SIZE constant size
+* \param ciphertext: Pointer to the cipher-text array of QSC_KYBER_CIPHERTEXT_SIZE constant size
+* \param publickey: [const] Pointer to the public-key array of QSC_KYBER_PUBLICKEY_SIZE constant size
+* \param seed: [const] A pointer to the random seed array
+*/
+QSC_EXPORT_API void qsc_ntru_encrypt(uint8_t* secret, uint8_t* ciphertext, const uint8_t* publickey, const uint8_t seed[QSC_NTRU_SEED_SIZE]);
 
 /**
 * \brief Generates public and private key for the NTRU key encapsulation mechanism

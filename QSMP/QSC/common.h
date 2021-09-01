@@ -425,10 +425,10 @@
 #	define QSC_SYSTEM_HAS_SSE42
 #endif
 #if defined(__AVX__)
-//#	define QSC_SYSTEM_HAS_AVX
+#	define QSC_SYSTEM_HAS_AVX
 #endif
 #if defined(__AVX2__)
-//#	define QSC_SYSTEM_HAS_AVX2
+#	define QSC_SYSTEM_HAS_AVX2
 #endif
 #if defined(__AVX512__)
 #	define QSC_SYSTEM_HAS_AVX512
@@ -512,13 +512,13 @@
 \def QSC_KYBER_S3Q3329N256K3
 * Implement the Kyber S3Q3329N256K3 parameter set
 */
-//#define QSC_KYBER_S3Q3329N256K3
+#define QSC_KYBER_S3Q3329N256K3
 
 /*!
 \def QSC_KYBER_S5Q3329N256K4
 * Implement the Kyber S5Q3329N256K4 parameter set
 */
-#define QSC_KYBER_S5Q3329N256K4
+//#define QSC_KYBER_S5Q3329N256K4
 
 /*!
 \def QSC_KYBER_S6Q3329N256K5
@@ -611,13 +611,13 @@
 \def QSC_SPHINCSPLUS_S3S192SHAKERF
 * Implement the SphincsPlus S3S192SHAKERF robust fast parameter set
 */
-//#define QSC_SPHINCSPLUS_S3S192SHAKERF
+#define QSC_SPHINCSPLUS_S3S192SHAKERF
 
 /*!
 \def QSC_SPHINCSPLUS_S5S256SHAKERS
 * Implement the SphincsPlus S5S256SHAKERS robust small parameter set
 */
-#define QSC_SPHINCSPLUS_S5S256SHAKERS
+//#define QSC_SPHINCSPLUS_S5S256SHAKERS
 
 /*!
 \def QSC_SPHINCSPLUS_S5S256SHAKERF

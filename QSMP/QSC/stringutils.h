@@ -36,6 +36,25 @@
 #include "common.h"
 
 /**
+* \brief Counts all whitespaces, line stops, and returns from a string
+*
+* \param buffer: The string buffer to check
+* \param baselen: The size of the buffer string
+* \return Returns the number of line stops, carriage returns and whitespaces in the string
+*/
+QSC_EXPORT_API size_t qsc_stringutils_formatting_count(const char* buffer, size_t buflen);
+
+/**
+* \brief Remove all whitespaces, lines stops, and returns from a string
+*
+* \param base: The base string to copy from
+* \param baselen: The size of the base string
+* \param filtered: The string receiving the filtered characters
+* \return Returns the number of characters copied
+*/
+QSC_EXPORT_API size_t qsc_stringutils_formatting_filter(const char* base, size_t baselen, char* filtered);
+
+/**
 * \brief Add line breaks to a string at a line length interval
 *
 * \param buffer: The string receiving the formatted text
@@ -269,5 +288,24 @@ QSC_EXPORT_API void qsc_stringutils_to_uppercase(char* source);
 * \param source: The string to trim
 */
 QSC_EXPORT_API void qsc_stringutils_trim_newline(char* source);
+
+/**
+* \brief Counts all the whitespaces in a string
+*
+* \param buffer: The string buffer to check
+* \param baselen: The size of the buffer string
+* \return Returns the number of whitespaces in the string
+*/
+QSC_EXPORT_API size_t qsc_stringutils_whitespace_count(const char* buffer, size_t buflen);
+
+/**
+* \brief Remove all the whitespaces from a string
+*
+* \param base: The base string to copy from
+* \param baselen: The size of the base string
+* \param filtered: The string receiving the filtered characters
+* \return Returns the number of characters copied
+*/
+QSC_EXPORT_API size_t qsc_stringutils_whitespace_filter(const char* base, size_t baselen, char* filtered);
 
 #endif

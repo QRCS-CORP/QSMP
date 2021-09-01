@@ -519,6 +519,11 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 */
 #define QSMP_MACTAG_SIZE 32
 /*!
+* \def QSMP_SRVID_SIZE
+* \brief The QSMP server identity size
+*/
+#define QSMP_SRVID_SIZE 8
+/*!
 * \def QSMP_TIMESTAMP_SIZE
 * \brief The key expiration timestamp size
 */
@@ -587,7 +592,7 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 * \def QSMP_ESTABLISH_REQUEST_SIZE
 * \brief The key-exchange establish stage request packet size
 */
-#define QSMP_ESTABLISH_REQUEST_SIZE (QSMP_KEYID_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
+#define QSMP_ESTABLISH_REQUEST_SIZE (QSMP_STOKEN_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
 /*!
 * \def QSMP_CONNECT_RESPONSE_SIZE
 * \brief The key-exchange connect stage response packet size
@@ -607,7 +612,7 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 * \def QSMP_ESTABLISH_RESPONSE_SIZE
 * \brief The key-exchange establish stage response packet size
 */
-#define QSMP_ESTABLISH_RESPONSE_SIZE (QSMP_KEYID_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
+#define QSMP_ESTABLISH_RESPONSE_SIZE (QSMP_HASH_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
 
 /* public key encoding constants */
 

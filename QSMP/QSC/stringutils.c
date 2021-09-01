@@ -269,6 +269,69 @@ size_t qsc_stringutils_copy_substring(char* buffer, size_t buflen, const char* s
 	return res;
 }
 
+size_t qsc_stringutils_formatting_count(const char* buffer, size_t buflen)
+{
+	size_t i;
+	size_t j;
+
+	j = 0;
+
+	if (buffer != NULL && buflen > 0)
+	{
+		for (i = 0; i < buflen; ++i)
+		{
+			switch (buffer[i])
+			{
+				case ' ':
+				case '\t':
+				case '\n':
+				case '\r':
+				{
+					break;
+				}
+				default:
+				{
+					++j;
+				}
+			}
+		}
+	}
+
+	return j;
+}
+
+size_t qsc_stringutils_formatting_filter(const char* base, size_t baselen, char* filtered)
+{
+	size_t i;
+	size_t j;
+
+	j = 0;
+
+	if (base != NULL && filtered != NULL && baselen > 0)
+	{
+		for (i = 0; i < baselen; ++i)
+		{
+			switch (base[i])
+			{
+				case ' ':
+				case '\t':
+				case '\n':
+				case '\r':
+				{
+					break;
+				}
+				default:
+				{
+					filtered[j] = base[i];
+					++j;
+				}
+			}
+		}
+	}
+
+	return j;
+}
+
 int32_t qsc_stringutils_find_string(const char* source, const char* token)
 {
 	assert(source != NULL);
@@ -710,3 +773,47 @@ void qsc_stringutils_to_uppercase(char* source)
 #endif
 	}
 }
+
+size_t qsc_stringutils_whitespace_count(const char* buffer, size_t buflen)
+{
+	size_t i;
+	size_t j;
+
+	j = 0;
+
+	if (buffer != NULL && buflen > 0)
+	{
+		for (i = 0; i < buflen; ++i)
+		{
+			if (buffer[i] != ' ')
+			{
+				++j;
+			}
+		}
+	}
+
+	return j;
+}
+
+size_t qsc_stringutils_whitespace_filter(const char* base, size_t baselen, char* filtered)
+{
+	size_t i;
+	size_t j;
+
+	j = 0;
+
+	if (base != NULL && filtered != NULL && baselen > 0)
+	{
+		for (i = 0; i < baselen; ++i)
+		{
+			if (base[i] != ' ')
+			{
+				filtered[j] = base[i];
+				++j;
+			}
+		}
+	}
+
+	return j;
+}
+

@@ -45,7 +45,7 @@ static const uint16_t kyber_zetas[KYBER_ZETA_SIZE] =
 */
 typedef struct
 {
-    QSC_ALIGN(32) int16_t coeffs[QSC_KYBER_N];
+    QSC_ALIGN(16) int16_t coeffs[QSC_KYBER_N];
 } qsc_kyber_poly;
 
 /**
@@ -290,10 +290,6 @@ static void kyber_poly_decompress_avx2(qsc_kyber_poly* restrict r, const uint8_t
 
 static void kyber_poly_compress_avx2(uint8_t* r, const qsc_kyber_poly* restrict a)
 {
-    __m256i f0;
-    __m256i f1;
-    __m128i t0;
-    __m128i t1;
     const __m256i v = _mm256_set1_epi16(20159);
     const __m256i shift1 = _mm256_set1_epi16(1 << 10);
     const __m256i mask = _mm256_set1_epi16(31);
@@ -302,6 +298,10 @@ static void kyber_poly_compress_avx2(uint8_t* r, const qsc_kyber_poly* restrict 
     const __m256i sllvdidx = _mm256_set1_epi64x(12);
     const __m256i shufbidx = _mm256_set_epi8(8, -1, -1, -1, -1, -1, 4, 3, 2, 1, 0, -1, 12, 11, 10, 9,
         -1, 12, 11, 10, 9, 8, -1, -1, -1, -1, -1, 4, 3, 2, 1, 0);
+    __m256i f0;
+    __m256i f1;
+    __m128i t0;
+    __m128i t1;
 
     for (size_t i = 0; i < QSC_KYBER_N / 32; ++i) 
     {
@@ -696,15 +696,13 @@ static void kyber_poly_sub(qsc_kyber_poly* r, const qsc_kyber_poly* a, const qsc
 #if (QSC_KYBER_POLYVEC_COMPRESSED_BYTES == (QSC_KYBER_K * 320))
 static void kyber_poly_compress10_avx2(uint8_t r[320], const qsc_kyber_poly* restrict a)
 {
-    // fails with what appears to be a rounding/intrinsics issue in VS2019, using NPQ kat0, ciphertext index 220, 223, 535 are wrong..
-    const int16_t sh1 = (1 << 12);
-    const int64_t sh2 = (1024LL << 48) + (1LL << 32) + (1024 << 16) + 1;
+    // Note: not working
     const __m256i v = _mm256_set1_epi16(20159);
     const __m256i v8 = _mm256_slli_epi16(v, 3);
     const __m256i off = _mm256_set1_epi16(15);
-    const __m256i shift1 = _mm256_set1_epi16(sh1);
+    const __m256i shift1 = _mm256_set1_epi16(1 << 12);
     const __m256i mask = _mm256_set1_epi16(1023);
-    const __m256i shift2 = _mm256_set1_epi64x(sh2);
+    const __m256i shift2 = _mm256_set1_epi64x((1024LL << 48) + (1LL << 32) + (1024 << 16) + 1);
     const __m256i sllvdidx = _mm256_set1_epi64x(12);
     const __m256i shufbidx = _mm256_set_epi8(8, 4, 3, 2, 1, 0, -1, -1, -1, -1, -1, -1, 12, 11, 10, 9,
         -1, -1, -1, -1, -1, -1, 12, 11, 10, 9, 8, 4, 3, 2, 1, 0);
@@ -716,7 +714,7 @@ static void kyber_poly_compress10_avx2(uint8_t r[320], const qsc_kyber_poly* res
 
     for (size_t i = 0; i < QSC_KYBER_N / 16; ++i)
     {
-        f0 = _mm256_load_si256((const __m256i*)&a->coeffs[16 * i]);
+        f0 = _mm256_load_si256((const __m256i*)&a->coeffs[i * 16]);
         f1 = _mm256_mullo_epi16(f0, v8);
         f2 = _mm256_add_epi16(f0, off);
         f0 = _mm256_slli_epi16(f0, 3);
@@ -735,7 +733,7 @@ static void kyber_poly_compress10_avx2(uint8_t r[320], const qsc_kyber_poly* res
         t1 = _mm256_extracti128_si256(f0, 1);
         t0 = _mm_blend_epi16(t0, t1, 0xE0);
         _mm_storeu_si128((__m128i*)&r[20 * i], t0);
-        _mm_store_ss((float*)&r[(20 * i) + 16], _mm_castsi128_ps(t1));
+        memcpy(&r[20 * i + 16], &t1, 4);
     }
 }
 
@@ -757,7 +755,6 @@ static void kyber_poly_decompress10_avx2(qsc_kyber_poly* restrict r, const uint8
         f = _mm256_srli_epi16(f, 1);
         f = _mm256_and_si256(f, mask);
         f = _mm256_mulhrs_epi16(f, q);
-
         _mm256_store_si256((__m256i*)&r->coeffs[16 * i], f);
     }
 }
@@ -765,7 +762,7 @@ static void kyber_poly_decompress10_avx2(qsc_kyber_poly* restrict r, const uint8
 #elif (QSC_KYBER_POLYVEC_COMPRESSED_BYTES == (QSC_KYBER_K * 352))
 static void kyber_poly_compress11_avx2(uint8_t r[352 + 2], const qsc_kyber_poly* restrict a)
 {
-    // fails with what appears to be a rounding issue, using NPQ kat0, ciphertext index 570,598,727,1263
+    // Note: not working
     const __m256i v = _mm256_set1_epi16(20159);
     const __m256i v8 = _mm256_slli_epi16(v, 3);
     const __m256i off = _mm256_set1_epi16(36);
@@ -782,7 +779,7 @@ static void kyber_poly_compress11_avx2(uint8_t r[352 + 2], const qsc_kyber_poly*
     __m128i t0;
     __m128i t1;
 
-    for (size_t i = 0; i < QSC_KYBER_N / 16; i++) 
+    for (size_t i = 0; i < QSC_KYBER_N / 16; ++i) 
     {
         f0 = _mm256_load_si256((const __m256i*)&a->coeffs[16 * i]);
         f1 = _mm256_mullo_epi16(f0, v8);
@@ -806,7 +803,7 @@ static void kyber_poly_compress11_avx2(uint8_t r[352 + 2], const qsc_kyber_poly*
         t1 = _mm256_extracti128_si256(f0, 1);
         t0 = _mm_blendv_epi8(t0, t1, _mm256_castsi256_si128(shufbidx));
         _mm_storeu_si128((__m128i*)&r[22 * i], t0);
-        _mm_storel_epi64((__m128i*)&r[(22 * i) + 16], t1);
+        _mm_storel_epi64((__m128i*)&r[22 * i + 16], t1);
     }
 }
 
@@ -823,7 +820,7 @@ static void kyber_poly_decompress11_avx2(qsc_kyber_poly* restrict r, const uint8
 
     for (size_t i = 0; i < QSC_KYBER_N / 16; ++i)
     {
-        f = _mm256_loadu_si256((const __m256i*)&a[22 * i]);
+        f = _mm256_loadu_si256((__m256i*)&a[22 * i]);
         f = _mm256_permute4x64_epi64(f, 0x94);
         f = _mm256_shuffle_epi8(f, shufbidx);
         f = _mm256_srlv_epi32(f, srlvdidx);
@@ -832,7 +829,6 @@ static void kyber_poly_decompress11_avx2(qsc_kyber_poly* restrict r, const uint8
         f = _mm256_srli_epi16(f, 1);
         f = _mm256_and_si256(f, mask);
         f = _mm256_mulhrs_epi16(f, q);
-
         _mm256_store_si256((__m256i*)&r->coeffs[16 * i], f);
     }
 }
@@ -1070,7 +1066,7 @@ static void kyber_pack_ciphertext(uint8_t r[QSC_KYBER_INDCPA_BYTES], const qsc_k
 
 static void kyber_unpack_ciphertext(qsc_kyber_polyvec* b, qsc_kyber_poly* v, const uint8_t c[QSC_KYBER_INDCPA_BYTES])
 {
-    kyber_polyvec_decompress(b, c);
+    kyber_polyvec_decompress_avx2(b, c);
     kyber_poly_decompress_avx2(v, (c + QSC_KYBER_POLYVEC_COMPRESSED_BYTES));
 }
 

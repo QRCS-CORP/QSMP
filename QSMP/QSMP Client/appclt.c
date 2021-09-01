@@ -52,8 +52,8 @@ static void client_print_banner()
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Quantum Secure Messaging Protocol Client  *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.0.0.0e (A0)                       *");
-	qsc_consoleutils_print_line("* Date:      June 10, 2021                        *");
+	qsc_consoleutils_print_line("* Release:   v1.0.0.0j (A0)                       *");
+	qsc_consoleutils_print_line("* Date:      September 1, 2021                    *");
 	qsc_consoleutils_print_line("* Contact:   develop@vtdev.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");

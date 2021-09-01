@@ -314,7 +314,8 @@ static qsmp_errors server_establish_response(qsmp_kex_server_state* ctx, const q
 		if (ctx->exflag == qsmp_flag_exchange_response && packetin->flag == qsmp_flag_establish_request)
 		{
 			uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
-			uint8_t msg[QSMP_KEYID_SIZE] = { 0 };
+			uint8_t mhash[QSMP_HASH_SIZE] = { 0 };
+			uint8_t msg[QSMP_STOKEN_SIZE] = { 0 };
 
 			/* serialize the packet header and add it to associated data */
 			qsmp_packet_header_serialize(packetin, hdr);
@@ -323,31 +324,25 @@ static qsmp_errors server_establish_response(qsmp_kex_server_state* ctx, const q
 			/* authenticate and decrypt the cipher-text */
 			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - QSMP_MACTAG_SIZE) == true)
 			{
-				/* compare the stored device id with the plain-text */
-				if (qsc_intutils_verify(msg, ctx->keyid, QSMP_KEYID_SIZE) == 0)
-				{
-					/* assemble the establish-response packet */
-					qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
-					packetout->flag = qsmp_flag_establish_response;
-					packetout->msglen = QSMP_KEYID_SIZE + QSMP_MACTAG_SIZE;
-					packetout->sequence = ctx->txseq;
+				/* assemble the establish-response packet */
+				qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
+				packetout->flag = qsmp_flag_establish_response;
+				packetout->msglen = QSMP_HASH_SIZE + QSMP_MACTAG_SIZE;
+				packetout->sequence = ctx->txseq;
 
-					/* serialize the packet header and add it to the associated data */
-					qsc_memutils_clear(hdr, QSMP_HEADER_SIZE);
-					qsmp_packet_header_serialize(packetout, hdr);
-					qsc_rcs_set_associated(&ctx->txcpr, hdr, QSMP_HEADER_SIZE);
+				/* serialize the packet header and add it to the associated data */
+				qsc_memutils_clear(hdr, QSMP_HEADER_SIZE);
+				qsmp_packet_header_serialize(packetout, hdr);
+				qsc_rcs_set_associated(&ctx->txcpr, hdr, QSMP_HEADER_SIZE);
 
-					/* encrypt the message */
-					qsc_rcs_transform(&ctx->txcpr, packetout->message, msg, QSMP_KEYID_SIZE);
+				/* hash the random verification-token */
+				qsc_sha3_compute256(mhash, msg, QSMP_STOKEN_SIZE);
 
-					qerr = qsmp_error_none;
-					ctx->exflag = qsmp_flag_session_established;
-				}
-				else
-				{
-					qerr = qsmp_error_verify_failure;
-					ctx->exflag = qsmp_flag_none;
-				}
+				/* encrypt the verification-token hash */
+				qsc_rcs_transform(&ctx->txcpr, packetout->message, mhash, QSMP_HASH_SIZE);
+
+				qerr = qsmp_error_none;
+				ctx->exflag = qsmp_flag_session_established;
 			}
 			else
 			{

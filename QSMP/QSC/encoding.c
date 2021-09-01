@@ -21,7 +21,7 @@ bool qsc_encoding_base64_decode(uint8_t* output, size_t outlen, const char* inpu
 
 	if (input != NULL && output != NULL)
 	{
-		if (outlen < qsc_encoding_base64_decoded_size(input, inlen) - 1 || inlen % 4 != 0)
+		if (outlen < qsc_encoding_base64_decoded_size(input, inlen) || inlen % 4 != 0)
 		{
 			res = false;
 		}
@@ -74,7 +74,7 @@ size_t qsc_encoding_base64_decoded_size(const char* input, size_t length)
 	{
 		res = (length / 4) * 3;
 
-		for (int32_t i = (size_t)length; i >= 0; --i)
+		for (size_t i = length; i > 0; --i)
 		{
 			if (input[i] == '=')
 			{

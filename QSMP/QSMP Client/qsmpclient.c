@@ -308,15 +308,18 @@ static qsmp_errors client_establish_request(qsmp_kex_client_state* ctx, const qs
 					/* assemble the establish-request packet */
 					qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
 					packetout->flag = qsmp_flag_establish_request;
-					packetout->msglen = QSMP_KEYID_SIZE + QSMP_MACTAG_SIZE;
+					packetout->msglen = QSMP_STOKEN_SIZE + QSMP_MACTAG_SIZE;
 					packetout->sequence = ctx->txseq;
 
 					/* serialize the packet header and add it to the associated data */
 					qsmp_packet_header_serialize(packetout, hdr);
 					qsc_rcs_set_associated(&ctx->txcpr, hdr, QSMP_HEADER_SIZE);
 
-					/* encrypt the kid message */
-					qsc_rcs_transform(&ctx->txcpr, packetout->message, ctx->keyid, QSMP_KEYID_SIZE);
+					/* generate a random verification-token and store in the session token state */
+					qsc_acp_generate(ctx->token, QSMP_STOKEN_SIZE);
+
+					/* encrypt the token */
+					qsc_rcs_transform(&ctx->txcpr, packetout->message, ctx->token, QSMP_STOKEN_SIZE);
 
 					qerr = qsmp_error_none;
 					ctx->exflag = qsmp_flag_session_establish_verify;
@@ -353,7 +356,7 @@ static qsmp_errors client_establish_verify(qsmp_kex_client_state* ctx, const qsm
 	assert(packetin != NULL);
 
 	uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
-	uint8_t msg[QSMP_KEYID_SIZE] = { 0 };
+	uint8_t msg[QSMP_STOKEN_SIZE] = { 0 };
 	qsmp_errors qerr;
 
 	if (ctx != NULL && packetin != NULL)
@@ -367,7 +370,12 @@ static qsmp_errors client_establish_verify(qsmp_kex_client_state* ctx, const qsm
 			/* authenticate and decrypt the cipher-text */
 			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - QSMP_MACTAG_SIZE) == true)
 			{
-				if (qsc_intutils_verify(ctx->keyid, msg, QSMP_KEYID_SIZE) == 0)
+				uint8_t vhash[QSMP_HASH_SIZE] = { 0 };
+
+				/* hash the random verification-token */
+				qsc_sha3_compute256(vhash, ctx->token, QSMP_STOKEN_SIZE);
+
+				if (qsc_intutils_verify(vhash, msg, QSMP_HASH_SIZE) == 0)
 				{
 					ctx->exflag = qsmp_flag_session_established;
 					qerr = qsmp_error_none;

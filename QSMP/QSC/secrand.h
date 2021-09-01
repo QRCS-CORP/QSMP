@@ -36,7 +36,6 @@
 #define QSC_SECRAND_H
 
 #include "common.h"
-#include "acp.h"
 #include "csg.h"
 
 /*!
@@ -223,6 +222,11 @@ QSC_EXPORT_API uint64_t qsc_secrand_next_uint64_max(uint64_t maximum);
 QSC_EXPORT_API uint64_t qsc_secrand_next_uint64_maxmin(uint64_t maximum, uint64_t minimum);
 
 /**
+* \brief Clear the buffer and destroy the internal state
+*/
+QSC_EXPORT_API void qsc_secrand_destroy();
+
+/**
 * \brief Initialize the random generator with a seed and optional customization array
 *
 * \param seed: The primary seed, must be 32 or 64 bytes in length
@@ -238,6 +242,6 @@ QSC_EXPORT_API void qsc_secrand_initialize(const uint8_t* seed, size_t seedlen, 
 * \param output: The destination array
 * \param length: The number of bytes to generate
 */
-QSC_EXPORT_API void qsc_secrand_generate(uint8_t* output, size_t length);
+QSC_EXPORT_API bool qsc_secrand_generate(uint8_t* output, size_t length);
 
 #endif

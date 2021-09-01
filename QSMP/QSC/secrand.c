@@ -319,6 +319,17 @@ uint64_t qsc_secrand_next_uint64_maxmin(uint64_t maximum, uint64_t minimum)
 	return minimum + ret;
 }
 
+void qsc_secrand_destroy()
+{
+	if (secrand_state.init == true)
+	{
+		qsc_memutils_clear(secrand_state.cache, QSC_SECRAND_CACHE_SIZE);
+		qsc_csg_dispose(&secrand_state.hstate);
+		secrand_state.cpos = 0;
+		secrand_state.init = false;
+	}
+}
+
 void qsc_secrand_initialize(const uint8_t* seed, size_t seedlen, const uint8_t* custom, size_t custlen)
 {
 	assert(seed != NULL);
@@ -333,12 +344,15 @@ void qsc_secrand_initialize(const uint8_t* seed, size_t seedlen, const uint8_t* 
 	secrand_state.init = true;
 }
 
-void qsc_secrand_generate(uint8_t* output, size_t length)
+bool qsc_secrand_generate(uint8_t* output, size_t length)
 {
 	assert(secrand_state.init == true);
 
 	const size_t BUFLEN = QSC_SECRAND_CACHE_SIZE - secrand_state.cpos;
 	size_t poft;
+	bool res;
+
+	res = false;
 
 	if (secrand_state.init != true)
 	{
@@ -380,10 +394,14 @@ void qsc_secrand_generate(uint8_t* output, size_t length)
 			qsc_memutils_copy(output, secrand_state.cache + secrand_state.cpos, length);
 			secrand_state.cpos += length;
 		}
+
+		res = true;
 	}
 
 	if (secrand_state.cpos != 0)
 	{
 		qsc_memutils_clear((uint8_t*)secrand_state.cache, secrand_state.cpos);
 	}
+
+	return res;
 }
