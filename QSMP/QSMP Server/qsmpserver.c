@@ -314,7 +314,6 @@ static qsmp_errors server_establish_response(qsmp_kex_server_state* ctx, const q
 		if (ctx->exflag == qsmp_flag_exchange_response && packetin->flag == qsmp_flag_establish_request)
 		{
 			uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
-			uint8_t mhash[QSMP_HASH_SIZE] = { 0 };
 			uint8_t msg[QSMP_STOKEN_SIZE] = { 0 };
 
 			/* serialize the packet header and add it to associated data */
@@ -324,6 +323,8 @@ static qsmp_errors server_establish_response(qsmp_kex_server_state* ctx, const q
 			/* authenticate and decrypt the cipher-text */
 			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - QSMP_MACTAG_SIZE) == true)
 			{
+				uint8_t mhash[QSMP_HASH_SIZE] = { 0 };
+
 				/* assemble the establish-response packet */
 				qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
 				packetout->flag = qsmp_flag_establish_response;

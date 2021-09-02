@@ -55,7 +55,7 @@ static void server_print_banner()
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Quantum Secure Messaging Protocol Server  *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.0.0.0j (A0)                       *");
+	qsc_consoleutils_print_line("* Release:   v1.0.0.0f (A0)                       *");
 	qsc_consoleutils_print_line("* Date:      September 1, 2021                    *");
 	qsc_consoleutils_print_line("* Contact:   develop@vtdev.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
@@ -261,15 +261,12 @@ static qsmp_errors server_listen_ipv4(const qsmp_server_key* prik)
 
 			mlen = qsc_consoleutils_get_line(sin, sizeof(sin));
 
-			if (mlen == 1 && sin[0] == '\n')
+			if (mlen == 1 && (sin[0] == '\n' || sin[0] == '\r'))
 			{
 				mlen = 0;
-				server_print_message("");
 			}
-			else
-			{
-				server_print_prompt();
-			}
+
+			server_print_prompt();
 		}
 
 		qsmp_server_connection_close(&m_qsmp_server_ctx, &ssck, qsmp_error_none);
@@ -286,9 +283,12 @@ void qsc_socket_exception_callback(const qsc_socket* source, qsc_socket_exceptio
 {
 	assert(source != NULL);
 
-	if (source != NULL)
+	const char* emsg;
+
+	if (source != NULL && error != qsc_socket_exception_success)
 	{
-		server_print_error((qsmp_errors)error);
+		emsg = qsc_socket_error_to_string(error);
+		server_print_message(emsg);
 	}
 }
 
