@@ -16,12 +16,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+/**
+* \file appclt.h
+* \brief The client application
+* Version 1b: 2022-01-25
+*/
+
 #ifndef QSMP_CLIENT_APP_H
 #define QSMP_CLIENT_APP_H
 
 #include "common.h"
 #include "../QSC/socketbase.h"
 
-static const char QSMP_PUBKEY_NAME[] = "\\pubkey.qpkey";
+static const char QSMP_PUBKEY_NAME[] = "pubkey.qpkey";
 
 #endif

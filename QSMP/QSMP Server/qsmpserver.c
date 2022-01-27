@@ -89,7 +89,7 @@ static qsmp_errors server_connect_response(qsmp_kex_server_state* ctx, const qsm
 						qsc_memutils_clear(ctx->pkhash, QSMP_PKCODE_SIZE);
 						qsc_sha3_initialize(&kstate);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_256, ctx->token, QSMP_STOKEN_SIZE);
-						qsc_sha3_update(&kstate, qsc_keccak_rate_256, QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
+						qsc_sha3_update(&kstate, qsc_keccak_rate_256, (uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_256, ctx->verkey, QSMP_VERIFYKEY_SIZE);
 						qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, ctx->pkhash);
 
@@ -142,10 +142,6 @@ static qsmp_errors server_connect_response(qsmp_kex_server_state* ctx, const qsm
 			qerr = qsmp_error_invalid_request;
 			ctx->exflag = qsmp_flag_none;
 		}
-	}
-	else
-	{
-		qerr = qsmp_error_invalid_input;
 	}
 
 	return qerr;
@@ -210,10 +206,6 @@ static qsmp_errors server_exstart_response(qsmp_kex_server_state* ctx, const qsm
 			ctx->exflag = qsmp_flag_none;
 		}
 	}
-	else
-	{
-		qerr = qsmp_error_invalid_input;
-	}
 
 	return qerr;
 }
@@ -240,7 +232,7 @@ static qsmp_errors server_exchange_response(qsmp_kex_server_state* ctx, const qs
 			qsc_rcs_set_associated(&ctx->rxcpr, hdr, QSMP_HEADER_SIZE);
 
 			/* authenticate and decrypt the cipher-text */
-			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - QSMP_MACTAG_SIZE) == true)
+			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - (size_t)QSMP_MACTAG_SIZE) == true)
 			{
 				uint8_t sec[QSMP_SECRET_SIZE] = { 0 };
 				uint8_t cpt[QSMP_CIPHERTEXT_SIZE] = { 0 };
@@ -291,10 +283,6 @@ static qsmp_errors server_exchange_response(qsmp_kex_server_state* ctx, const qs
 			ctx->exflag = qsmp_flag_none;
 		}
 	}
-	else
-	{
-		qerr = qsmp_error_invalid_input;
-	}
 
 	return qerr;
 }
@@ -321,7 +309,7 @@ static qsmp_errors server_establish_response(qsmp_kex_server_state* ctx, const q
 			qsc_rcs_set_associated(&ctx->rxcpr, hdr, QSMP_HEADER_SIZE);
 
 			/* authenticate and decrypt the cipher-text */
-			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - QSMP_MACTAG_SIZE) == true)
+			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - (size_t)QSMP_MACTAG_SIZE) == true)
 			{
 				uint8_t mhash[QSMP_HASH_SIZE] = { 0 };
 
@@ -357,10 +345,6 @@ static qsmp_errors server_establish_response(qsmp_kex_server_state* ctx, const q
 			ctx->exflag = qsmp_flag_none;
 		}
 	}
-	else
-	{
-		qerr = qsmp_error_invalid_input;
-	}
 
 	return qerr;
 }
@@ -374,13 +358,14 @@ static qsmp_errors server_key_exchange(qsmp_kex_server_state* ctx, qsc_socket* s
 	size_t plen;
 	size_t rlen;
 	size_t slen;
+	const size_t CONLEN = QSMP_CONNECT_REQUEST_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 
 	qerr = qsmp_error_invalid_input;
 
 	/* blocking receive waits for client */
-	rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+	rlen = qsc_socket_receive(sock, spct, CONLEN, qsc_socket_receive_flag_wait_all);
 
-	if (rlen == QSMP_CONNECT_REQUEST_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+	if (rlen == CONLEN)
 	{
 		/* convert server response to packet */
 		qsmp_stream_to_packet(spct, &resp);
@@ -429,11 +414,13 @@ static qsmp_errors server_key_exchange(qsmp_kex_server_state* ctx, qsc_socket* s
 
 		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 		{
+			const size_t EXSLEN = QSMP_EXSTART_REQUEST_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
+
 			/* blocking receive waits for client */
 			ctx->txseq += 1;
-			rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+			rlen = qsc_socket_receive(sock, spct, EXSLEN, qsc_socket_receive_flag_wait_all);
 
-			if (rlen == QSMP_EXSTART_REQUEST_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+			if (rlen == EXSLEN)
 			{
 				qsmp_stream_to_packet(spct, &resp);
 				qsc_memutils_clear(spct, sizeof(spct));
@@ -485,10 +472,11 @@ static qsmp_errors server_key_exchange(qsmp_kex_server_state* ctx, qsc_socket* s
 
 		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 		{
+			const size_t EXCLEN = QSMP_EXCHANGE_REQUEST_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 			ctx->txseq += 1;
-			rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+			rlen = qsc_socket_receive(sock, spct, EXCLEN, qsc_socket_receive_flag_wait_all);
 
-			if (rlen == QSMP_EXCHANGE_REQUEST_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+			if (rlen == EXCLEN)
 			{
 				qsmp_stream_to_packet(spct, &resp);
 				qsc_memutils_clear(spct, sizeof(spct));
@@ -539,10 +527,11 @@ static qsmp_errors server_key_exchange(qsmp_kex_server_state* ctx, qsc_socket* s
 
 		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 		{
+			const size_t ESTLEN = QSMP_ESTABLISH_REQUEST_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 			ctx->txseq += 1;
-			rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+			rlen = qsc_socket_receive(sock, spct, ESTLEN, qsc_socket_receive_flag_wait_all);
 
-			if (rlen == QSMP_ESTABLISH_REQUEST_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+			if (rlen == ESTLEN)
 			{
 				ctx->rxseq += 1;
 				qsmp_stream_to_packet(spct, &resp);
@@ -706,6 +695,7 @@ void qsmp_server_encode_public_key(char output[QSMP_PUBKEY_STRING_SIZE], const q
 		output[spos] = '\n';
 		++spos;
 
+		//size_t enclen = qsc_encoding_base64_encoded_size(sizeof(skey->verkey));
 		slen = QSMP_VERIFYKEY_SIZE;
 		qsc_encoding_base64_encode(tmpvk, QSMP_PUBKEY_ENCODING_SIZE, skey->verkey, slen);
 		spos += qsc_stringutils_add_line_breaks((output + spos), QSMP_PUBKEY_STRING_SIZE - spos, QSMP_PUBKEY_LINE_LENGTH, tmpvk, sizeof(tmpvk));
@@ -873,7 +863,7 @@ qsmp_errors qsmp_server_decrypt_packet(qsmp_kex_server_state* ctx, const qsmp_pa
 				/* serialize the header and add it to the ciphers associated data */
 				qsmp_packet_header_serialize(packetin, hdr);
 				qsc_rcs_set_associated(&ctx->rxcpr, hdr, QSMP_HEADER_SIZE);
-				*msglen = packetin->msglen - QSC_RCS256_MAC_SIZE;
+				*msglen = packetin->msglen - (size_t)QSC_RCS256_MAC_SIZE;
 
 				/* authenticate then decrypt the data */
 				if (qsc_rcs_transform(&ctx->rxcpr, message, packetin->message, *msglen) == true)

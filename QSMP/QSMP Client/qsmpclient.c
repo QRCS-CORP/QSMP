@@ -90,7 +90,7 @@ static qsmp_errors client_connect_request(qsmp_kex_client_state* ctx, qsmp_packe
 				qsc_memutils_clear(ctx->pkhash, QSMP_PKCODE_SIZE);
 				qsc_sha3_initialize(&kstate);
 				qsc_sha3_update(&kstate, qsc_keccak_rate_256, ctx->token, QSMP_STOKEN_SIZE);
-				qsc_sha3_update(&kstate, qsc_keccak_rate_256, QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
+				qsc_sha3_update(&kstate, qsc_keccak_rate_256, (uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
 				qsc_sha3_update(&kstate, qsc_keccak_rate_256, ctx->verkey, QSMP_VERIFYKEY_SIZE);
 				qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, ctx->pkhash);
 
@@ -134,7 +134,16 @@ static qsmp_errors client_exstart_request(qsmp_kex_client_state* ctx, const qsmp
 		if (ctx->exflag == qsmp_flag_connect_request && packetin->flag == qsmp_flag_connect_response)
 		{
 			slen = 0;
+
+#if defined(QSMP_FALCON_SIGNATURE)
+			const size_t FLCDLM = 42;
+			/* Note: accounts for a signature encoding length variance in falcon signature size, 
+			by decoding the signature size directly from the raw signature */
+			mlen = ((size_t)packetin->message[0] << 8) | (size_t)packetin->message[1] + FLCDLM + QSC_SHA3_256_HASH_SIZE;
+#else
 			mlen = QSMP_SIGNATURE_SIZE + QSC_SHA3_256_HASH_SIZE;
+#endif
+
 
 			/* verify the asymmetric signature */
 			if (qsmp_signature_verify(khash, &slen, packetin->message, mlen, ctx->verkey) == true)
@@ -368,7 +377,7 @@ static qsmp_errors client_establish_verify(qsmp_kex_client_state* ctx, const qsm
 			qsc_rcs_set_associated(&ctx->rxcpr, hdr, QSMP_HEADER_SIZE);
 
 			/* authenticate and decrypt the cipher-text */
-			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - QSMP_MACTAG_SIZE) == true)
+			if (qsc_rcs_transform(&ctx->rxcpr, msg, packetin->message, packetin->msglen - (size_t)QSMP_MACTAG_SIZE) == true)
 			{
 				uint8_t vhash[QSMP_HASH_SIZE] = { 0 };
 
@@ -437,11 +446,14 @@ static qsmp_errors client_key_exchange(qsmp_kex_client_state* ctx, qsc_socket* s
 
 			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 			{
-				ctx->txseq += 1;
-				/* blocking receive waits for server */
-				rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+				const size_t CONLEN = QSMP_CONNECT_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 
-				if (rlen == QSMP_CONNECT_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+				ctx->txseq += 1;
+
+				/* blocking receive waits for server */
+				rlen = qsc_socket_receive(sock, spct, CONLEN, qsc_socket_receive_flag_wait_all);
+
+				if (rlen == CONLEN)
 				{
 					/* convert server response to packet */
 					qsmp_stream_to_packet(spct, &resp);
@@ -497,11 +509,14 @@ static qsmp_errors client_key_exchange(qsmp_kex_client_state* ctx, qsc_socket* s
 
 			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 			{
-				ctx->txseq += 1;
-				/* wait for exstart response */
-				rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+				const size_t EXSLEN = QSMP_EXSTART_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 
-				if (rlen == QSMP_EXSTART_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+				ctx->txseq += 1;
+
+				/* wait for exstart response */
+				rlen = qsc_socket_receive(sock, spct, EXSLEN, qsc_socket_receive_flag_wait_all);
+
+				if (rlen == EXSLEN)
 				{
 					qsmp_stream_to_packet(spct, &resp);
 					qsc_memutils_clear(spct, sizeof(spct));
@@ -553,10 +568,12 @@ static qsmp_errors client_key_exchange(qsmp_kex_client_state* ctx, qsc_socket* s
 
 			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 			{
-				ctx->txseq += 1;
-				rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+				const size_t EXCLEN = QSMP_EXCHANGE_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 
-				if (rlen == QSMP_EXCHANGE_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE)
+				ctx->txseq += 1;
+				rlen = qsc_socket_receive(sock, spct, EXCLEN, qsc_socket_receive_flag_wait_all);
+
+				if (rlen == EXCLEN)
 				{
 					qsmp_stream_to_packet(spct, &resp);
 					qsc_memutils_clear(spct, sizeof(spct));
@@ -608,8 +625,10 @@ static qsmp_errors client_key_exchange(qsmp_kex_client_state* ctx, qsc_socket* s
 
 			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 			{
+				const size_t ESTLEN = QSMP_ESTABLISH_RESPONSE_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
+
 				ctx->txseq += 1;
-				rlen = qsc_socket_receive(sock, spct, sizeof(spct), qsc_socket_receive_flag_none);
+				rlen = qsc_socket_receive(sock, spct, ESTLEN, qsc_socket_receive_flag_wait_all);
 				qsmp_stream_to_packet(spct, &resp);
 				qsc_memutils_clear(spct, sizeof(spct));
 
@@ -777,7 +796,6 @@ qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* soc
 
 	if (ctx != NULL && sock != NULL && ckey != NULL && address != NULL)
 	{
-
 		qsc_socket_client_initialize(sock);
 		serr = qsc_socket_client_connect_ipv4(sock, address, port);
 
@@ -789,10 +807,6 @@ qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* soc
 		{
 			qerr = qsmp_error_connection_failure;
 		}
-	}
-	else
-	{
-		qerr = qsmp_error_invalid_input;
 	}
 
 	return qerr;
@@ -824,10 +838,6 @@ qsmp_errors qsmp_client_connect_ipv6(qsmp_kex_client_state* ctx, qsc_socket* soc
 			qerr = qsmp_error_connection_failure;
 		}
 	}
-	else
-	{
-		qerr = qsmp_error_invalid_input;
-	}
 
 	return qerr;
 }
@@ -855,7 +865,7 @@ qsmp_errors qsmp_client_decrypt_packet(qsmp_kex_client_state* ctx, const qsmp_pa
 				/* serialize the header and add it to the ciphers associated data */
 				qsmp_packet_header_serialize(packetin, hdr);
 				qsc_rcs_set_associated(&ctx->rxcpr, hdr, QSMP_HEADER_SIZE);
-				*msglen = packetin->msglen - QSC_RCS256_MAC_SIZE;
+				*msglen = packetin->msglen - (size_t)QSC_RCS256_MAC_SIZE;
 
 				/* authenticate then decrypt the data */
 				if (qsc_rcs_transform(&ctx->rxcpr, message, packetin->message, *msglen) == true)
@@ -879,10 +889,6 @@ qsmp_errors qsmp_client_decrypt_packet(qsmp_kex_client_state* ctx, const qsmp_pa
 			*msglen = 0;
 			qerr = qsmp_error_packet_unsequenced;
 		}
-	}
-	else
-	{
-		qerr = qsmp_error_invalid_input;
 	}
 
 	return qerr;

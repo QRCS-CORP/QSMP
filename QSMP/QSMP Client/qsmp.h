@@ -22,10 +22,10 @@
  * Common parameters and functions of the qsmp client and server implementations.
  *
  * \author		John G. Underhill
- * \version		1.0.0.0a
+ * \version		1.0.0.0b
  * \date		February 1, 2021
- * \updated		May 24, 2021
- * \contact:	develop@vtdev.com
+ * \updated		January 25, 2022
+ * \contact:	develop@dfdef.com
  *
  * \remarks
  * \section Param Sets:
@@ -38,30 +38,49 @@
 #ifndef QSMP_H
 #define QSMP_H
 
- /*!
- * \def QSMP_CONFIG_DILITHIUM_KYBER
- * \brief Sets the asymmetric cryptographic primitive-set to Dilithium/Kyber.
- */
- //#define QSMP_CONFIG_DILITHIUM_KYBER
+/*!
+* \def QSMP_CONFIG_DILITHIUM_KYBER
+* \brief Sets the asymmetric cryptographic primitive-set to Dilithium/Kyber.
+*/
+//#define QSMP_CONFIG_DILITHIUM_KYBER
 
-  /*!
-  * \def QSMP_CONFIG_DILITHIUM_MCELIECE
-  * \brief Sets the asymmetric cryptographic primitive-set to Dilithium/McEliece.
-  */
-  //#define QSMP_CONFIG_DILITHIUM_MCELIECE
+/*!
+* \def QSMP_CONFIG_DILITHIUM_MCELIECE
+* \brief Sets the asymmetric cryptographic primitive-set to Dilithium/McEliece.
+*/
+//#define QSMP_CONFIG_DILITHIUM_MCELIECE
 
-   /*!
-   * \def QSMP_CONFIG_DILITHIUM_NTRU
-   * \brief Sets the asymmetric cryptographic primitive-set to Dilithium/NTRU.
-   */
+/*!
+* \def QSMP_CONFIG_DILITHIUM_NTRU
+* \brief Sets the asymmetric cryptographic primitive-set to Dilithium/NTRU.
+*/
 #define QSMP_CONFIG_DILITHIUM_NTRU
 
-   /*!
-   * \def QSMP_CONFIG_SPHINCS_MCELIECE
-   * \brief Sets the asymmetric cryptographic primitive-set to Sphincs+/McEliece, default is Dilithium/Kyber.
-   * Note: You may have to increase the stack reserve size on both projects, McEliece and Sphincs+ use a lot of resources.
-   */
-   //#define QSMP_CONFIG_SPHINCS_MCELIECE
+// not currently implemented
+/*!
+* \def QSMP_CONFIG_FALCON_KYBER
+* \brief Sets the asymmetric cryptographic primitive-set to Falcon/Kyber.
+*/
+//#define QSMP_CONFIG_FALCON_KYBER
+
+/*!
+* \def QSMP_CONFIG_FALCON_MCELIECE
+* \brief Sets the asymmetric cryptographic primitive-set to Falcon/McEliece.
+*/
+//#define QSMP_CONFIG_FALCON_MCELIECE
+
+/*!
+* \def QSMP_CONFIG_FALCON_NTRU
+* \brief Sets the asymmetric cryptographic primitive-set to Falcon/NTRU.
+*/
+//#define QSMP_CONFIG_FALCON_NTRU
+
+/*!
+* \def QSMP_CONFIG_SPHINCS_MCELIECE
+* \brief Sets the asymmetric cryptographic primitive-set to Sphincs+/McEliece, default is Dilithium/Kyber.
+* Note: You may have to increase the stack reserve size on both projects, McEliece and Sphincs+ use a lot of resources.
+*/
+//#define QSMP_CONFIG_SPHINCS_MCELIECE
 
 #include "common.h"
 
@@ -74,6 +93,15 @@
 #elif defined(QSMP_CONFIG_DILITHIUM_MCELIECE)
 #	include "../QSC/dilithium.h"
 #	include "../QSC/mceliece.h"
+#elif defined(QSMP_CONFIG_FALCON_KYBER)
+#	include "../QSC/falcon.h"
+#	include "../QSC/kyber.h"
+#elif defined(QSMP_CONFIG_FALCON_MCELIECE)
+#	include "../QSC/falcon.h"
+#	include "../QSC/mceliece.h"
+#elif defined(QSMP_CONFIG_FALCON_NTRU)
+#	include "../QSC/falcon.h"
+#	include "../QSC/ntru.h"
 #elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
 #	include "../QSC/sphincsplus.h"
 #	include "../QSC/mceliece.h"
@@ -81,11 +109,15 @@
 #	error Invalid parameter set!
 #endif
 
+#if defined(QSMP_CONFIG_FALCON_KYBER) || defined(QSMP_CONFIG_FALCON_MCELIECE) || defined(QSMP_CONFIG_FALCON_NTRU)
+#define QSMP_FALCON_SIGNATURE
+#endif
+
 /*!
 * \def QSMP_SERVER_PORT
 * \brief The default server port address
 */
-#define QSMP_SERVER_PORT 2101
+#define QSMP_SERVER_PORT 3119
 
 /*!
 * \def QSMP_CONFIG_SIZE
@@ -93,31 +125,11 @@
 */
 #define QSMP_CONFIG_SIZE 48
 
-#if defined(QSMP_CONFIG_DILITHIUM_NTRU)
-#	if defined(QSC_FALCON_S3SHAKE256F512)
-#		if defined(QSC_NTRU_S1HPS2048509)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium_s3_ntru-s1_sha3-256_rcs-256";
-#		elif defined(QSC_NTRU_HPSS32048677)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_ntru-s3_sha3-256_rcs-256";
-#		elif defined(QSC_NTRU_S5HPS4096821)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_ntru-s5_sha3-256_rcs-256";
-#		else
-#			error Invalid parameter set!
-#		endif
-#	elif defined(QSC_FALCON_S5SHAKE256F1024)
-#		if defined(QSC_NTRU_S1HPS2048509)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s1_sha3-256_rcs-256";
-#		elif defined(QSC_NTRU_HPSS32048677)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s3_sha3-256_rcs-256";
-#		elif defined(QSC_NTRU_S5HPS4096821)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s5_sha3-256_rcs-256";
-#		else
-#			error Invalid parameter set!
-#		endif
-#	else
-#		error Invalid parameter set!
-#	endif
-#elif defined(QSMP_CONFIG_DILITHIUM_KYBER)
+/*!
+* \def QSMP_CONFIG_STRING
+* \brief The QSMP cryptographic primitive configuration string
+*/
+#if defined(QSMP_CONFIG_DILITHIUM_KYBER)
 #	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
 #		if defined(QSC_KYBER_S3Q3329N256K3)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_kyber-s3_sha3-256_rcs-256";
@@ -151,16 +163,56 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s6_
 #	else
 #		error Invalid parameter set!
 #	endif
+#elif defined(QSMP_CONFIG_DILITHIUM_NTRU)
+#	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
+#		if defined(QSC_NTRU_S1HPS2048509)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_ntru-s1_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_HPSS32048677)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_ntru-s3_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HPS4096821)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_ntru-s5ps_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HRSS701)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_ntru-s5ss_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
+#		if defined(QSC_NTRU_S1HPS2048509)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_ntru-s1_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_HPSS32048677)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_ntru-s3_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HPS4096821)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_ntru-s5ps_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HRSS701)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_ntru-s5ss_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
+#		if defined(QSC_NTRU_S1HPS2048509)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s1_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_HPSS32048677)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s3_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HPS4096821)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s5ps_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HRSS701)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_ntru-s5ss_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	else
+#		error Invalid parameter set!
+#	endif
 #elif defined(QSMP_CONFIG_DILITHIUM_MCELIECE)
 #	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
 #		if defined(QSC_MCELIECE_S3N4608T96)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_mceliece-s3_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_mceliece-s4_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_mceliece-s5a_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_mceliece-s5_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_mceliece-s5b_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_mceliece-s6_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_mceliece-s5c_sha3-256_rcs-256";
 #		else
 #			error Invalid parameter set!
 #		endif
@@ -168,11 +220,11 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s2_mceliece-
 #		if defined(QSC_MCELIECE_S3N4608T96)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s3_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s4_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s5a_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s5_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s5b_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s6_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s5c_sha3-256_rcs-256";
 #		else
 #			error Invalid parameter set!
 #		endif
@@ -180,11 +232,91 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-
 #		if defined(QSC_MCELIECE_S3N4608T96)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s3_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s4_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s5a_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s5_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s5b_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s6_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s5c_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	else
+#		error Invalid parameter set!
+#	endif
+#elif defined(QSMP_CONFIG_FALCON_KYBER)
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		if defined(QSC_KYBER_S3Q3329N256K3)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_kyber-s3_sha3-256_rcs-256";
+#		elif defined(QSC_KYBER_S5Q3329N256K4)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_kyber-s5_sha3-256_rcs-256";
+#		elif defined(QSC_KYBER_S6Q3329N256K5)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_kyber-s6_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		if defined(QSC_KYBER_S3Q3329N256K3)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_kyber-s3_sha3-256_rcs-256";
+#		elif defined(QSC_KYBER_S5Q3329N256K4)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_kyber-s5_sha3-256_rcs-256";
+#		elif defined(QSC_KYBER_S6Q3329N256K5)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_kyber-s6_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	else
+#		error Invalid parameter set!
+#	endif
+#elif defined(QSMP_CONFIG_FALCON_MCELIECE)
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		if defined(QSC_MCELIECE_S3N4608T96)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_mceliece-s3_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6688T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_mceliece-s5a_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6960T119)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_mceliece-s5b_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N8192T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_mceliece-s5c_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		if defined(QSC_MCELIECE_S3N4608T96)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_mceliece-s3_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6688T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_mceliece-s5a_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N6960T119)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_mceliece-s5b_sha3-256_rcs-256";
+#		elif defined(QSC_MCELIECE_S5N8192T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_mceliece-s5c_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	else
+#		error Invalid parameter set!
+#	endif
+#elif defined(QSMP_CONFIG_FALCON_NTRU)
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		if defined(QSC_NTRU_S1HPS2048509)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_ntru-s1_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_HPSS32048677)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_ntru-s3_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HPS4096821)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_ntru-s5ps_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HRSS701)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s3_ntru-s5ss_sha3-256_rcs-256";
+#		else
+#			error Invalid parameter set!
+#		endif
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		if defined(QSC_NTRU_S1HPS2048509)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_ntru-s1_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_HPSS32048677)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_ntru-s3_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HPS4096821)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_ntru-s5ps_sha3-256_rcs-256";
+#		elif defined(QSC_NTRU_S5HRSS701)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "falcon-s5_ntru-s5ss_sha3-256_rcs-256";
 #		else
 #			error Invalid parameter set!
 #		endif
@@ -194,49 +326,49 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-
 #elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
 #	if defined(QSC_SPHINCSPLUS_S3S192SHAKERS)
 #		if defined(QSC_MCELIECE_S3N4608T96)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s3_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3s_mceliece-s3_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s4_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3s_mceliece-s5a_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s5_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3s_mceliece-s5b_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s2_mceliece-s6_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3s_mceliece-s5c_sha3-256_rcs-256";
 #		else
 #			error Invalid parameter set!
 #		endif
 #	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERF)
 #		if defined(QSC_MCELIECE_S3N4608T96)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3_mceliece-s3_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3f_mceliece-s3_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3_mceliece-s4_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3f_mceliece-s5a_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3_mceliece-s5_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3f_mceliece-s5b_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s3_mceliece-s6_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s35_mceliece-s5c_sha3-256_rcs-256";
 #		else
 #			error Invalid parameter set!
 #		endif
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
 #		if defined(QSC_MCELIECE_S3N4608T96)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s4_mceliece-s3_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s3_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s4_mceliece-s4_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s5a_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s4_mceliece-s5_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s5b_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s4_mceliece-s6_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s5c_sha3-256_rcs-256";
 #		else
 #			error Invalid parameter set!
 #		endif
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
 #		if defined(QSC_MCELIECE_S3N4608T96)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s3_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s3_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s4_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s5a_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s5_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s5b_sha3-256_rcs-256";
 #		elif defined(QSC_MCELIECE_S5N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6_sha3-256_rcs-256";
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s5c_sha3-256_rcs-256";
 #		else
 #			error Invalid parameter set!
 #		endif
@@ -253,31 +385,37 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 * \brief The byte size of the asymmetric cipher-text array
 */
 #	define QSMP_CIPHERTEXT_SIZE (QSC_KYBER_CIPHERTEXT_SIZE)
+
 /*!
 * \def QSMP_PRIVATEKEY_SIZE
 * \brief The byte size of the asymmetric cipher private-key array
 */
 #	define QSMP_PRIVATEKEY_SIZE (QSC_KYBER_PRIVATEKEY_SIZE)
+
 /*!
 * \def QSMP_PUBLICKEY_SIZE
 * \brief The byte size of the asymmetric cipher public-key array
 */
 #	define QSMP_PUBLICKEY_SIZE (QSC_KYBER_PUBLICKEY_SIZE)
+
 /*!
 * \def QSMP_SIGNKEY_SIZE
 * \brief The byte size of the asymmetric signature signing-key array
 */
 #	define QSMP_SIGNKEY_SIZE (QSC_DILITHIUM_PRIVATEKEY_SIZE)
+
 /*!
 * \def QSMP_VERIFYKEY_SIZE
 * \brief The byte size of the asymmetric signature verification-key array
 */
 #	define QSMP_VERIFYKEY_SIZE (QSC_DILITHIUM_PUBLICKEY_SIZE)
+
 /*!
 * \def QSMP_SIGNATURE_SIZE
 * \brief The byte size of the asymmetric signature array
 */
 #	define QSMP_SIGNATURE_SIZE (QSC_DILITHIUM_SIGNATURE_SIZE)
+
 /*!
 * \def QSMP_PUBKEY_ENCODING_SIZE
 * \brief The byte size of the encoded QSMP public-key
@@ -291,50 +429,58 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 #	else
 #		error invalid dilithium parameter!
 #	endif
+
 /*!
 * \def QSMP_PUBKEY_STRING_SIZE
 * \brief The string size of the serialized QSMP client-key structure
 */
 #	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
-#		define QSMP_PUBKEY_STRING_SIZE 2023
+#		define QSMP_PUBKEY_STRING_SIZE 2014
 #	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
-#		define QSMP_PUBKEY_STRING_SIZE 2888
+#		define QSMP_PUBKEY_STRING_SIZE 2879
 #	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
-#		define QSMP_PUBKEY_STRING_SIZE 3754
+#		define QSMP_PUBKEY_STRING_SIZE 3745
 #	else
 #		error invalid dilithium parameter!
 #	endif
+
 #elif defined(QSMP_CONFIG_DILITHIUM_NTRU)
 /*!
 * \def QSMP_CIPHERTEXT_SIZE
 * \brief The byte size of the asymmetric cipher-text array
 */
 #	define QSMP_CIPHERTEXT_SIZE (QSC_NTRU_CIPHERTEXT_SIZE)
+
 /*!
 * \def QSMP_PRIVATEKEY_SIZE
 * \brief The byte size of the asymmetric cipher private-key array
 */
 #	define QSMP_PRIVATEKEY_SIZE (QSC_NTRU_PRIVATEKEY_SIZE)
+
 /*!
 * \def QSMP_PUBLICKEY_SIZE
 * \brief The byte size of the asymmetric cipher public-key array
 */
 #	define QSMP_PUBLICKEY_SIZE (QSC_NTRU_PUBLICKEY_SIZE)
+
 /*!
 * \def QSMP_SIGNKEY_SIZE
 * \brief The byte size of the asymmetric signature signing-key array
 */
 #	define QSMP_SIGNKEY_SIZE (QSC_DILITHIUM_PRIVATEKEY_SIZE)
+
 /*!
 * \def QSMP_VERIFYKEY_SIZE
 * \brief The byte size of the asymmetric signature verification-key array
 */
 #	define QSMP_VERIFYKEY_SIZE (QSC_DILITHIUM_PUBLICKEY_SIZE)
+
 /*!
 * \def QSMP_SIGNATURE_SIZE
 * \brief The byte size of the asymmetric signature array
 */
 #	define QSMP_SIGNATURE_SIZE (QSC_DILITHIUM_SIGNATURE_SIZE)
+
 /*!
 * \def QSMP_PUBKEY_ENCODING_SIZE
 * \brief The byte size of the encoded QSMP public-key
@@ -348,50 +494,58 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 #	else
 #		error invalid dilithium parameter!
 #	endif
+
 /*!
 * \def QSMP_PUBKEY_STRING_SIZE
 * \brief The string size of the serialized QSMP client-key structure
 */
 #	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
-#		define QSMP_PUBKEY_STRING_SIZE 2023
+#		define QSMP_PUBKEY_STRING_SIZE 2014
 #	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
-#		define QSMP_PUBKEY_STRING_SIZE 2888
+#		define QSMP_PUBKEY_STRING_SIZE 2879
 #	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
-#		define QSMP_PUBKEY_STRING_SIZE 3754
+#		define QSMP_PUBKEY_STRING_SIZE 3745
 #	else
 #		error invalid dilithium parameter!
 #	endif
+
 #elif defined(QSMP_CONFIG_DILITHIUM_MCELIECE)
 /*!
 * \def QSMP_CIPHERTEXT_SIZE
 * \brief The byte size of the asymmetric cipher-text array
 */
 #	define QSMP_CIPHERTEXT_SIZE (QSC_MCELIECE_CIPHERTEXT_SIZE)
+
 /*!
 * \def QSMP_PRIVATEKEY_SIZE
 * \brief The byte size of the asymmetric cipher private-key array
 */
 #	define QSMP_PRIVATEKEY_SIZE (QSC_MCELIECE_PRIVATEKEY_SIZE)
+
 /*!
 * \def QSMP_PUBLICKEY_SIZE
 * \brief The byte size of the asymmetric cipher public-key array
 */
 #	define QSMP_PUBLICKEY_SIZE (QSC_MCELIECE_PUBLICKEY_SIZE)
+
 /*!
 * \def QSMP_SIGNKEY_SIZE
 * \brief The byte size of the asymmetric signature signing-key array
 */
 #	define QSMP_SIGNKEY_SIZE (QSC_DILITHIUM_PRIVATEKEY_SIZE)
+
 /*!
 * \def QSMP_VERIFYKEY_SIZE
 * \brief The byte size of the asymmetric signature verification-key array
 */
 #	define QSMP_VERIFYKEY_SIZE (QSC_DILITHIUM_PUBLICKEY_SIZE)
+
 /*!
 * \def QSMP_SIGNATURE_SIZE
 * \brief The byte size of the asymmetric signature array
 */
 #	define QSMP_SIGNATURE_SIZE (QSC_DILITHIUM_SIGNATURE_SIZE)
+
 /*!
 * \def QSMP_PUBKEY_ENCODING_SIZE
 * \brief The byte size of the encoded QSMP public-key
@@ -405,50 +559,242 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 #	else
 #		error invalid dilithium parameter!
 #	endif
+
 /*!
 * \def QSMP_PUBKEY_STRING_SIZE
 * \brief The string size of the serialized QSMP client-key structure
 */
 #	if defined(QSC_DILITHIUM_S2N256Q8380417K4)
-#		define QSMP_PUBKEY_STRING_SIZE 2023
+#		define QSMP_PUBKEY_STRING_SIZE 2014
 #	elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
-#		define QSMP_PUBKEY_STRING_SIZE 2888
+#		define QSMP_PUBKEY_STRING_SIZE 2879
 #	elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
-#		define QSMP_PUBKEY_STRING_SIZE 3754
+#		define QSMP_PUBKEY_STRING_SIZE 3745
 #	else
 #		error invalid dilithium parameter!
 #	endif
+
+#elif defined(QSMP_CONFIG_FALCON_KYBER)
+/*!
+* \def QSMP_CIPHERTEXT_SIZE
+* \brief The byte size of the asymmetric cipher-text array
+*/
+#	define QSMP_CIPHERTEXT_SIZE (QSC_KYBER_CIPHERTEXT_SIZE)
+
+/*!
+* \def QSMP_PRIVATEKEY_SIZE
+* \brief The byte size of the asymmetric cipher private-key array
+*/
+#	define QSMP_PRIVATEKEY_SIZE (QSC_KYBER_PRIVATEKEY_SIZE)
+
+/*!
+* \def QSMP_PUBLICKEY_SIZE
+* \brief The byte size of the asymmetric cipher public-key array
+*/
+#	define QSMP_PUBLICKEY_SIZE (QSC_KYBER_PUBLICKEY_SIZE)
+
+/*!
+* \def QSMP_SIGNKEY_SIZE
+* \brief The byte size of the asymmetric signature signing-key array
+*/
+#	define QSMP_SIGNKEY_SIZE (QSC_FALCON_PRIVATEKEY_SIZE)
+
+/*!
+* \def QSMP_VERIFYKEY_SIZE
+* \brief The byte size of the asymmetric signature verification-key array
+*/
+#	define QSMP_VERIFYKEY_SIZE (QSC_FALCON_PUBLICKEY_SIZE)
+
+/*!
+* \def QSMP_SIGNATURE_SIZE
+* \brief The byte size of the asymmetric signature array
+*/
+#	define QSMP_SIGNATURE_SIZE (QSC_FALCON_SIGNATURE_SIZE)
+
+/*!
+* \def QSMP_PUBKEY_ENCODING_SIZE
+* \brief The byte size of the encoded QSMP public-key
+*/
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		define QSMP_PUBKEY_ENCODING_SIZE 1196
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		define QSMP_PUBKEY_ENCODING_SIZE 2392
+#	else
+#		error invalid dilithium parameter!
+#	endif
+
+/*!
+* \def QSMP_PUBKEY_STRING_SIZE
+* \brief The string size of the serialized QSMP client-key structure
+*/
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		define QSMP_PUBKEY_STRING_SIZE 2014
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		define QSMP_PUBKEY_STRING_SIZE 2664
+#	else
+#		error invalid dilithium parameter!
+#	endif
+
+#elif defined(QSMP_CONFIG_FALCON_MCELIECE)
+
+/*!
+* \def QSMP_CIPHERTEXT_SIZE
+* \brief The byte size of the asymmetric cipher-text array
+*/
+#	define QSMP_CIPHERTEXT_SIZE (QSC_MCELIECE_CIPHERTEXT_SIZE)
+
+/*!
+* \def QSMP_PRIVATEKEY_SIZE
+* \brief The byte size of the asymmetric cipher private-key array
+*/
+#	define QSMP_PRIVATEKEY_SIZE (QSC_MCELIECE_PRIVATEKEY_SIZE)
+
+/*!
+* \def QSMP_PUBLICKEY_SIZE
+* \brief The byte size of the asymmetric cipher public-key array
+*/
+#	define QSMP_PUBLICKEY_SIZE (QSC_MCELIECE_PUBLICKEY_SIZE)
+
+/*!
+* \def QSMP_SIGNKEY_SIZE
+* \brief The byte size of the asymmetric signature signing-key array
+*/
+#	define QSMP_SIGNKEY_SIZE (QSC_FALCON_PRIVATEKEY_SIZE)
+
+/*!
+* \def QSMP_VERIFYKEY_SIZE
+* \brief The byte size of the asymmetric signature verification-key array
+*/
+#	define QSMP_VERIFYKEY_SIZE (QSC_FALCON_PUBLICKEY_SIZE)
+
+/*!
+* \def QSMP_SIGNATURE_SIZE
+* \brief The byte size of the asymmetric signature array
+*/
+#	define QSMP_SIGNATURE_SIZE (QSC_FALCON_SIGNATURE_SIZE)
+
+/*!
+* \def QSMP_PUBKEY_ENCODING_SIZE
+* \brief The byte size of the encoded QSMP public-key
+*/
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		define QSMP_PUBKEY_ENCODING_SIZE 1196
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		define QSMP_PUBKEY_ENCODING_SIZE 2392
+#	else
+#		error invalid dilithium parameter!
+#	endif
+
+/*!
+* \def QSMP_PUBKEY_STRING_SIZE
+* \brief The string size of the serialized QSMP client-key structure
+*/
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		define QSMP_PUBKEY_STRING_SIZE 2014
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		define QSMP_PUBKEY_STRING_SIZE 2664
+#	else
+#		error invalid dilithium parameter!
+#	endif
+
+#elif defined(QSMP_CONFIG_FALCON_NTRU)
+/*!
+* \def QSMP_CIPHERTEXT_SIZE
+* \brief The byte size of the asymmetric cipher-text array
+*/
+#	define QSMP_CIPHERTEXT_SIZE (QSC_NTRU_CIPHERTEXT_SIZE)
+
+/*!
+* \def QSMP_PRIVATEKEY_SIZE
+* \brief The byte size of the asymmetric cipher private-key array
+*/
+#	define QSMP_PRIVATEKEY_SIZE (QSC_NTRU_PRIVATEKEY_SIZE)
+
+/*!
+* \def QSMP_PUBLICKEY_SIZE
+* \brief The byte size of the asymmetric cipher public-key array
+*/
+#	define QSMP_PUBLICKEY_SIZE (QSC_NTRU_PUBLICKEY_SIZE)
+
+/*!
+* \def QSMP_SIGNKEY_SIZE
+* \brief The byte size of the asymmetric signature signing-key array
+*/
+#	define QSMP_SIGNKEY_SIZE (QSC_FALCON_PRIVATEKEY_SIZE)
+
+/*!
+* \def QSMP_VERIFYKEY_SIZE
+* \brief The byte size of the asymmetric signature verification-key array
+*/
+#	define QSMP_VERIFYKEY_SIZE (QSC_FALCON_PUBLICKEY_SIZE)
+
+/*!
+* \def QSMP_SIGNATURE_SIZE
+* \brief The byte size of the asymmetric signature array
+*/
+#	define QSMP_SIGNATURE_SIZE (QSC_FALCON_SIGNATURE_SIZE)
+
+/*!
+* \def QSMP_PUBKEY_ENCODING_SIZE
+* \brief The byte size of the encoded QSMP public-key
+*/
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		define QSMP_PUBKEY_ENCODING_SIZE 1196
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		define QSMP_PUBKEY_ENCODING_SIZE 2392
+#	else
+#		error invalid dilithium parameter!
+#	endif
+
+/*!
+* \def QSMP_PUBKEY_STRING_SIZE
+* \brief The string size of the serialized QSMP client-key structure
+*/
+#	if defined(QSC_FALCON_S3SHAKE256F512)
+#		define QSMP_PUBKEY_STRING_SIZE 2014
+#	elif defined(QSC_FALCON_S5SHAKE256F1024)
+#		define QSMP_PUBKEY_STRING_SIZE 2664
+#	else
+#		error invalid dilithium parameter!
+#	endif
+
 #elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
 /*!
 * \def QSMP_CIPHERTEXT_SIZE
 * \brief The byte size of the cipher-text array
 */
 #	define QSMP_CIPHERTEXT_SIZE (QSC_MCELIECE_CIPHERTEXT_SIZE)
+
 /*!
 * \def QSMP_PRIVATEKEY_SIZE
 * \brief The byte size of the asymmetric cipher private-key array
 */
 #	define QSMP_PRIVATEKEY_SIZE (QSC_MCELIECE_PRIVATEKEY_SIZE)
+
 /*!
 * \def QSMP_PUBLICKEY_SIZE
 * \brief The byte size of the asymmetric cipher public-key array
 */
 #	define QSMP_PUBLICKEY_SIZE (QSC_MCELIECE_PUBLICKEY_SIZE)
+
 /*!
 * \def QSMP_SIGNKEY_SIZE
 * \brief The byte size of the asymmetric signature signing-key array
 */
 #	define QSMP_SIGNKEY_SIZE (QSC_SPHINCSPLUS_PRIVATEKEY_SIZE)
+
 /*!
 * \def QSMP_VERIFYKEY_SIZE
 * \brief The byte size of the asymmetric signature verification-key array
 */
 #	define QSMP_VERIFYKEY_SIZE (QSC_SPHINCSPLUS_PUBLICKEY_SIZE)
+
 /*!
 * \def QSMP_SIGNATURE_SIZE
 * \brief The byte size of the asymmetric signature array
 */
 #	define QSMP_SIGNATURE_SIZE (QSC_SPHINCSPLUS_SIGNATURE_SIZE)
+
 /*!
 * \def QSMP_PUBKEY_ENCODING_SIZE
 * \brief The byte size of the encoded QSMP public-key
@@ -464,18 +810,19 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 #	else
 #		error invalid sphincs+ parameter!
 #	endif
+
 /*!
 * \def QSMP_PUBKEY_STRING_SIZE
 * \brief The string size of the serialized QSMP client-key structure
 */
 #	if defined(QSC_SPHINCSPLUS_S3S192SHAKERS)
-#		define QSMP_PUBKEY_STRING_SIZE 309
+#		define QSMP_PUBKEY_STRING_SIZE 300
 #	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERF)
-#		define QSMP_PUBKEY_STRING_SIZE 309
+#		define QSMP_PUBKEY_STRING_SIZE 300
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS)
-#		define QSMP_PUBKEY_STRING_SIZE 333
+#		define QSMP_PUBKEY_STRING_SIZE 324
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
-#		define QSMP_PUBKEY_STRING_SIZE 333
+#		define QSMP_PUBKEY_STRING_SIZE 324
 #	else
 #		error invalid sphincs+ parameter!
 #	endif
@@ -488,126 +835,151 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5_mceliece-s6
 * \brief The size of the hash function output
 */
 #define QSMP_HASH_SIZE 32
+
 /*!
 * \def QSMP_HEADER_SIZE
 * \brief The QSMP packet header size
 */
 #define QSMP_HEADER_SIZE 13
+
 /*!
 * \def QSMP_KEEPALIVE_STRING
 * \brief The keep alive string size
 */
 #define QSMP_KEEPALIVE_STRING 20
+
 /*!
 * \def QSMP_KEEPALIVE_TIMEOUT
 * \brief The keep alive timeout in milliseconds (5 minutes)
 */
 #define QSMP_KEEPALIVE_TIMEOUT (300 * 1000)
+
 /*!
 * \def QSMP_KEYID_SIZE
 * \brief The QSMP key identity size
 */
 #define QSMP_KEYID_SIZE 16
+
 /*!
 * \def QSMP_MACKEY_SIZE
 * \brief The QSMP mac key size
 */
 #define QSMP_MACKEY_SIZE 32
+
 /*!
 * \def QSMP_MACTAG_SIZE
 * \brief The size of the mac function output
 */
 #define QSMP_MACTAG_SIZE 32
+
 /*!
 * \def QSMP_SRVID_SIZE
 * \brief The QSMP server identity size
 */
 #define QSMP_SRVID_SIZE 8
+
 /*!
 * \def QSMP_TIMESTAMP_SIZE
 * \brief The key expiration timestamp size
 */
 #define QSMP_TIMESTAMP_SIZE 8
+
 /*!
 * \def QSMP_MESSAGE_MAX
 * \brief The maximum message size used during the key exchange (may exceed mtu)
 */
 #define QSMP_MESSAGE_MAX (QSMP_SIGNATURE_SIZE + QSMP_PUBLICKEY_SIZE + QSMP_HASH_SIZE + QSMP_HEADER_SIZE)
+
 /*!
 * \def QSMP_PKCODE_SIZE
 * \brief The size of the session token hash
 */
 #define QSMP_PKCODE_SIZE 32
+
 /*!
 * \def QSMP_PUBKEY_DURATION_DAYS
 * \brief The number of days a public key remains valid
 */
 #define QSMP_PUBKEY_DURATION_DAYS 365
+
 /*!
 * \def QSMP_PUBKEY_DURATION_SECONDS
 * \brief The number of seconds a public key remains valid
 */
 #define QSMP_PUBKEY_DURATION_SECONDS (QSMP_PUBKEY_DURATION_DAYS * 24 * 60 * 60)
+
 /*!
 * \def QSMP_PUBKEY_LINE_LENGTH
 * \brief The line length of the printed QSMP public key
 */
 #define QSMP_PUBKEY_LINE_LENGTH 64
+
 /*!
 * \def QSMP_SECRET_SIZE
 * \brief The size of the shared secret for each channel
 */
 #define QSMP_SECRET_SIZE 32
+
 /*!
 * \def QSMP_STOKEN_SIZE
 * \brief The session token size
 */
 #define QSMP_STOKEN_SIZE 32
+
 /*!
 * \def QSMP_SIGKEY_ENCODED_SIZE
 * \brief The secret signature key size
 */
 #define QSMP_SIGKEY_ENCODED_SIZE (QSMP_KEYID_SIZE + QSMP_TIMESTAMP_SIZE + QSMP_CONFIG_SIZE + QSMP_SIGNKEY_SIZE + QSMP_VERIFYKEY_SIZE)
+
 /*!
 * \def QSMP_SEQUENCE_TERMINATOR
 * \brief The sequence number of a packet that closes a connection
 */
-#define QSMP_SEQUENCE_TERMINATOR 0xFFFFFFFF
+#define QSMP_SEQUENCE_TERMINATOR 0xFFFFFFFFUL
+
 /*!
 * \def QSMP_CONNECT_REQUEST_SIZE
 * \brief The key-exchange connect stage request packet size
 */
 #define QSMP_CONNECT_REQUEST_SIZE (QSMP_KEYID_SIZE + QSMP_STOKEN_SIZE + QSMP_CONFIG_SIZE + QSMP_HEADER_SIZE)
+
 /*!
 * \def QSMP_EXSTART_REQUEST_SIZE
 * \brief The key-exchange exstart stage request packet size
 */
 #define QSMP_EXSTART_REQUEST_SIZE (QSMP_CIPHERTEXT_SIZE + QSMP_HEADER_SIZE)
+
 /*!
 * \def QSMP_EXCHANGE_REQUEST_SIZE
 * \brief The key-exchange exchange stage request packet size
 */
 #define QSMP_EXCHANGE_REQUEST_SIZE (QSMP_MACKEY_SIZE + QSMP_PUBLICKEY_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
+
 /*!
 * \def QSMP_ESTABLISH_REQUEST_SIZE
 * \brief The key-exchange establish stage request packet size
 */
 #define QSMP_ESTABLISH_REQUEST_SIZE (QSMP_STOKEN_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
+
 /*!
 * \def QSMP_CONNECT_RESPONSE_SIZE
 * \brief The key-exchange connect stage response packet size
 */
 #define QSMP_CONNECT_RESPONSE_SIZE (QSMP_SIGNATURE_SIZE + QSMP_HASH_SIZE + QSMP_PUBLICKEY_SIZE + QSMP_HEADER_SIZE)
+
 /*!
 * \def QSMP_EXSTART_RESPONSE_SIZE
 * \brief The key-exchange exstart stage response packet size
 */
 #define QSMP_EXSTART_RESPONSE_SIZE (QSMP_HEADER_SIZE + 1)
+
 /*!
 * \def QSMP_EXCHANGE_RESPONSE_SIZE
 * \brief The key-exchange exchange stage response packet size
 */
 #define QSMP_EXCHANGE_RESPONSE_SIZE (QSMP_CIPHERTEXT_SIZE + QSMP_MACTAG_SIZE + QSMP_HEADER_SIZE)
+
 /*!
 * \def QSMP_ESTABLISH_RESPONSE_SIZE
 * \brief The key-exchange establish stage response packet size
@@ -631,7 +1003,7 @@ static const char QSMP_PUBKEY_FOOTER[] = "------END QSMP PUBLIC KEY BLOCK------"
 static const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_WIDTH] =
 {
 	"No error was detected.",
-	"The symmetric cipher had an authentication failure.",
+	"The asymmetric signature had an authentication failure.",
 	"The keep alive check failed.",
 	"The communications channel has failed.",
 	"The device could not make a connnection to the remote host.",
@@ -656,13 +1028,18 @@ static const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_
 
 /*!
 * \enum qsmp_configuration
-* \brief The cryptographic asymmetric primitive configuration
+* \brief The asymmetric cryptographic primitive configuration
 */
 typedef enum qsmp_configuration
 {
 	qsmp_configuration_none = 0,				/*!< No configuration was specified */
 	qsmp_configuration_sphincs_mceliece = 1,	/*!< The Sphincs+ and McEliece configuration */
 	qsmp_configuration_dilithium_kyber = 2,		/*!< The Dilithium and Kyber configuration */
+	qsmp_configuration_dilithium_mceliece = 3,	/*!< The Dilithium and Kyber configuration */
+	qsmp_configuration_dilithium_ntru = 4,		/*!< The Dilithium and NTRU configuration */
+	qsmp_configuration_falcon_kyber = 5,		/*!< The Falcon and Kyber configuration */
+	qsmp_configuration_falcon_mceliece = 6,		/*!< The Falcon and McEliece configuration */
+	qsmp_configuration_falcon_ntru = 7,			/*!< The Falcon and NTRU configuration */
 } qsmp_configuration;
 
 /*!
@@ -705,7 +1082,7 @@ typedef enum qsmp_flags
 	qsmp_flag_connect_request = 0x01,			/*!< The QSMP key-exchange client connection request flag  */
 	qsmp_flag_connect_response = 0x02,			/*!< The QSMP key-exchange server connection response flag */
 	qsmp_flag_connection_terminate = 0x03,		/*!< The connection is to be terminated */
-	qsmp_flag_encrypted_message = 0x04,			/*!< The message has been encrypted by the */
+	qsmp_flag_encrypted_message = 0x04,			/*!< The message has been encrypted flag */
 	qsmp_flag_exstart_request = 0x05,			/*!< The QSMP key-exchange client exstart request flag */
 	qsmp_flag_exstart_response = 0x06,			/*!< The QSMP key-exchange server exstart response flag */
 	qsmp_flag_exchange_request = 0x07,			/*!< The QSMP key-exchange client exchange request flag */
@@ -713,10 +1090,10 @@ typedef enum qsmp_flags
 	qsmp_flag_establish_request = 0x09,			/*!< The QSMP key-exchange client establish request flag */
 	qsmp_flag_establish_response = 0x0A,		/*!< The QSMP key-exchange server establish response flag */
 	qsmp_flag_keep_alive_request = 0x0B,		/*!< The packet contains a keep alive request */
-	qsmp_flag_remote_connected = 0x0C,			/*!< The remote host is connected to the */
+	qsmp_flag_remote_connected = 0x0C,			/*!< The remote host is connected flag */
 	qsmp_flag_remote_terminated = 0x0D,			/*!< The remote host has terminated the connection */
-	qsmp_flag_session_established = 0x0E,		/*!< The is in the established state */
-	qsmp_flag_session_establish_verify = 0x0F,	/*!< The is in the established verify state */
+	qsmp_flag_session_established = 0x0E,		/*!< The exchange is in the established state */
+	qsmp_flag_session_establish_verify = 0x0F,	/*!< The exchange is in the established verify state */
 	qsmp_flag_unrecognized_protocol = 0x10,		/*!< The protocol string is not recognized */
 	qsmp_flag_error_condition = 0xFF,			/*!< The connection experienced an error */
 } qsmp_flags;
@@ -777,6 +1154,27 @@ typedef struct qsmp_keep_alive_state
 #	define qsmp_signature_generate_keypair qsc_sphincsplus_generate_keypair
 #	define qsmp_signature_sign qsc_sphincsplus_sign
 #	define qsmp_signature_verify qsc_sphincsplus_verify
+#elif defined(QSMP_CONFIG_FALCON_KYBER)
+#	define qsmp_cipher_generate_keypair qsc_kyber_generate_keypair
+#	define qsmp_cipher_decapsulate qsc_kyber_decapsulate
+#	define qsmp_cipher_encapsulate qsc_kyber_encapsulate
+#	define qsmp_signature_generate_keypair qsc_falcon_generate_keypair
+#	define qsmp_signature_sign qsc_falcon_sign
+#	define qsmp_signature_verify qsc_falcon_verify
+#elif defined(QSMP_CONFIG_FALCON_MCELIECE)
+#	define qsmp_cipher_generate_keypair qsc_mceliece_generate_keypair
+#	define qsmp_cipher_decapsulate qsc_mceliece_decapsulate
+#	define qsmp_cipher_encapsulate qsc_mceliece_encapsulate
+#	define qsmp_signature_generate_keypair qsc_falcon_generate_keypair
+#	define qsmp_signature_sign qsc_falcon_sign
+#	define qsmp_signature_verify qsc_falcon_verify
+#elif defined(QSMP_CONFIG_FALCON_NTRU)
+#	define qsmp_cipher_generate_keypair qsc_ntru_generate_keypair
+#	define qsmp_cipher_decapsulate qsc_ntru_decapsulate
+#	define qsmp_cipher_encapsulate qsc_ntru_encapsulate
+#	define qsmp_signature_generate_keypair qsc_falcon_generate_keypair
+#	define qsmp_signature_sign qsc_falcon_sign
+#	define qsmp_signature_verify qsc_falcon_verify
 #else
 #	define qsmp_cipher_generate_keypair qsc_kyber_generate_keypair
 #	define qsmp_cipher_decapsulate qsc_kyber_decapsulate

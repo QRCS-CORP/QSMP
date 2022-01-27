@@ -81,7 +81,7 @@ size_t qsmp_packet_to_stream(const qsmp_packet* packet, uint8_t* pstream)
 		if (packet->msglen <= QSMP_MESSAGE_MAX)
 		{
 			qsc_memutils_copy((pstream + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint64_t)), packet->message, packet->msglen);
-			res = QSMP_HEADER_SIZE + packet->msglen;
+			res = packet->msglen + (size_t)QSMP_HEADER_SIZE;
 		}
 	}
 

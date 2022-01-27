@@ -9,7 +9,7 @@
 
 static qsmp_kex_client_state m_qsmp_client_ctx;
 
-static void client_print_prompt()
+static void client_print_prompt(void)
 {
 	qsc_consoleutils_print_safe("client> ");
 }
@@ -47,14 +47,22 @@ static void client_print_message(const char* message)
 	}
 }
 
-static void client_print_banner()
+static void client_print_string(const char* message, size_t msglen)
+{
+	if (message != NULL && msglen != 0)
+	{
+		qsc_consoleutils_print_line(message);
+	}
+}
+
+static void client_print_banner(void)
 {
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Quantum Secure Messaging Protocol Client  *");
 	qsc_consoleutils_print_line("*                                                 *");
 	qsc_consoleutils_print_line("* Release:   v1.0.0.0f (A0)                       *");
 	qsc_consoleutils_print_line("* Date:      September 1, 2021                    *");
-	qsc_consoleutils_print_line("* Contact:   develop@vtdev.com                    *");
+	qsc_consoleutils_print_line("* Contact:   develop@dfdef.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
 }
@@ -62,7 +70,7 @@ static void client_print_banner()
 static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_key* ckey)
 {
 	uint8_t pskey[QSMP_PUBKEY_STRING_SIZE];
-	char fpath[FILENAME_MAX + 1] = { 0 };
+	char fpath[QSC_SYSTEM_MAX_PATH + 1] = { 0 };
 	char sadd[QSC_IPINFO_IPV4_STRNLEN] = { 0 };
 	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	size_t slen;
@@ -98,14 +106,14 @@ static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_k
 	{
 		client_print_message("Enter the path of the public key:");
 		client_print_message("");
-		slen = qsc_consoleutils_get_formatted_line(fpath, sizeof(fpath));
+		slen = qsc_consoleutils_get_line(fpath, sizeof(fpath)) - 1;
 
 		if (slen > 0)
 		{
-			if (qsc_filetools_file_exists(fpath) == true && qsc_stringutils_string_contains(fpath, QSMP_PUBKEY_NAME) == true)
+			if (qsc_fileutils_exists(fpath) == true && qsc_stringutils_string_contains(fpath, QSMP_PUBKEY_NAME) == true)
 			{
-				qsc_filetools_copy_file_to_stream(fpath, pskey, sizeof(pskey));
-				res = qsmp_client_decode_public_key(ckey, pskey);
+				qsc_fileutils_copy_file_to_stream(fpath, (char*)pskey, sizeof(pskey));
+				res = qsmp_client_decode_public_key(ckey, (char*)pskey);
 
 				if (res == false)
 				{
@@ -121,6 +129,78 @@ static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_k
 	}
 
 	return res;
+}
+
+void qsc_socket_exception_callback(const qsc_socket* source, qsc_socket_exceptions error)
+{
+	assert(source != NULL);
+
+	const char* emsg;
+
+	if (source != NULL)
+	{
+		emsg = qsc_socket_error_to_string(error);
+		client_print_message(emsg);
+	}
+}
+
+void qsc_socket_receive_async_callback(const qsc_socket* source, const uint8_t* message, size_t* msglen)
+{
+	assert(message != NULL);
+	assert(source != NULL);
+
+	qsmp_packet pkt = { 0 };
+	char msgstr[QSMP_MESSAGE_MAX] = { 0 };
+	size_t mlen;
+	qsmp_errors qerr;
+
+	if (message != NULL && source != NULL && msglen != NULL)
+	{
+		/* convert the bytes to packet */
+		qsmp_stream_to_packet(message, &pkt);
+
+		if (pkt.flag == qsmp_flag_encrypted_message)
+		{
+			qerr = qsmp_client_decrypt_packet(&m_qsmp_client_ctx, &pkt, (uint8_t*)msgstr, msglen);
+
+			if (qerr == qsmp_error_none)
+			{
+				client_print_string(msgstr, *msglen);
+				client_print_message("");
+			}
+			else
+			{
+				client_print_message(qsmp_error_to_string(qerr));
+			}
+		}
+		else if (pkt.flag == qsmp_flag_connection_terminate)
+		{
+			client_print_message("The connection was terminated by the remote host.");
+			qsmp_client_connection_close(&m_qsmp_client_ctx, source, qsmp_error_none);
+		}
+		else if (pkt.flag == qsmp_flag_keep_alive_request)
+		{
+			/* copy the keep-alive packet and send it back */
+			mlen = qsmp_packet_to_stream(&pkt, (uint8_t*)msgstr);
+			qsc_socket_send(source, (uint8_t*)msgstr, mlen, qsc_socket_send_flag_none);
+		}
+		else if (pkt.flag == qsmp_flag_error_condition)
+		{
+			if (pkt.msglen > 0)
+			{
+				qerr = (qsmp_errors)pkt.message[0];
+				client_print_error(qerr);
+			}
+
+			client_print_message("The connection experienced a fatal error.");
+			qsmp_client_connection_close(&m_qsmp_client_ctx, source, qsmp_error_connection_failure);
+		}
+		else
+		{
+			client_print_message("The connection experienced a fatal error.");
+			qsmp_client_connection_close(&m_qsmp_client_ctx, source, qsmp_error_connection_failure);
+		}
+	}
 }
 
 static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, const qsmp_client_key* ckey)
@@ -151,10 +231,11 @@ static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, const qs
 		qsc_socket_receive_async(&actx);
 
 		mlen = 0;
-		client_print_prompt();
 
 		while (qsc_consoleutils_line_contains(sin, "qsmp quit") == false)
 		{
+			client_print_prompt();
+
 			if (mlen > 0)
 			{
 				/* convert the packet to bytes */
@@ -164,16 +245,12 @@ static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, const qs
 				qsc_socket_send(&csck, msgstr, mlen, qsc_socket_send_flag_none);
 			}
 
-			mlen = qsc_consoleutils_get_line(sin, sizeof(sin));
+			mlen = qsc_consoleutils_get_line(sin, sizeof(sin)) - 1;
 
-			if (mlen == 1 && sin[0] == '\n')
+			if (mlen > 0 && (sin[0] == '\n' || sin[0] == '\r'))
 			{
-				mlen = 0;
 				client_print_message("");
-			}
-			else
-			{
-				client_print_prompt();
+				mlen = 0;
 			}
 		}
 
@@ -182,78 +259,7 @@ static void client_connect_ipv4(const qsc_ipinfo_ipv4_address* address, const qs
 	else
 	{
 		client_print_message("Could not connect to the remote host.");
-	}
-}
-
-void qsc_socket_exception_callback(const qsc_socket* source, qsc_socket_exceptions error)
-{
-	assert(source != NULL);
-
-	const char* emsg;
-
-	if (source != NULL)
-	{
-		emsg = qsc_socket_error_to_string(error);
-		client_print_message(emsg);
-	}
-}
-
-void qsc_socket_receive_async_callback(const qsc_socket* source, const uint8_t* message, size_t msglen)
-{
-	assert(message != NULL);
-	assert(source != NULL);
-
-	qsmp_packet pkt = { 0 };
-	char msgstr[QSMP_MESSAGE_MAX] = { 0 };
-	size_t mlen;
-	qsmp_errors qerr;
-
-	if (message != NULL && source != NULL && msglen > 0)
-	{
-		/* convert the bytes to packet */
-		qsmp_stream_to_packet(message, &pkt);
-
-		if (pkt.flag == qsmp_flag_encrypted_message)
-		{
-			qerr = qsmp_client_decrypt_packet(&m_qsmp_client_ctx, &pkt, (uint8_t*)msgstr, &msglen);
-
-			if (qerr == qsmp_error_none)
-			{
-				qsc_consoleutils_print_formatted(msgstr, msglen);
-				client_print_message("");
-			}
-			else
-			{
-				client_print_message(qsmp_error_to_string(qerr));
-			}
-		}
-		else if (pkt.flag == qsmp_flag_connection_terminate)
-		{
-			client_print_message("The connection was terminated by the remote host.");
-			qsmp_client_connection_close(&m_qsmp_client_ctx, source, qsmp_error_none);
-		}
-		else if (pkt.flag == qsmp_flag_keep_alive_request)
-		{
-			/* copy the keep-alive packet and send it back */
-			mlen = qsmp_packet_to_stream(&pkt, msgstr);
-			qsc_socket_send(source, msgstr, mlen, qsc_socket_send_flag_none);
-		}
-		else if (pkt.flag == qsmp_flag_error_condition)
-		{
-			if (pkt.msglen > 0)
-			{
-				qerr = (qsmp_errors)pkt.message[0];
-				client_print_error(qerr);
-			}
-
-			client_print_message("The connection experienced a fatal error.");
-			qsmp_client_connection_close(&m_qsmp_client_ctx, source, qsmp_error_connection_failure);
-		}
-		else
-		{
-			client_print_message("The connection experienced a fatal error.");
-			qsmp_client_connection_close(&m_qsmp_client_ctx, source, qsmp_error_connection_failure);
-		}
+		client_print_error(qerr);
 	}
 }
 

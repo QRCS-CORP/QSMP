@@ -16,6 +16,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+ /**
+ * \file appsrv.h
+ * \brief The server application
+ * Version 1b: 2022-01-25
+ */
+
 #ifndef QSMP_SERVER_APP_H
 #define QSMP_SERVER_APP_H
 
@@ -25,6 +31,6 @@
 
 static const char QSMP_PUBKEY_NAME[] = "pubkey.qpkey";
 static const char QSMP_PRIKEY_NAME[] = "prikey.qskey";
-static const char QSMP_APP_PATH[] = "\\QSMP";
+static const char QSMP_APP_PATH[] = "QSMP";
 
 #endif

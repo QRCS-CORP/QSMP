@@ -22,10 +22,10 @@
 * Functions used to implement the client in the Quantum Secure Messaging Protocol (QSMP).
 *
 * \author		John G. Underhill
-* \version		1.0.0.0a
+* \version		1.0.0.0b
 * \date			February 1, 2021
-* \updated		May 26, 2021
-* \contact:		develop@vtdev.com
+* \updated		January 25, 2022
+* \contact:		develop@dfdef.com
 */
 
 #ifndef QSMP_CLIENT_H
@@ -82,7 +82,7 @@ void qsmp_client_send_error(const qsc_socket* sock, qsmp_errors error);
 
 /**
 * \brief Run the IPv4 networked key exchange function.
-* Returns the connected socket and the QSMP server state.
+* Returns the connected socket and the QSMP client state.
 *
 * \param ctx: A pointer to the qsmp client state structure
 * \param sock: A pointer to the socket structure
@@ -96,7 +96,7 @@ qsmp_errors qsmp_client_connect_ipv4(qsmp_kex_client_state* ctx, qsc_socket* soc
 
 /**
 * \brief Run the IPv6 networked key exchange function.
-* Returns the connected socket and the QSMP server state.
+* Returns the connected socket and the QSMP client state.
 *
 * \param ctx: A pointer to the qsmp client state structure
 * \param sock: A pointer to the socket structure
