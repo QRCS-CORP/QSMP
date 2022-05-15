@@ -17,16 +17,21 @@
 */
 
 /**
-* \file appclt.h
-* \brief The client application
+* \file appsrv.h
+* \brief The listener application example
 * Version 1.2a: 2022-05-01
 */
 
-#ifndef QSMP_CLIENT_APP_H
-#define QSMP_CLIENT_APP_H
+#ifndef QSMP_LISTENER_APP_H
+#define QSMP_LISTENER_APP_H
 
 #include "common.h"
 
-static const char QSMP_PUBKEY_NAME[] = "server_public_key.qpkey";
+static const char QSMP_SENDER_PUBKEY_NAME[] = "sender_public_key.qpkey";
+static const char QSMP_PUBKEY_NAME[] = "listener_public_key.qpkey";
+static const char QSMP_PRIKEY_NAME[] = "listener_secret_key.qskey";
+static const char QSMP_APP_PATH[] = "QSMP";
+static const char QSMP_LISTENER_PATH[] = "Listener";
+static const char QSMP_SENDER_PATH[] = "Sender";
 
 #endif

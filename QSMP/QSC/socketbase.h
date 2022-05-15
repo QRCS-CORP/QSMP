@@ -62,7 +62,7 @@ QSC_SYSTEM_CONDITION_IGNORE(5105)
 #	elif defined(QSC_SYSTEM_OS_APPLE)
 #		include <net/if_dl.h>
 #		include <netinet/in.h>
-#		include <netinet/in6.h>
+//#		include <netinet/in6.h>
 #		if !defined(AF_PACKET)
 #			define AF_PACKET PF_INET
 #		endif

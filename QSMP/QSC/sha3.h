@@ -245,7 +245,7 @@ QSC_EXPORT_API typedef struct
 * \enum qsc_keccak_rate
 * \brief The Keccak rate; determines which security strength is used by the function, 128, 256, or 512-bit
 */
-typedef enum
+typedef enum qsc_keccak_rate
 {
 	qsc_keccak_rate_none = 0,						/*!< No bit rate was selected  */
 	qsc_keccak_rate_128 = QSC_KECCAK_128_RATE,		/*!< The Keccak 128-bit rate  */

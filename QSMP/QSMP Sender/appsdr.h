@@ -22,11 +22,16 @@
 * Version 1.2a: 2022-05-01
 */
 
-#ifndef QSMP_CLIENT_APP_H
-#define QSMP_CLIENT_APP_H
+#ifndef QSMP_SENDER_APP_H
+#define QSMP_SENDER_APP_H
 
 #include "common.h"
 
-static const char QSMP_PUBKEY_NAME[] = "server_public_key.qpkey";
+static const char QSMP_PUBKEY_EXTENSION[] = ".qpkey";
+static const char QSMP_PUBKEY_NAME[] = "sender_public_key.qpkey";
+static const char QSMP_PRIKEY_NAME[] = "sender_secret_key.qskey";
+static const char QSMP_APP_PATH[] = "QSMP";
+static const char QSMP_LISTENER_PATH[] = "Listener";
+static const char QSMP_SENDER_PATH[] = "Sender";
 
 #endif

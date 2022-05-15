@@ -21,9 +21,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{801febfc-5748-4331-92ed-79a1c18511d7}</ProjectGuid>
-    <RootNamespace>QSMPClient</RootNamespace>
+    <ProjectGuid>{f055b7de-1573-4e54-8116-2e92159f5b33}</ProjectGuid>
+    <RootNamespace>QSMPServer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>QSMP Listener</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -155,7 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="appclt.c" />
+    <ClCompile Include="applnr.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QSC\QSC.vcxproj">
@@ -166,7 +167,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="appclt.h" />
+    <ClInclude Include="applnr.h" />
     <ClInclude Include="common.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -41,7 +41,7 @@ static bool aes128_cbc_monte_carlo(const uint8_t* key, const uint8_t* iv, const 
 	}
 
 	/* initialize the state */
-	qsc_aes_initialize(&state, &kp, true, AES128);
+	qsc_aes_initialize(&state, &kp, true, qsc_aes_cipher_128);
 
 	/* test the cbc encryption function */
 	for (i = 0; i < 4; ++i)
@@ -56,7 +56,7 @@ static bool aes128_cbc_monte_carlo(const uint8_t* key, const uint8_t* iv, const 
 
 	/* reset the iv and test the cbc decryption function */
 	qsc_memutils_copy(kp.nonce, iv, QSC_AES_BLOCK_SIZE);
-	qsc_aes_initialize(&state, &kp, false, AES128);
+	qsc_aes_initialize(&state, &kp, false, qsc_aes_cipher_128);
 
 	for (i = 0; i < 4; ++i)
 	{
@@ -89,7 +89,7 @@ static bool aes256_cbc_monte_carlo(const uint8_t* key, const uint8_t* iv, const 
 	status = true;
 
 	/* initialize the state and create the round-keys */
-	qsc_aes_initialize(&state, &kp, true, AES256);
+	qsc_aes_initialize(&state, &kp, true, qsc_aes_cipher_256);
 
 	/* test the cbc encryption function */
 	for (i = 0; i < 4; ++i)
@@ -104,7 +104,7 @@ static bool aes256_cbc_monte_carlo(const uint8_t* key, const uint8_t* iv, const 
 
 	/* reset the iv and test decryption */
 	qsc_memutils_copy(ivc, iv, QSC_AES_BLOCK_SIZE);
-	qsc_aes_initialize(&state, &kp, false, AES256);
+	qsc_aes_initialize(&state, &kp, false, qsc_aes_cipher_256);
 
 	/* test the cbc decryption function */
 	for (i = 0; i < 4; ++i)
@@ -137,7 +137,7 @@ static bool aes128_ctr_monte_carlo(const uint8_t* key, const uint8_t* nonce, con
 	status = true;
 
 	/* initialize the state and create the round-keys */
-	qsc_aes_initialize(&state, &kp, true, AES128);
+	qsc_aes_initialize(&state, &kp, true, qsc_aes_cipher_128);
 
 	/* test the ctr encryption function */
 	for (i = 0; i < 4; ++i)
@@ -154,7 +154,7 @@ static bool aes128_ctr_monte_carlo(const uint8_t* key, const uint8_t* nonce, con
 	qsc_memutils_copy(state.nonce, nonce, QSC_AES_BLOCK_SIZE);
 
 	/* initialize the state and create the round-keys; encrypt always equals true with ctr mode */
-	qsc_aes_initialize(&state, &kp, true, AES128);
+	qsc_aes_initialize(&state, &kp, true, qsc_aes_cipher_128);
 
 	/* test the ctr decryption */
 	for (i = 0; i < 4; ++i)
@@ -187,7 +187,7 @@ static bool aes256_ctr_monte_carlo(const uint8_t* key, const uint8_t* nonce, con
 	status = true;
 
 	/* initialize the state and create the round-keys */
-	qsc_aes_initialize(&state, &kp, true, AES256);
+	qsc_aes_initialize(&state, &kp, true, qsc_aes_cipher_256);
 
 	/* test the ctr encryption function */
 	for (i = 0; i < 4; ++i)
@@ -204,7 +204,7 @@ static bool aes256_ctr_monte_carlo(const uint8_t* key, const uint8_t* nonce, con
 	qsc_memutils_copy(state.nonce, nonce, QSC_AES_BLOCK_SIZE);
 
 	/* initialize the state and create the round-keys; encrypt always equals true with ctr mode */
-	qsc_aes_initialize(&state, &kp, true, AES256);
+	qsc_aes_initialize(&state, &kp, true, qsc_aes_cipher_256);
 
 	/* test the ctr decryption */
 	for (i = 0; i < 4; ++i)
@@ -236,7 +236,7 @@ static bool aes128_ecb_monte_carlo(const uint8_t* key, const uint8_t message[4][
 	status = true;
 
 	/* initialize the state and create the round-keys */
-	qsc_aes_initialize(&state, &kp, true, AES128);
+	qsc_aes_initialize(&state, &kp, true, qsc_aes_cipher_128);
 
 	/* test the ecb encryption function */
 	for (i = 0; i < 4; ++i)
@@ -250,7 +250,7 @@ static bool aes128_ecb_monte_carlo(const uint8_t* key, const uint8_t message[4][
 	}
 
 	/* initialize the state */
-	qsc_aes_initialize(&state, &kp, false, AES128);
+	qsc_aes_initialize(&state, &kp, false, qsc_aes_cipher_128);
 
 	/* test the ecb decryption function */
 	for (i = 0; i < 4; ++i)
@@ -281,7 +281,7 @@ static bool aes256_ecb_monte_carlo(const uint8_t* key, const uint8_t message[4][
 	status = true;
 
 	/* initialize the state and create the round-keys */
-	qsc_aes_initialize(&state, &kp, true, AES256);
+	qsc_aes_initialize(&state, &kp, true, qsc_aes_cipher_256);
 
 	/* test the ecb encryption function */
 	for (i = 0; i < 4; ++i)
@@ -295,7 +295,7 @@ static bool aes256_ecb_monte_carlo(const uint8_t* key, const uint8_t message[4][
 	}
 
 	/* initialize the state  */
-	qsc_aes_initialize(&state, &kp, false, AES256);
+	qsc_aes_initialize(&state, &kp, false, qsc_aes_cipher_256);
 
 	/* test the ecb decryption function */
 	for (i = 0; i < 4; ++i)
@@ -960,16 +960,16 @@ bool rcs256_kat()
 #if defined(QSC_RCS_AUTHENTICATED)
 	uint8_t ad[20] = { 0 };
 	uint8_t dec[32] = { 0 };
-	uint8_t enc1[32 + QSC_RCS256_MAC_SIZE] = { 0 };
-	uint8_t enc2[32 + QSC_RCS256_MAC_SIZE] = { 0 };
-	uint8_t exp1[32 + QSC_RCS256_MAC_SIZE] = { 0 };
-	uint8_t exp2[32 + QSC_RCS256_MAC_SIZE] = { 0 };
+	uint8_t enc1[32 + QSC_RCS_256_MAC_SIZE] = { 0 };
+	uint8_t enc2[32 + QSC_RCS_256_MAC_SIZE] = { 0 };
+	uint8_t exp1[32 + QSC_RCS_256_MAC_SIZE] = { 0 };
+	uint8_t exp2[32 + QSC_RCS_256_MAC_SIZE] = { 0 };
 	uint8_t ncpy[QSC_RCS_NONCE_SIZE] = { 0 };
 #else
 	uint8_t enc1[32] = { 0 };
 	uint8_t exp1[32] = { 0 };
 #endif
-	uint8_t key[QSC_RCS256_KEY_SIZE] = { 0 };
+	uint8_t key[QSC_RCS_256_KEY_SIZE] = { 0 };
 	uint8_t msg[32] = { 0 };
 	uint8_t nce[QSC_RCS_NONCE_SIZE] = { 0 };
 
@@ -1004,7 +1004,7 @@ bool rcs256_kat()
 #endif
 
 	/* initialize the key parameters struct, info is optional */
-	qsc_rcs_keyparams kp = { key, QSC_RCS256_KEY_SIZE, nce };
+	qsc_rcs_keyparams kp = { key, QSC_RCS_256_KEY_SIZE, nce };
 
 	status = true;
 
@@ -1069,16 +1069,16 @@ bool rcs512_kat()
 #if defined(QSC_RCS_AUTHENTICATED)
 	uint8_t ad[20] = { 0 };
 	uint8_t dec[64] = { 0 };
-	uint8_t enc1[64 + QSC_RCS512_MAC_SIZE] = { 0 };
-	uint8_t enc2[64 + QSC_RCS512_MAC_SIZE] = { 0 };
-	uint8_t exp1[64 + QSC_RCS512_MAC_SIZE] = { 0 };
-	uint8_t exp2[64 + QSC_RCS512_MAC_SIZE] = { 0 };
+	uint8_t enc1[64 + QSC_RCS_512_MAC_SIZE] = { 0 };
+	uint8_t enc2[64 + QSC_RCS_512_MAC_SIZE] = { 0 };
+	uint8_t exp1[64 + QSC_RCS_512_MAC_SIZE] = { 0 };
+	uint8_t exp2[64 + QSC_RCS_512_MAC_SIZE] = { 0 };
 	uint8_t ncpy[QSC_RCS_NONCE_SIZE] = { 0 };
 #else
 	uint8_t enc1[64] = { 0 };
 	uint8_t exp1[64] = { 0 };
 #endif
-	uint8_t key[QSC_RCS512_KEY_SIZE] = { 0 };
+	uint8_t key[QSC_RCS_512_KEY_SIZE] = { 0 };
 	uint8_t msg[64] = { 0 };
 	uint8_t nce[QSC_RCS_NONCE_SIZE] = { 0 };
 	bool status;
@@ -1123,7 +1123,7 @@ bool rcs512_kat()
 #endif
 
 	/* initialize the key parameters struct, info is optional */
-	qsc_rcs_keyparams kp = { key, QSC_RCS512_KEY_SIZE, nce };
+	qsc_rcs_keyparams kp = { key, QSC_RCS_512_KEY_SIZE, nce };
 
 	status = true;
 
