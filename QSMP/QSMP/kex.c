@@ -186,6 +186,7 @@ static qsmp_errors kex_duplex_client_connect_request(qsmp_kex_duplex_client_stat
 			qsc_memutils_clear(kcs->schash, QSMP_DUPLEX_SCHASH_SIZE);
 			qsc_sha3_initialize(&kstate);
 			qsc_sha3_update(&kstate, qsc_keccak_rate_512, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
+			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->keyid, QSMP_KEYID_SIZE);
 			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->verkey, QSMP_VERIFYKEY_SIZE);
 			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->rverkey, QSMP_VERIFYKEY_SIZE);
 			qsc_sha3_finalize(&kstate, qsc_keccak_rate_512, kcs->schash);
@@ -209,22 +210,22 @@ static qsmp_errors kex_duplex_client_connect_request(qsmp_kex_duplex_client_stat
 
 /*
 Exchange Request:
-The client verifies the signature of the hash, then generates its own hash of the public key,
-and compares it with the one contained in the message.
-If the hash matches, the client uses the public-key to encapsulate a shared secret.
+The client verifies the signature of the hash, then generates its own hash of the public key, 
+and compares it with the one contained in the message. 
+If the hash matches, the client uses the public-key to encapsulate a shared secret. 
 If the hash does not match, the key exchange is aborted.
 cond <- AVpk(H(pk)) = (true ?= pk : 0)
-cpta,seca <- AEpk(seca)
-The client stores the shared secret (seca), which along with a second shared secret and the session cookie,
-will be used to generate the primary secret.
-The client generates an asymmetric encryption key-pair, stores the private key,
+cpta, seca -> AEpk(seca)
+The client stores the shared secret (seca), which along with a second shared secret and the session cookie, 
+will be used to generate the session keys.
+The client generates an asymmetric encryption key-pair, stores the private key, 
 hashes the public encapsulation key and cipher-text, and then signs the hash using its asymmetric signature key.
-pk,sk <- AG(cfg)
+pk, sk <- AG(cfg)
 kch <- H(pk || cpta)
 skch <- ASsk(kch)
-The client sends a response message containing the signed hash of its public asymmetric encapsulation-key and cipher-text,
+The client sends a response message containing the signed hash of its public asymmetric encapsulation-key and cipher-text, 
 and a copy of the cipher-text and encapsulation key.
-C{ cpta, pk, skch }->S
+C{ cpta, pk, skch } -> S
 */
 static qsmp_errors kex_duplex_client_exchange_request(qsmp_kex_duplex_client_state* kcs, qsmp_connection_state* cns, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
@@ -317,26 +318,26 @@ static qsmp_errors kex_duplex_client_exchange_request(qsmp_kex_duplex_client_sta
 }
 
 /*
-Establish Request:
 The client verifies the signature of the hash, then generates its own hash of the cipher-text, 
-and compares it with the one contained in the message.
-If the hash matches, the client decrypts the shared secret (secb). 
-If the hash comparison fails, the key exchange is aborted.
-cond  <-AVpk(H(cptb)) = (true ?= cptb : 0)
+and compares it with the one contained in the message. 
+If the hash matches, the client decapsulates the shared secret (secb). If the hash comparison fails,
+the key exchange is aborted.
+cond <- AVpk(H(cptb)) = (true ?= cptb : 0)
 secb <- -AEsk(cptb)
 The client combines both secrets and the session cookie to create the session keys, 
 and two unique nonce, one for each channel of the communications stream.
-k1,k2,n1,n2 <- KDF(seca, secb, sch)
+k1, k2, n1, n2 <- KDF(seca, secb, sch)
 The receive and transmit channel ciphers are initialized.
 cprrx(k2,n2)
 cprtx(k1,n1)
 An optional tweak value can be added to the cipher’s initialization function. 
-This tweak is mixed with the key using the internal KDF function. 
+This tweak is mixed with the key using the internal key derivation function. 
 This tweak can be a tertiary key provided by the server, or a hash of multiple keys from a list of trusted key holders;
 t <- H(s1, s2, ..., sn)
-cpr(k,n,t)
+cpr(k, n, t)
 The client sends an empty message with the establish request flag, 
-indicating that both encrypted channels of the tunnel have been raised, and that the tunnel is in the operational state. 
+indicating that both encrypted channels of the tunnel have been raised, 
+and that the tunnel is in the operational state. 
 In the event of an error, the client sends an error message to the server, 
 aborting the exchange and terminating the connection on both hosts.
 C{ f } -> S
@@ -488,21 +489,25 @@ static qsmp_errors kex_duplex_client_establish_verify(const qsmp_kex_duplex_clie
 }
 
 /*
-Connect Response:
-The server first checks that it has the requested asymmetric signature verification key corresponding to that host,
-using the key-identity array, then verifies that it has a compatible protocol configuration.
-The server stores a hash of the configuration string, and both public signature verification-keys,
+The server responds with either an error message, or a connect response packet.
+Any error during the key exchange will generate an error-packet sent to the remote host, 
+which will trigger a tear down of the exchange, and the network connection on both sides.
+The server first checks that it has the requested asymmetric signature verification key,
+corresponding to that host using the key-identity array, 
+then verifies that it has a compatible protocol configuration. 
+The server stores a hash of the configuration string, key identity, and both public signature verification-keys, 
 to create the public key hash, which is used as a session cookie.
-sch <- H(cfg || pvka || pvkb)
-The server then generates an asymmetric encryption key-pair, stores the private key,
+sch <- H(cfg || kid || pvka || pvkb)
+The server then generates an asymmetric encryption key-pair, stores the private key, 
 hashes the public encapsulation key, and then signs the hash of the public encapsulation key using the asymmetric signature key.
-The public signature verification key can itself be signed by a ‘chain of trust’ model, like X.509,
-using a signature verification extension to this protocol.
+The public signature verification key can itself be signed by a ‘chain of trust’ model, 
+like X.509, using a signature verification extension to this protocol.
 pk,sk <- AG(cfg)
 pkh <- H(pk)
 spkh <- ASsk(pkh)
-The server sends a connect response message containing a signed hash of the public asymmetric encapsulation-key, and a copy of that key.
-S{ spkh, pk }->C
+The server sends a connect response message containing a signed hash of the public asymmetric encapsulation-key, 
+and a copy of that key.
+S{ spkh, pk } -> C
 */
 static qsmp_errors kex_duplex_server_connect_response(qsmp_kex_duplex_server_state* kss, qsmp_connection_state* cns, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
@@ -547,6 +552,7 @@ static qsmp_errors kex_duplex_server_connect_response(qsmp_kex_duplex_server_sta
 						qsc_memutils_clear(kss->schash, QSMP_DUPLEX_SCHASH_SIZE);
 						qsc_sha3_initialize(&kstate);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_512, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
+						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->keyid, QSMP_KEYID_SIZE);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->rverkey, QSMP_VERIFYKEY_SIZE);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->verkey, QSMP_VERIFYKEY_SIZE);
 						qsc_sha3_finalize(&kstate, qsc_keccak_rate_512, kss->schash);
@@ -606,7 +612,7 @@ static qsmp_errors kex_duplex_server_connect_response(qsmp_kex_duplex_server_sta
 
 /*
 Exchange Response:
-The server verifies the signature of the hash, then generates its own hash of the public key and cipher-text,
+The server verifies the signature of the hash, then generates its own hash of the public key and cipher-text, 
 and compares it with the one contained in the message.
 If the hash matches, the server uses the public-key to decapsulate the shared secret.
 If the hash comparison fails, the key exchange is aborted.
@@ -614,23 +620,23 @@ cond <- AVpk(H(pk || cpta)) = (true ?= cph : 0)
 The server decapsulates the second shared-secret, and stores the secret (seca).
 seca <- -AEsk(cpta)
 The server generates a cipher-text and the second shared secret (secb) using the clients public encapsulation key.
-cptb,secb <- AEpk(secb)
-The server combines both secrets and the session token hash to create two session keys,
-and two unique nonce, one for each channel of the communications stream.
-k1,k2,n1,n2 <- Exp(seca, secb, sch)
+cptb, secb <- AEpk(secb)
+The server combines both secrets and the session cookie to create two session keys, and two unique nonce, 
+one for each channel of the communications stream.
+k1, k2, n1, n2 <- Exp(seca, secb, sch)
 The receive and transmit channel ciphers are initialized.
 cprrx(k1,n1)
 cprtx(k2,n2)
-An optional tweak value can be added to the ciphers initialization function.
-This tweak is mixed with the key using the internal KDF function.
-This tweak can be a tertiary key provided by the server, or a hash of multiple keys from a list of trusted key holders.
+An optional tweak value can be added to the ciphers initialization function. 
+The tweak is mixed with the key using the internal KDF function. 
+The tweak can be a tertiary key provided by the server, or a hash of multiple keys from a list of trusted key holders.
 t <- H(s1, s2, ..., sn)
 cpr(k,n,t)
 The server then hashes the cipher-text, and signs the hash.
 cpth <- H(cptb)
 scph <- ASsk(cpth)
 The server sends the signed hash of the cipher-text, and the cipher-text to the client.
-S{ scph, cptb }->C
+S{ scph, cptb } -> C
 */
 static qsmp_errors kex_duplex_server_exchange_response(const qsmp_kex_duplex_server_state* kss, qsmp_connection_state* cns, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
@@ -1202,16 +1208,20 @@ qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* ks
 }
 
 /*
-Connect Request:
-The client stores a hash of the configuration string, and the public asymmetric signature verification-key,
-which is used as a session cookie during the exchange.
-sch <- H(cfg || pvk)
+The client sends a connection request with its configuration string, and asymmetric public signature key identity.
+The key identity (kid) is a multi-part 16-byte address and key identification array, 
+used to match the intended target to the corresponding key. 
+The configuration string defines the cryptographic protocol set being used, these must be identical.
+The client stores a hash of the configuration string, the key id, 
+and of the servers public asymmetric signature verification-key, which is used as a session cookie during the exchange.
+sch <- H(cfg || kid || pvk)
 The client sends the key identity string, and the configuration string to the server.
 C{ kid, cfg } -> S
 */
 static qsmp_errors kex_simplex_client_connect_request(qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns, qsmp_packet* packetout)
 {
 	assert(kcs != NULL);
+	assert(cns != NULL);
 	assert(packetout != NULL);
 
 	qsc_keccak_state kstate = { 0 };
@@ -1236,6 +1246,7 @@ static qsmp_errors kex_simplex_client_connect_request(qsmp_kex_simplex_client_st
 			qsc_memutils_clear(kcs->schash, QSMP_SIMPLEX_SCHASH_SIZE);
 			qsc_sha3_initialize(&kstate);
 			qsc_sha3_update(&kstate, qsc_keccak_rate_256, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
+			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->keyid, QSMP_KEYID_SIZE);
 			qsc_sha3_update(&kstate, qsc_keccak_rate_256, kcs->verkey, QSMP_VERIFYKEY_SIZE);
 			qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, kcs->schash);
 
@@ -1262,10 +1273,10 @@ The client verifies the signature of the hash, then generates its own hash of th
 and compares it with the one contained in the message. 
 If the hash matches, the client uses the public-key to encapsulate a shared secret.
 cond <- AVpk(H(pk)) = (true ?= pk : 0)
-cpt,sec <- AEpk(sec)
-The client combines the secret and the session cookie to create the session keys, 
-and two unique nonce, one key-nonce pair for each channel of the communications stream.
-k1,k2,n1,n2 <- KDF(sec, sch)
+cpt, sec <- AEpk(sec)
+The client combines the secret and the session cookie to create the session keys, and two unique nonce, 
+one key-nonce pair for each channel of the communications stream.
+k1, k2, n1, n2 <- KDF(sec, sch)
 The receive and transmit channel ciphers are initialized.
 cprrx(k2,n2)
 cprtx(k1,n1)
@@ -1275,6 +1286,7 @@ C{ cpt } -> S
 static qsmp_errors kex_simplex_client_exchange_request(const qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
 	assert(kcs != NULL);
+	assert(cns != NULL);
 	assert(packetin != NULL);
 	assert(packetout != NULL);
 
@@ -1388,6 +1400,7 @@ The client sets the operational state to session established, and is now ready t
 static qsmp_errors kex_simplex_client_establish_verify(const qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns, const qsmp_packet* packetin)
 {
 	assert(kcs != NULL);
+	assert(cns != NULL);
 	assert(packetin != NULL);
 
 	qsmp_errors qerr;
@@ -1415,27 +1428,20 @@ static qsmp_errors kex_simplex_client_establish_verify(const qsmp_kex_simplex_cl
 
 /*
 Connect Response:
-The server responds with either an error message, or a response packet. 
-Any error during the key exchange will generate an error-packet sent to the remote host, 
-which will trigger a tear down of the session, and network connection on both sides.
-The server first checks that it has the requested asymmetric signature verification key,
-corresponding to that host using the key-identity array, 
-then verifies that it has a compatible protocol configuration. 
-The server stores a hash of the configuration string, and the public signature verification-key, 
-to create the public key hash, which is used as a session cookie.
-sch <- H(cfg || pvk)
-The server then generates an asymmetric encryption key-pair, stores the private key, hashes the public encapsulation key, 
-and then signs the hash of the public encapsulation key using the asymmetric signature key. 
-pk,sk <- AG(cfg)
-pkh <- H(pk)
-spkh <= ASsk(pkh)
-The server sends a connect response message containing a signed hash of the public asymmetric encapsulation-key, and a copy of that key.
-S{ spkh, pk } -> C
+The client sends a connection request with its configuration string, and asymmetric public signature key identity.
+The key identity (kid) is a multi-part 16-byte address and key identification array, 
+used to match the intended target to the corresponding key. 
+The configuration string defines the cryptographic protocol set being used, these must be identical.
+The client stores a hash of the configuration string, the key id, 
+and of the servers public asymmetric signature verification-key, which is used as a session cookie during the exchange.
+sch <- H(cfg || kid || pvk)
+The client sends the key identity string, and the configuration string to the server.
+C{ kid, cfg } -> S
 */
 static qsmp_errors kex_simplex_server_connect_response(qsmp_kex_simplex_server_state* kss, qsmp_connection_state* cns, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
-	assert(cns != NULL);
 	assert(kss != NULL);
+	assert(cns != NULL);
 	assert(packetin != NULL);
 	assert(packetout != NULL);
 
@@ -1470,6 +1476,7 @@ static qsmp_errors kex_simplex_server_connect_response(qsmp_kex_simplex_server_s
 						qsc_memutils_clear(kss->schash, QSMP_SIMPLEX_SCHASH_SIZE);
 						qsc_sha3_initialize(&kstate);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_256, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
+						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->keyid, QSMP_KEYID_SIZE);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_256, kss->verkey, QSMP_VERIFYKEY_SIZE);
 						qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, kss->schash);
 
@@ -1529,11 +1536,11 @@ static qsmp_errors kex_simplex_server_connect_response(qsmp_kex_simplex_server_s
 
 /*
 Exchange Response:
-The server decapsulates the second shared-secret, and stores the secret.
+The server decapsulates the shared-secret.
 sec <- -AEsk(cpt)
-The server combines the shared secret and the session token hash to create two session keys,
+The server combines the shared secret and the session cookie hash to create two session keys, 
 and two unique nonce, one key-nonce pair for each channel of the communications stream.
-k1,k2,n1,n2 <- KDF(sec, sch)
+k1, k2, n1, n2 <- KDF(sec, sch)
 The receive and transmit channel ciphers are initialized.
 cprrx(k1,n1)
 cprtx(k2,n2)
@@ -1541,11 +1548,11 @@ The server sets the packet flag to exchange response, indicating that the encryp
 and sends the notification to the client. The server sets the operational state to session established, 
 and is now ready to process data.
 S{ f } -> C
-
 */
 static qsmp_errors kex_simplex_server_exchange_response(const qsmp_kex_simplex_server_state* kss, qsmp_connection_state* cns, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
 	assert(kss != NULL);
+	assert(cns != NULL);
 	assert(packetin != NULL);
 	assert(packetout != NULL);
 
@@ -1561,7 +1568,6 @@ static qsmp_errors kex_simplex_server_exchange_response(const qsmp_kex_simplex_s
 			if (qsmp_cipher_decapsulate(ssec, packetin->message, kss->prikey) == true)
 			{
 				uint8_t prnd[(QSC_KECCAK_256_RATE * 2)] = { 0 };
-				uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
 
 				qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
 
