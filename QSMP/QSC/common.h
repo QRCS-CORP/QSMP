@@ -1,6 +1,6 @@
 /* The AGPL version 3 License (AGPLv3)
 *
-* Copyright (c) 2021 Digital Freedom Defence Inc.
+* Copyright (c) 2022 Digital Freedom Defence Inc.
 * This file is part of the QSC Cryptographic library
 *
 * This program is free software : you can redistribute it and / or modify
@@ -322,16 +322,6 @@
 #		define QSC_ALIGN(x)  __declspec(align(x))
 #	else
 #		define QSC_ALIGN(x)
-#	endif
-#endif
-
-/*!
-\def restrict
-* \brief Restrict an integer array
-*/
-#if defined(_MSC_VER) && _MSC_VER
-#	ifndef restrict
-#		define restrict __restrict
 #	endif
 #endif
 
