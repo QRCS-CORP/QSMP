@@ -41,6 +41,15 @@
 * For maximum security, I recommend the McElice/SPHINCS+ set.
 * For a balance of performance and security, the Dilithium/Kyber,
 * or Dilithium/NTRU sets are recommended.
+* 
+* In Visual Studio, when using the McEliece/SPHINCS options, 
+* The maximum stack size should be increased in each project options settings
+* to accomodate the larger key sizes, set to 200KB for the maximum setting values.
+* 
+* The parameter sets used by QSMP are selected in the QSC library in the 
+* libraries common.h file. Settings are at library defaults, however, a true 512-bit
+* security system can be acheived by selecting the McEliece/SPHINCS+ parameter in QSMP
+* and setting SPHINCS+ to one of the 512-bit options in the QSC library.
 */
 
 /*!
@@ -371,9 +380,36 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s
 #		else
 #			error Invalid parameter set!
 #		endif
+#	elif defined(QSC_SPHINCSPLUS_S6S512SHAKERS)
+#		if defined(QSC_MCELIECE_S3N4608T96)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s6s_mceliece-s3_sha3_rcs";
+#		elif defined(QSC_MCELIECE_S5N6688T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s6s_mceliece-s5a_sha3_rcs";
+#		elif defined(QSC_MCELIECE_S5N6960T119)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s6s_mceliece-s5b_sha3_rcs";
+#		elif defined(QSC_MCELIECE_S5N8192T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s6s_mceliece-s5c_sha3_rcs";
+#		else
+#			error Invalid parameter set!
+#		endif
+
+#	elif defined(QSC_SPHINCSPLUS_S6S512SHAKERF)
+#		if defined(QSC_MCELIECE_S3N4608T96)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s6f_mceliece-s3_sha3_rcs";
+#		elif defined(QSC_MCELIECE_S5N6688T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s6f_mceliece-s5a_sha3_rcs";
+#		elif defined(QSC_MCELIECE_S5N6960T119)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s6f_mceliece-s5b_sha3_rcs";
+#		elif defined(QSC_MCELIECE_S5N8192T128)
+static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s6f_mceliece-s5c_sha3_rcs";
+#		else
+#			error Invalid parameter set!
+#		endif
+
 #	else
 #		error Invalid parameter set!
 #	endif
+
 #else
 #	error Invalid parameter set!
 #endif
@@ -806,6 +842,12 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s
 #		define QSMP_PUBKEY_ENCODING_SIZE 88
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
 #		define QSMP_PUBKEY_ENCODING_SIZE 88
+
+#	elif defined(QSC_SPHINCSPLUS_S6S512SHAKERS)
+#		define QSMP_PUBKEY_ENCODING_SIZE 172
+#	elif defined(QSC_SPHINCSPLUS_S6S512SHAKERF)
+#		define QSMP_PUBKEY_ENCODING_SIZE 172
+
 #	else
 #		error invalid sphincs+ parameter!
 #	endif
@@ -822,6 +864,12 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s
 #		define QSMP_PUBKEY_STRING_SIZE 324
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF)
 #		define QSMP_PUBKEY_STRING_SIZE 324
+
+#	elif defined(QSC_SPHINCSPLUS_S6S512SHAKERS)
+#		define QSMP_PUBKEY_STRING_SIZE 409
+#	elif defined(QSC_SPHINCSPLUS_S6S512SHAKERF)
+#		define QSMP_PUBKEY_STRING_SIZE 409
+
 #	else
 #		error invalid sphincs+ parameter!
 #	endif

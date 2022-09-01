@@ -225,7 +225,7 @@ void qsmp_encode_public_key(char enck[QSMP_PUBKEY_STRING_SIZE], const qsmp_serve
 		enck[spos] = '\n';
 		++spos;
 
-		//size_t enclen = qsc_encoding_base64_encoded_size(sizeof(prik->verkey));
+		size_t enclen = qsc_encoding_base64_encoded_size(sizeof(prik->verkey));
 		slen = QSMP_VERIFYKEY_SIZE;
 		qsc_encoding_base64_encode(tmpvk, QSMP_PUBKEY_ENCODING_SIZE, prik->verkey, slen);
 		spos += qsc_stringutils_add_line_breaks((enck + spos), QSMP_PUBKEY_STRING_SIZE - spos, QSMP_PUBKEY_LINE_LENGTH, tmpvk, sizeof(tmpvk));
