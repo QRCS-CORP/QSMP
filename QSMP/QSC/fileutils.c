@@ -363,7 +363,7 @@ int64_t qsc_fileutils_get_line(char** line, size_t* length, FILE* fp)
 
 			if (*length - lenused < chunkused)
 			{
-				// Check for overflow
+				/* Check for overflow */
 				if (*length > SIZE_MAX / 2)
 				{
 					errno = EOVERFLOW;
@@ -511,7 +511,7 @@ FILE* qsc_fileutils_open(const char* path, qsc_fileutils_mode mode, bool binary)
 return fp;
 }
 
-size_t qsc_fileutils_read(char* output, size_t outlen, size_t position, FILE* fp)
+size_t qsc_fileutils_read(char* output, size_t otplen, size_t position, FILE* fp)
 {
 	size_t res;
 
@@ -521,7 +521,7 @@ size_t qsc_fileutils_read(char* output, size_t outlen, size_t position, FILE* fp
 	{
 		if (qsc_fileutils_seekto(fp, position) == true)
 		{
-			res = fread(output, sizeof(char), outlen, fp);
+			res = fread(output, sizeof(char), otplen, fp);
 		}
 	}
 

@@ -1,12 +1,15 @@
 #include "appsdr.h"
 #include "../QSMP/qsmpclient.h"
-#include "../QSC/acp.h"
-#include "../QSC/async.h"
-#include "../QSC/consoleutils.h"
-#include "../QSC/fileutils.h"
-#include "../QSC/folderutils.h"
-#include "../QSC/memutils.h"
-#include "../QSC/stringutils.h"
+#include "../../QSC/QSC/acp.h"
+#include "../../QSC/QSC/async.h"
+#include "../../QSC/QSC/consoleutils.h"
+#include "../../QSC/QSC/fileutils.h"
+#include "../../QSC/QSC/folderutils.h"
+#include "../../QSC/QSC/memutils.h"
+#include "../../QSC/QSC/stringutils.h"
+
+static qsmp_asymmetric_cipher_keypair m_cprkeys;
+static qsmp_asymmetric_signature_keypair m_sigkeys;
 
 static void sender_print_prompt(void)
 {
@@ -59,9 +62,9 @@ static void sender_print_banner(void)
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Sender Example Project                    *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.2.0.0a (A2)                       *");
-	qsc_consoleutils_print_line("* Date:      May 1, 2021                          *");
-	qsc_consoleutils_print_line("* Contact:   develop@dfdef.com                    *");
+	qsc_consoleutils_print_line("* Release:   v1.2.0.0c (A2)                       *");
+	qsc_consoleutils_print_line("* Date:      June 6, 2023                         *");
+	qsc_consoleutils_print_line("* Contact:   develop@qscs.ca                      *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
 }
@@ -100,11 +103,11 @@ static bool sender_prikey_exists(char fpath[QSC_SYSTEM_MAX_PATH], size_t pathlen
 	return res;
 }
 
-static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_key* prik, qsmp_client_key* rverk)
+static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_signature_key* prik, qsmp_client_signature_key* rverk)
 {
+	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	uint8_t spub[QSMP_PUBKEY_STRING_SIZE] = { 0 };
 	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0 };
-	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	char sadd[QSC_IPINFO_IPV4_STRNLEN] = { 0 };
 	char dir[QSC_SYSTEM_MAX_PATH] = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
@@ -203,7 +206,7 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_k
 
 				if (res == true)
 				{
-					qsmp_client_key pubk = { 0 };
+					qsmp_client_signature_key pubk = { 0 };
 
 					qsmp_generate_keypair(&pubk, prik, keyid);
 					/* note: copies the public verify-key and key attributes contained in the server key */
@@ -244,6 +247,7 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_k
 
 static void sender_receive_callback(const qsmp_connection_state* cns, const char* pmsg, size_t msglen)
 {
+	qsc_consoleutils_print_safe("RECD: ");
 	sender_print_string(pmsg, msglen);
 	sender_print_prompt();
 }
@@ -251,11 +255,14 @@ static void sender_receive_callback(const qsmp_connection_state* cns, const char
 static void sender_send_loop(qsmp_connection_state* cns)
 {
 	qsmp_packet pkt = { 0 };
+	/* Note: the buffer can be sized to the expected message maximum */
+	uint8_t pmsg[QSMP_MESSAGE_MAX] = { 0 };
 	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0 };
 	char sin[QSMP_CONNECTION_MTU + 1] = { 0 };
 	size_t mlen;
 
 	mlen = 0;
+	pkt.pmessage = pmsg;
 
 	/* start the sender loop */
 	while (true)
@@ -266,9 +273,14 @@ static void sender_send_loop(qsmp_connection_state* cns)
 		{
 			break;
 		}
-		else if (qsc_consoleutils_line_contains(sin, "qsmp ratchet"))
+		else if (qsc_consoleutils_line_contains(sin, "qsmp asymmetric ratchet"))
 		{
-			qsmp_client_duplex_send_ratchet_request(cns, false);
+			qsmp_duplex_send_asymmetric_ratchet_request(cns);
+			qsc_memutils_clear((uint8_t*)sin, sizeof(sin));
+		}
+		else if (qsc_consoleutils_line_contains(sin, "qsmp symmetric ratchet"))
+		{
+			qsmp_duplex_send_symmetric_ratchet_request(cns);
 			qsc_memutils_clear((uint8_t*)sin, sizeof(sin));
 		}
 		else
@@ -297,8 +309,8 @@ static void sender_send_loop(qsmp_connection_state* cns)
 
 int main(void)
 {
-	qsmp_server_key prik = { 0 };
-	qsmp_client_key rverk = { 0 };
+	qsmp_server_signature_key prik = { 0 };
+	qsmp_client_signature_key rverk = { 0 };
 	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	size_t ectr;
 	bool res;
@@ -309,6 +321,10 @@ int main(void)
 	while (ectr < 3)
 	{
 		res = sender_ipv4_dialogue(&addv4t, &prik , &rverk);
+				
+		/* store the signature keys for asymmetyric ratchet option */
+		qsc_memutils_copy(m_sigkeys.sigkey, prik.sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
+		qsc_memutils_copy(m_sigkeys.verkey, prik.verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 
 		if (res == true)
 		{

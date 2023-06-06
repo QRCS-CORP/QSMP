@@ -1,15 +1,15 @@
-/* 2022 Digital Freedom Defense Incorporated
+/* 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca)
 * All Rights Reserved.
 *
 * NOTICE:  All information contained herein is, and remains
-* the property of Digital Freedom Defense Incorporated.
+* the property of the QSCS Corporation.
 * The intellectual and technical concepts contained
-* herein are proprietary to Digital Freedom Defense Incorporated
+* herein are proprietary to the QSCS Corporation
 * and its suppliers and may be covered by U.S. and Foreign Patents,
 * patents in process, and are protected by trade secret or copyright law.
 * Dissemination of this information or reproduction of this material
 * is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* from the QSCS Corporation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,7 +25,7 @@
 * \author   John G. Underhill
 * \version  1.2a: 2022-05-01
 * \date     May 1, 2022
-* \contact: develop@dfdef.com
+* \contact: develop@qscs.ca
 */
 
 #ifndef QSMP_KEX_H
@@ -40,15 +40,15 @@
 */
 typedef struct qsmp_kex_duplex_client_state
 {
-	uint8_t keyid[QSMP_KEYID_SIZE];					/*!< The key identity string */
-	uint8_t schash[QSMP_DUPLEX_SCHASH_SIZE];		/*!< The session token hash */
-	uint8_t prikey[QSMP_PRIVATEKEY_SIZE];			/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSMP_PUBLICKEY_SIZE];			/*!< The asymmetric cipher public key */
-	uint8_t rverkey[QSMP_VERIFYKEY_SIZE];			/*!< The remote asymmetric signature verification-key */
-	uint8_t sigkey[QSMP_SIGNKEY_SIZE];				/*!< The asymmetric signature signing-key */
-	uint8_t ssec[QSMP_SECRET_SIZE];					/*!< The asymmetric shared secret */
-	uint8_t verkey[QSMP_VERIFYKEY_SIZE];			/*!< The local asymmetric signature verification-key */
-	uint64_t expiration;							/*!< The expiration time, in seconds from epoch */
+	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
+	uint8_t schash[QSMP_DUPLEX_SCHASH_SIZE];				/*!< The session token hash */
+	uint8_t prikey[QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE];		/*!< The asymmetric cipher private key */
+	uint8_t pubkey[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE];		/*!< The asymmetric cipher public key */
+	uint8_t rverkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The remote asymmetric signature verification-key */
+	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
+	uint8_t ssec[QSMP_SECRET_SIZE];							/*!< The asymmetric shared secret */
+	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
+	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
 } qsmp_kex_duplex_client_state;
 
 /*!
@@ -57,15 +57,15 @@ typedef struct qsmp_kex_duplex_client_state
 */
 typedef struct qsmp_kex_duplex_server_state
 {
-	uint8_t keyid[QSMP_KEYID_SIZE];					/*!< The key identity string */
-	uint8_t schash[QSMP_DUPLEX_SCHASH_SIZE];		/*!< The session token hash */
-	uint8_t prikey[QSMP_PRIVATEKEY_SIZE];			/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSMP_PUBLICKEY_SIZE];			/*!< The asymmetric cipher public key */
-	uint8_t rverkey[QSMP_VERIFYKEY_SIZE];			/*!< The remote asymmetric signature verification-key */
-	uint8_t sigkey[QSMP_SIGNKEY_SIZE];				/*!< The asymmetric signature signing-key */
-	uint8_t verkey[QSMP_VERIFYKEY_SIZE];			/*!< The local asymmetric signature verification-key */
-	uint64_t expiration;							/*!< The expiration time, in seconds from epoch */
-	bool (*key_query)(uint8_t*, const uint8_t*);	/*!< The key query callback */
+	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
+	uint8_t schash[QSMP_DUPLEX_SCHASH_SIZE];				/*!< The session token hash */
+	uint8_t prikey[QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE];		/*!< The asymmetric cipher private key */
+	uint8_t pubkey[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE];		/*!< The asymmetric cipher public key */
+	uint8_t rverkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The remote asymmetric signature verification-key */
+	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
+	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
+	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
+	bool (*key_query)(uint8_t*, const uint8_t*);			/*!< The key query callback */
 } qsmp_kex_duplex_server_state;
 
 /*!
@@ -74,12 +74,12 @@ typedef struct qsmp_kex_duplex_server_state
 */
 typedef struct qsmp_kex_simplex_client_state
 {
-	uint8_t keyid[QSMP_KEYID_SIZE];					/*!< The key identity string */
-	uint8_t rverkey[QSMP_VERIFYKEY_SIZE];			/*!< The remote asymmetric signature verification-key */
-	uint8_t sigkey[QSMP_SIGNKEY_SIZE];				/*!< The asymmetric signature signing-key */
-	uint8_t schash[QSMP_SIMPLEX_SCHASH_SIZE];		/*!< The session token hash */
-	uint8_t verkey[QSMP_VERIFYKEY_SIZE];			/*!< The local asymmetric signature verification-key */
-	uint64_t expiration;							/*!< The expiration time, in seconds from epoch */
+	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
+	uint8_t rverkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The remote asymmetric signature verification-key */
+	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
+	uint8_t schash[QSMP_SIMPLEX_SCHASH_SIZE];				/*!< The session token hash */
+	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
+	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
 } qsmp_kex_simplex_client_state;
 
 /*!
@@ -88,13 +88,13 @@ typedef struct qsmp_kex_simplex_client_state
 */
 typedef struct qsmp_kex_simplex_server_state
 {
-	uint8_t keyid[QSMP_KEYID_SIZE];					/*!< The key identity string */
-	uint8_t schash[QSMP_SIMPLEX_SCHASH_SIZE];		/*!< The session token hash */
-	uint8_t prikey[QSMP_PRIVATEKEY_SIZE];			/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSMP_PUBLICKEY_SIZE];			/*!< The asymmetric cipher public key */
-	uint8_t sigkey[QSMP_SIGNKEY_SIZE];				/*!< The asymmetric signature signing-key */
-	uint8_t verkey[QSMP_VERIFYKEY_SIZE];			/*!< The local asymmetric signature verification-key */
-	uint64_t expiration;							/*!< The expiration time, in seconds from epoch */
+	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
+	uint8_t schash[QSMP_SIMPLEX_SCHASH_SIZE];				/*!< The session token hash */
+	uint8_t prikey[QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE];		/*!< The asymmetric cipher private key */
+	uint8_t pubkey[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE];		/*!< The asymmetric cipher public key */
+	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
+	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
+	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
 } qsmp_kex_simplex_server_state;
 
 /**

@@ -1,11 +1,11 @@
 #include "logger.h"
-#include "../QSC/async.h"
-#include "../QSC/consoleutils.h"
-#include "../QSC/fileutils.h"
-#include "../QSC/folderutils.h"
-#include "../QSC/memutils.h"
-#include "../QSC/stringutils.h"
-#include "../QSC/timestamp.h"
+#include "../../QSC/QSC/async.h"
+#include "../../QSC/QSC/consoleutils.h"
+#include "../../QSC/QSC/fileutils.h"
+#include "../../QSC/QSC/folderutils.h"
+#include "../../QSC/QSC/memutils.h"
+#include "../../QSC/QSC/stringutils.h"
+#include "../../QSC/QSC/timestamp.h"
 
 static char m_log_path[QSC_SYSTEM_MAX_PATH] = { 0 };
 
@@ -92,14 +92,14 @@ void qsmp_logger_print()
 	}
 }
 
-void qsmp_logger_read(char* output, size_t outlen)
+void qsmp_logger_read(char* output, size_t otplen)
 {
 	qsc_mutex mtx;
 
 	if (qsmp_logger_exists() == true)
 	{
 		mtx = qsc_async_mutex_lock_ex();
-		qsc_fileutils_safe_read(m_log_path, 0, output, outlen);
+		qsc_fileutils_safe_read(m_log_path, 0, output, otplen);
 		qsc_async_mutex_unlock_ex(mtx);
 	}
 }

@@ -1,11 +1,11 @@
 #include "appclt.h"
 #include "../QSMP/qsmpclient.h"
-#include "../QSC/async.h"
-#include "../QSC/consoleutils.h"
-#include "../QSC/fileutils.h"
-#include "../QSC/folderutils.h"
-#include "../QSC/memutils.h"
-#include "../QSC/stringutils.h"
+#include "../../QSC/QSC/async.h"
+#include "../../QSC/QSC/consoleutils.h"
+#include "../../QSC/QSC/fileutils.h"
+#include "../../QSC/QSC/folderutils.h"
+#include "../../QSC/QSC/memutils.h"
+#include "../../QSC/QSC/stringutils.h"
 
 static void client_print_prompt(void)
 {
@@ -58,14 +58,14 @@ static void client_print_banner(void)
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Client Example Project                    *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.2.0.0a (A2)                       *");
-	qsc_consoleutils_print_line("* Date:      May 1, 2021                          *");
+	qsc_consoleutils_print_line("* Release:   v1.2.0.0c (A2)                       *");
+	qsc_consoleutils_print_line("* Date:      June 6, 2023                         *");
 	qsc_consoleutils_print_line("* Contact:   develop@dfdef.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
 }
 
-static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_key* ckey)
+static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_signature_key* ckey)
 {
 	uint8_t pskey[QSMP_PUBKEY_STRING_SIZE];
 	char fpath[QSC_SYSTEM_MAX_PATH + 1] = { 0 };
@@ -138,6 +138,7 @@ static void client_receive_callback(const qsmp_connection_state* cns, const char
 static void client_send_loop(qsmp_connection_state* cns)
 {
 	qsmp_packet pkt = { 0 };
+	uint8_t pmsg[QSMP_MESSAGE_MAX] = { 0 };
 	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0 };
 	char sin[QSMP_CONNECTION_MTU + 1] = { 0 };
 	size_t mlen;
@@ -159,6 +160,7 @@ static void client_send_loop(qsmp_connection_state* cns)
 			if (mlen > 0)
 			{
 				/* convert the packet to bytes */
+				pkt.pmessage = pmsg;
 				qsmp_encrypt_packet(cns, &pkt, (const uint8_t*)sin, mlen);
 				qsc_memutils_clear((uint8_t*)sin, sizeof(sin));
 				mlen = qsmp_packet_to_stream(&pkt, msgstr);
@@ -178,7 +180,7 @@ static void client_send_loop(qsmp_connection_state* cns)
 
 int main(void)
 {
-	qsmp_client_key ckey = { 0 };
+	qsmp_client_signature_key ckey = { 0 };
 	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	size_t ectr;
 	bool res;

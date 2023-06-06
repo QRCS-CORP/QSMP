@@ -1,29 +1,25 @@
 /*
-* 2022 John G. Underhill
-* All Rights Reserved.
+* Copyright (c) 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca).
+* This file is part of the QSC Cryptographic library.
+* The QSC library was written as a prototyping library for post-quantum primitives,
+* in the hopes that it would be useful for educational purposes only.
+* Any use of the QSC library in a commercial context, or reproduction of original material
+* contained in this library is strictly forbidden unless prior written consent is obtained
+* from the QSCS Corporation.
 *
-* NOTICE:  All information contained herein is, and remains
-* the property of John G. Underhill.
-* The intellectual and technical concepts contained
-* herein are proprietary to John G. Underhill
-* and his suppliers and may be covered by U.S. and Foreign Patents,
-* patents in process, and are protected by trade secret or copyright law.
-* Dissemination of this information or reproduction of this material
-* is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* The AGPL version 3 License (AGPLv3)
+* This program is free software : you can redistribute it and / or modify
+* it under the terms of the GNU Affero General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Affero General Public License for more details.
 *
-* This library was published publicly in hopes that it would aid in prototyping
-* post-quantum secure primitives for educational purposes only.
-* All and any commercial uses of this library are exclusively reserved by the author
-* John G. Underhill.
-* Any use of this library in a commercial context must be approved by the author
-* in writing.
-* All rights for commercial and/or non-educational purposes, are fully reserved
-* by the author.
+* You should have received a copy of the GNU Affero General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef QSC_MEMUTILS_H
@@ -70,7 +66,7 @@ QSC_EXPORT_API void qsc_memutils_prefetch_l3(uint8_t* address, size_t length);
 QSC_EXPORT_API void* qsc_memutils_malloc(size_t length);
 
 /**
-* \brief Allocate a block of memory
+* \brief Resize a block of memory
 *
 * \param length: The length of the requested block
 *
@@ -96,11 +92,29 @@ QSC_EXPORT_API void qsc_memutils_alloc_free(void* block);
 QSC_EXPORT_API void* qsc_memutils_aligned_alloc(int32_t align, size_t length);
 
 /**
-* \brief Free an aligned memory block created with aligned_alloc
+* \brief Free an aligned memory block
 *
 * \param block: A pointer to the memory block to release
 */
 QSC_EXPORT_API void qsc_memutils_aligned_free(void* block);
+
+/**
+* \brief Allocate an secure 8-bit integer array
+*
+* \param block: The memory block pointer
+* \param length: The length of the requested block
+*
+* \return Returns the length of the memory block or zero
+*/
+QSC_EXPORT_API size_t qsc_memutils_secure_malloc(void* block, size_t length);
+
+/**
+* \brief Free an secure memory block
+*
+* \param block: A pointer to the memory block
+* \param length: The length of the requested block
+*/
+QSC_EXPORT_API void qsc_memutils_secure_free(void* block, size_t length);
 
 /**
 * \brief Erase a block of memory
@@ -154,5 +168,16 @@ QSC_EXPORT_API void qsc_memutils_xor(uint8_t* output, const uint8_t* input, size
 * \param length: The number of bytes to XOR
 */
 QSC_EXPORT_API void qsc_memutils_xorv(uint8_t* output, const uint8_t value, size_t length);
+
+
+/**
+* \brief Tests an array for all zeroed elements
+*
+* \param input: The input array to test
+* \param length: The length of the input array
+*
+* \return Returns true if the array is zeroed
+*/
+QSC_EXPORT_API bool qsc_memutils_zeroed(const void* input, size_t length);
 
 #endif

@@ -1,6 +1,6 @@
 #include "connections.h"
-#include "../QSC/common.h"
-#include "../QSC/memutils.h"
+#include "../../QSC/QSC/common.h"
+#include "../../QSC/QSC/memutils.h"
 
 QSC_SIMD_ALIGN typedef struct qsmp_connection_set
 {
@@ -227,35 +227,35 @@ void qsmp_connections_self_test()
 	size_t cnt;
 	bool full;
 
-	qsmp_connections_initialize(1, 10); // init with 1
+	qsmp_connections_initialize(1, 10); /* init with 1 */
 
 	for (size_t i = 1; i < 10; ++i)
 	{
-		xn[i] = qsmp_connections_next(); // init next 9
+		xn[i] = qsmp_connections_next(); /* init next 9 */
 	}
 
-	cnt = qsmp_connections_available(); // expected 0
-	full = qsmp_connections_full(); // expected true
+	cnt = qsmp_connections_available(); /* expected 0 */
+	full = qsmp_connections_full(); /* expected true */
 
-	qsmp_connections_reset(1); // release 5
+	qsmp_connections_reset(1); /* release 5 */
 	qsmp_connections_reset(3);
 	qsmp_connections_reset(5);
 	qsmp_connections_reset(7);
 	qsmp_connections_reset(9);
 
-	full = qsmp_connections_full(); // expected false
+	full = qsmp_connections_full(); /* expected false */
 
-	xn[11] = qsmp_connections_next(); // reclaim 5
+	xn[11] = qsmp_connections_next(); /* reclaim 5 */
 	xn[12] = qsmp_connections_next();
 	xn[13] = qsmp_connections_next();
 	xn[14] = qsmp_connections_next();
 	xn[15] = qsmp_connections_next();
 
-	full = qsmp_connections_full(); // expected true
+	full = qsmp_connections_full(); /* expected true */
 
-	xn[16] = qsmp_connections_next(); // should exceed max
+	xn[16] = qsmp_connections_next(); /* should exceed max */
 
-	cnt = qsmp_connections_size(); // expected 10
+	cnt = qsmp_connections_size(); /* expected 10 */
 
 	qsmp_connections_clear();
 	qsmp_connections_dispose();

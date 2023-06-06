@@ -6,6 +6,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../QSC/common.h"
+#include "../../QSC/QSC/common.h"
 
 #endif

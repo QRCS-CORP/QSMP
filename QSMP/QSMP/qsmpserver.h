@@ -1,15 +1,15 @@
-/* 2022 Digital Freedom Defense Incorporated
+/* 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca)
 * All Rights Reserved.
 *
 * NOTICE:  All information contained herein is, and remains
-* the property of Digital Freedom Defense Incorporated.
+* the property of the QSCS Corporation.
 * The intellectual and technical concepts contained
-* herein are proprietary to Digital Freedom Defense Incorporated
+* herein are proprietary to the QSCS Corporation
 * and its suppliers and may be covered by U.S. and Foreign Patents,
 * patents in process, and are protected by trade secret or copyright law.
 * Dissemination of this information or reproduction of this material
 * is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* from the QSCS Corporation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,15 +24,15 @@
 * \author   John G. Underhill
 * \version  1.2a: 2022-05-01
 * \date     May 1, 2022
-* \contact: develop@dfdef.com
+* \contact: develop@qscs.ca
 */
 
 #ifndef QSMP_SERVER_H
 #define QSMP_SERVER_H
 
 #include "qsmp.h"
-#include "../QSC/rcs.h"
-#include "../QSC/socketserver.h"
+#include "../../QSC/QSC/rcs.h"
+#include "../../QSC/QSC/socketserver.h"
 
 /*!
 * \def QSMP_SERVER_PAUSE_INTERVAL
@@ -66,23 +66,31 @@ QSMP_EXPORT_API void qsmp_server_resume(void);
 /**
 * \brief Start the IPv4 multi-threaded server
 *
-* \param prik: [const] A pointer to the QSMP private key
+* \param source: A pointer to the listener server socket
+* \param kset: [const] A pointer to the QSMP private key
 * \param receive_callback: A pointer to the receive callback function, used to process client data streams
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_server_start_ipv4(const qsmp_server_key* prik, 
-	void (*receive_callback)(qsmp_connection_state*, const char*, size_t));
+QSMP_EXPORT_API qsmp_errors qsmp_server_start_ipv4(qsc_socket* source,
+	const qsmp_server_signature_key* kset,
+	void (*receive_callback)(qsmp_connection_state*, 
+		const char*, 
+		size_t));
 
 /**
 * \brief Start the IPv6 multi-threaded server.
 *
-* \param prik: [const] A pointer to the QSMP private key
+* \param source: A pointer to the listener server socket
+* \param kset: [const] A pointer to the QSMP private key
 * \param receive_callback: A pointer to the receive callback function, used to process client data streams
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_server_start_ipv6(const qsmp_server_key* prik, 
-	void (*receive_callback)(qsmp_connection_state*, const char*, size_t));
+QSMP_EXPORT_API qsmp_errors qsmp_server_start_ipv6(qsc_socket* source,
+	const qsmp_server_signature_key* kset,
+	void (*receive_callback)(qsmp_connection_state*, 
+		const char*, 
+		size_t));
 
 #endif

@@ -254,7 +254,7 @@ void qsc_consoleutils_hex_to_bin(const char* hexstr, uint8_t* output, size_t len
 
 		for (size_t  pos = 0; pos < (length * 2); pos += 2)
 		{
-			idx0 = ((uint8_t)hexstr[pos + 0] & 0x1FU) ^ 0x10U;
+			idx0 = ((uint8_t)hexstr[pos] & 0x1FU) ^ 0x10U;
 			idx1 = ((uint8_t)hexstr[pos + 1] & 0x1FU) ^ 0x10U;
 			output[pos / 2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
 		}
@@ -278,7 +278,7 @@ bool qsc_consoleutils_line_contains(const char* line, const char* token)
 	return res;
 }
 
-size_t qsc_consoleutils_masked_password(char* output, size_t outlen)
+size_t qsc_consoleutils_masked_password(char* output, size_t otplen)
 {
 	assert(output != NULL);
 
@@ -317,7 +317,7 @@ size_t qsc_consoleutils_masked_password(char* output, size_t outlen)
 				}
 			}
 		}
-		while ((c != '\n' && c != '\r') || ctr >= outlen);
+		while ((c != '\n' && c != '\r') || ctr >= otplen);
 	}
 
 	qsc_consoleutils_print_line("");

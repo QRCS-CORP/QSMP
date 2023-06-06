@@ -1,29 +1,25 @@
 /*
-* 2022 John G. Underhill
-* All Rights Reserved.
+* Copyright (c) 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca).
+* This file is part of the QSC Cryptographic library.
+* The QSC library was written as a prototyping library for post-quantum primitives,
+* in the hopes that it would be useful for educational purposes only.
+* Any use of the QSC library in a commercial context, or reproduction of original material
+* contained in this library is strictly forbidden unless prior written consent is obtained
+* from the QSCS Corporation.
 *
-* NOTICE:  All information contained herein is, and remains
-* the property of John G. Underhill.
-* The intellectual and technical concepts contained
-* herein are proprietary to John G. Underhill
-* and his suppliers and may be covered by U.S. and Foreign Patents,
-* patents in process, and are protected by trade secret or copyright law.
-* Dissemination of this information or reproduction of this material
-* is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* The AGPL version 3 License (AGPLv3)
+* This program is free software : you can redistribute it and / or modify
+* it under the terms of the GNU Affero General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Affero General Public License for more details.
 *
-* This library was published publicly in hopes that it would aid in prototyping
-* post-quantum secure primitives for educational purposes only.
-* All and any commercial uses of this library are exclusively reserved by the author
-* John G. Underhill.
-* Any use of this library in a commercial context must be approved by the author
-* in writing.
-* All rights for commercial and/or non-educational purposes, are fully reserved
-* by the author.
+* You should have received a copy of the GNU Affero General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef QSC_ARRAYUTILS_H
@@ -66,37 +62,37 @@ QSC_EXPORT_API uint8_t qsc_arrayutils_hex_to_uint8(const char* str, size_t slen)
 * \brief Converts a byte value to hexadecimal and writes to a string
 *
 * \param output: The output string char array
-* \param outlen: The length of the output string
+* \param otplen: The length of the output string
 * \param value: The byte value to convert
 */
-QSC_EXPORT_API void qsc_arrayutils_uint8_to_hex(char* output, size_t outlen, uint8_t value);
+QSC_EXPORT_API void qsc_arrayutils_uint8_to_hex(char* output, size_t otplen, uint8_t value);
 
 /**
 * \brief Converts an unsigned short value to hexadecimal and writes to a string
 *
 * \param output: The output string char array
-* \param outlen: The length of the output string
+* \param otplen: The length of the output string
 * \param value: The unsigned short value to convert
 */
-QSC_EXPORT_API void qsc_arrayutils_uint16_to_hex(char* output, size_t outlen, uint16_t value);
+QSC_EXPORT_API void qsc_arrayutils_uint16_to_hex(char* output, size_t otplen, uint16_t value);
 
 /**
 * \brief Converts an unsigned 32-bit integer value to hexadecimal and writes to a string
 *
 * \param output: The output string char array
-* \param outlen: The length of the output string
+* \param otplen: The length of the output string
 * \param value: The unsigned 32-bit integer value to convert
 */
-QSC_EXPORT_API void qsc_arrayutils_uint32_to_hex(char* output, size_t outlen, uint32_t value);
+QSC_EXPORT_API void qsc_arrayutils_uint32_to_hex(char* output, size_t otplen, uint32_t value);
 
 /**
 * \brief Converts an unsigned 64-bit integer value to hexadecimal and writes to a string
 *
 * \param output: The output string char array
-* \param outlen: The length of the output string
+* \param otplen: The length of the output string
 * \param value: The unsigned 64-bit integer value to convert
 */
-QSC_EXPORT_API void qsc_arrayutils_uint64_to_hex(char* output, size_t outlen, uint64_t value);
+QSC_EXPORT_API void qsc_arrayutils_uint64_to_hex(char* output, size_t otplen, uint64_t value);
 
 /**
 * \brief Parse an 8-bit unsigned integer from a string

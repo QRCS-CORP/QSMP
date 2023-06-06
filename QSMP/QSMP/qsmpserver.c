@@ -2,19 +2,19 @@
 #include "connections.h"
 #include "kex.h"
 #include "logger.h"
-#include "../QSC/acp.h"
-#include "../QSC/async.h"
-#include "../QSC/encoding.h"
-#include "../QSC/intutils.h"
-#include "../QSC/memutils.h"
-#include "../QSC/sha3.h"
-#include "../QSC/stringutils.h"
-#include "../QSC/timestamp.h"
+#include "../../QSC/QSC/acp.h"
+#include "../../QSC/QSC/async.h"
+#include "../../QSC/QSC/encoding.h"
+#include "../../QSC/QSC/intutils.h"
+#include "../../QSC/QSC/memutils.h"
+#include "../../QSC/QSC/sha3.h"
+#include "../../QSC/QSC/stringutils.h"
+#include "../../QSC/QSC/timestamp.h"
 
 typedef struct server_receiver_state
 {
 	qsmp_connection_state* pcns;
-	const qsmp_server_key* pprik;
+	const qsmp_server_signature_key* pprik;
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t);
 } server_receiver_state;
 
@@ -24,12 +24,12 @@ static bool m_server_run;
 static void server_state_initialize(qsmp_kex_simplex_server_state* kss, const server_receiver_state* prcv)
 {
 	qsc_memutils_copy(kss->keyid, prcv->pprik->keyid, QSMP_KEYID_SIZE);
-	qsc_memutils_copy(kss->sigkey, prcv->pprik->sigkey, QSMP_SIGNKEY_SIZE);
-	qsc_memutils_copy(kss->verkey, prcv->pprik->verkey, QSMP_VERIFYKEY_SIZE);
+	qsc_memutils_copy(kss->sigkey, prcv->pprik->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
+	qsc_memutils_copy(kss->verkey, prcv->pprik->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+	qsc_memutils_clear(&prcv->pcns->rtcs, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 	kss->expiration = prcv->pprik->expiration;
 	qsc_rcs_dispose(&prcv->pcns->rxcpr);
 	qsc_rcs_dispose(&prcv->pcns->txcpr);
-	qsc_keccak_dispose(&prcv->pcns->rtcs);
 	prcv->pcns->exflag = qsmp_flag_none;
 	prcv->pcns->instance = 0;
 	prcv->pcns->rxseq = 0;
@@ -60,13 +60,15 @@ static void server_poll_sockets()
 		}
 	}
 }
-
+// TODO: check buffer sizes, can we reduce buffer to MTU size?
+// do we need 3 buffers here?
 static void server_receive_loop(server_receiver_state* prcv)
 {
 	assert(prcv != NULL);
 
 	uint8_t buffer[QSMP_CONNECTION_MTU] = { 0 };
 	char mstr[QSMP_CONNECTION_MTU + 1] = { 0 };
+	uint8_t pmsg[QSMP_MESSAGE_MAX] = { 0 };
 	qsmp_packet pkt = { 0 };
 	qsmp_kex_simplex_server_state* pkss;
 	qsmp_errors qerr;
@@ -89,6 +91,7 @@ static void server_receive_loop(server_receiver_state* prcv)
 				if (mlen != 0)
 				{
 					/* convert the bytes to packet */
+					pkt.pmessage = pmsg;
 					qsmp_stream_to_packet(buffer, &pkt);
 					qsc_memutils_clear(buffer, mlen);
 
@@ -130,7 +133,7 @@ static void server_receive_loop(server_receiver_state* prcv)
 
 					if (err != qsc_socket_exception_success)
 					{
-						qsmp_log_error(qsmp_messages_receive_fail, err, prcv->pcns->target.address);
+						qsmp_log_error(qsmp_messages_receive_fail, err, (const char*)prcv->pcns->target.address);
 
 						/* fatal socket errors */
 						if (err == qsc_socket_exception_circuit_reset ||
@@ -166,10 +169,11 @@ static void server_receive_loop(server_receiver_state* prcv)
 	}
 }
 
-static qsmp_errors server_start(const qsmp_server_key* prik, const qsc_socket* source, 
+static qsmp_errors server_start(const qsmp_server_signature_key* kset, 
+	const qsc_socket* source, 
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t))
 {
-	assert(prik != NULL);
+	assert(kset != NULL);
 	assert(source != NULL);
 	assert(receive_callback != NULL);
 
@@ -198,7 +202,7 @@ static qsmp_errors server_start(const qsmp_server_key* prik, const qsc_socket* s
 				{
 					cns->target.connection_status = qsc_socket_state_connected;
 					rctx->pcns = cns;
-					rctx->pprik = prik;
+					rctx->pprik = kset;
 					rctx->receive_callback = receive_callback;
 
 					qsmp_log_write(qsmp_messages_connect_success, (const char*)cns->target.address);
@@ -307,32 +311,32 @@ void qsmp_server_resume()
 	m_server_pause = false;
 }
 
-qsmp_errors qsmp_server_start_ipv4(const qsmp_server_key* prik, 
+qsmp_errors qsmp_server_start_ipv4(qsc_socket* source, 
+	const qsmp_server_signature_key* kset,
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t))
 {
-	assert(prik != NULL);
+	assert(kset != NULL);
 	assert(receive_callback != NULL);
 
 	qsc_ipinfo_ipv4_address addt = { 0 };
-	qsc_socket source = { 0 };
 	qsc_socket_exceptions res;
 	qsmp_errors qerr;
 
 	addt = qsc_ipinfo_ipv4_address_any();
-	qsc_socket_server_initialize(&source);
-	res = qsc_socket_create(&source, qsc_socket_address_family_ipv4, qsc_socket_transport_stream, qsc_socket_protocol_tcp);
+	qsc_socket_server_initialize(source);
+	res = qsc_socket_create(source, qsc_socket_address_family_ipv4, qsc_socket_transport_stream, qsc_socket_protocol_tcp);
 
 	if (res == qsc_socket_exception_success)
 	{
-		res = qsc_socket_bind_ipv4(&source, &addt, QSMP_SERVER_PORT);
+		res = qsc_socket_bind_ipv4(source, &addt, QSMP_SERVER_PORT);
 
 		if (res == qsc_socket_exception_success)
 		{
-			res = qsc_socket_listen(&source, QSC_SOCKET_SERVER_LISTEN_BACKLOG);
+			res = qsc_socket_listen(source, QSC_SOCKET_SERVER_LISTEN_BACKLOG);
 
 			if (res == qsc_socket_exception_success)
 			{
-				qerr = server_start(prik, &source, receive_callback);
+				qerr = server_start(kset, source, receive_callback);
 			}
 			else
 			{
@@ -355,32 +359,32 @@ qsmp_errors qsmp_server_start_ipv4(const qsmp_server_key* prik,
 	return qerr;
 }
 
-qsmp_errors qsmp_server_start_ipv6(const qsmp_server_key* prik, 
+qsmp_errors qsmp_server_start_ipv6(qsc_socket* source,
+	const qsmp_server_signature_key* kset,
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t))
 {
-	assert(prik != NULL);
+	assert(kset != NULL);
 	assert(receive_callback != NULL);
 
 	qsc_ipinfo_ipv6_address addt = { 0 };
-	qsc_socket source = { 0 };
 	qsc_socket_exceptions res;
 	qsmp_errors qerr;
 
 	addt = qsc_ipinfo_ipv6_address_any();
-	qsc_socket_server_initialize(&source);
-	res = qsc_socket_create(&source, qsc_socket_address_family_ipv6, qsc_socket_transport_stream, qsc_socket_protocol_tcp);
+	qsc_socket_server_initialize(source);
+	res = qsc_socket_create(source, qsc_socket_address_family_ipv6, qsc_socket_transport_stream, qsc_socket_protocol_tcp);
 
 	if (res == qsc_socket_exception_success)
 	{
-		res = qsc_socket_bind_ipv6(&source, &addt, QSMP_SERVER_PORT);
+		res = qsc_socket_bind_ipv6(source, &addt, QSMP_SERVER_PORT);
 
 		if (res == qsc_socket_exception_success)
 		{
-			res = qsc_socket_listen(&source, QSC_SOCKET_SERVER_LISTEN_BACKLOG);
+			res = qsc_socket_listen(source, QSC_SOCKET_SERVER_LISTEN_BACKLOG);
 
 			if (res == qsc_socket_exception_success)
 			{
-				qerr = server_start(prik, &source, receive_callback);
+				qerr = server_start(kset, source, receive_callback);
 			}
 			else
 			{

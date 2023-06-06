@@ -1,14 +1,13 @@
 #include "applnr.h"
 #include "../QSMP/qsmpclient.h"
-#include "../QSC/acp.h"
-#include "../QSC/async.h"
-#include "../QSC/consoleutils.h"
-#include "../QSC/fileutils.h"
-#include "../QSC/folderutils.h"
-#include "../QSC/ipinfo.h"
-#include "../QSC/netutils.h"
-#include "../QSC/stringutils.h"
-#include "../QSC/async.h"
+#include "../../QSC/QSC/acp.h"
+#include "../../QSC/QSC/async.h"
+#include "../../QSC/QSC/consoleutils.h"
+#include "../../QSC/QSC/fileutils.h"
+#include "../../QSC/QSC/folderutils.h"
+#include "../../QSC/QSC/ipinfo.h"
+#include "../../QSC/QSC/netutils.h"
+#include "../../QSC/QSC/stringutils.h"
 
 static void listener_print_prompt(void)
 {
@@ -62,9 +61,9 @@ static void listener_print_banner(void)
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Listener Example Project                  *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.2.0.0a (A2)                       *");
-	qsc_consoleutils_print_line("* Date:      May 1, 2021                          *");
-	qsc_consoleutils_print_line("* Contact:   develop@dfdef.com                    *");
+	qsc_consoleutils_print_line("* Release:   v1.2.0.0c (A2)                       *");
+	qsc_consoleutils_print_line("* Date:      June 6, 2023                         *");
+	qsc_consoleutils_print_line("* Contact:   develop@qscs.ca                      *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
 }
@@ -125,7 +124,7 @@ static bool listener_senderkey_exists(char fpath[QSC_SYSTEM_MAX_PATH], size_t pa
 
 static bool listener_key_query(uint8_t* rvkey, const uint8_t* pkid)
 {
-	qsmp_client_key ckey = { 0 };
+	qsmp_client_signature_key ckey = { 0 };
 	uint8_t pskey[QSMP_PUBKEY_STRING_SIZE] = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	bool res;
@@ -151,7 +150,7 @@ static bool listener_key_query(uint8_t* rvkey, const uint8_t* pkid)
 	return res;
 }
 
-static bool listener_key_dialogue(qsmp_server_key* prik, qsmp_client_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
+static bool listener_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_signature_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
 {
 	uint8_t spub[QSMP_PUBKEY_STRING_SIZE] = { 0 };
 	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0 };
@@ -171,7 +170,7 @@ static bool listener_key_dialogue(qsmp_server_key* prik, qsmp_client_key* pubk, 
 			qsc_memutils_copy(keyid, prik->keyid, QSMP_KEYID_SIZE);
 			qsc_memutils_copy(pubk->config, prik->config, QSMP_CONFIG_SIZE);
 			qsc_memutils_copy(pubk->keyid, prik->keyid, QSMP_KEYID_SIZE);
-			qsc_memutils_copy(pubk->verkey, prik->verkey, QSMP_VERIFYKEY_SIZE);
+			qsc_memutils_copy(pubk->verkey, prik->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 			pubk->expiration = prik->expiration;
 			qsc_consoleutils_print_line("listener> The private-key has been loaded.");
 		}
@@ -231,6 +230,7 @@ static bool listener_key_dialogue(qsmp_server_key* prik, qsmp_client_key* pubk, 
 
 static void listener_receive_callback(qsmp_connection_state* cns, const char* pmsg, size_t msglen)
 {
+	qsc_consoleutils_print_safe("RECD: ");
 	listener_print_string(pmsg, msglen);
 	listener_print_prompt();
 }
@@ -239,10 +239,14 @@ static void listener_send_loop(qsmp_connection_state* cns)
 {
 	qsmp_packet pkt = { 0 };
 	uint8_t msgstr[QSMP_MESSAGE_MAX] = { 0 };
+	/* Note: the buffer can be sized to the expected message maximum */
+	uint8_t pmsg[QSMP_MESSAGE_MAX] = { 0 };
 	char sin[QSMP_MESSAGE_MAX + 1] = { 0 };
 	size_t mlen;
 	size_t slen;
+
 	mlen = 0;
+	pkt.pmessage = pmsg;
 
 	/* start the sender loop */
 	while (true)
@@ -253,9 +257,14 @@ static void listener_send_loop(qsmp_connection_state* cns)
 		{
 			break;
 		}
-		else if (qsc_consoleutils_line_contains(sin, "qsmp ratchet"))
+		else if (qsc_consoleutils_line_contains(sin, "qsmp asymmetric ratchet"))
 		{
-			qsmp_client_duplex_send_ratchet_request(cns, true);
+			qsmp_duplex_send_asymmetric_ratchet_request(cns);
+			qsc_memutils_clear((uint8_t*)sin, sizeof(sin));
+		}
+		else if (qsc_consoleutils_line_contains(sin, "qsmp symmetric ratchet"))
+		{
+			qsmp_duplex_send_symmetric_ratchet_request(cns);
 			qsc_memutils_clear((uint8_t*)sin, sizeof(sin));
 		}
 		else
@@ -284,8 +293,8 @@ static void listener_send_loop(qsmp_connection_state* cns)
 
 int main(void)
 {
-	qsmp_server_key prik = { 0 };
-	qsmp_client_key pubk = { 0 };
+	qsmp_server_signature_key prik = { 0 };
+	qsmp_client_signature_key pubk = { 0 };
 	uint8_t kid[QSMP_KEYID_SIZE] = { 0 };
 	qsmp_errors qerr;
 
@@ -294,7 +303,7 @@ int main(void)
 	if (listener_key_dialogue(&prik, &pubk, kid) == true)
 	{
 		listener_print_message("Waiting for a connection...");
-		qerr = qsmp_client_duplex_listen_ipv4((const qsmp_server_key*)&prik, &listener_send_loop, &listener_receive_callback, &listener_key_query);
+		qerr = qsmp_client_duplex_listen_ipv4((const qsmp_server_signature_key*)&prik, &listener_send_loop, &listener_receive_callback, &listener_key_query);
 
 		if (qerr != qsmp_error_none)
 		{

@@ -1,30 +1,25 @@
-/* 
-* 2022 John G. Underhill
-* All Rights Reserved.
+/*
+* Copyright (c) 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca).
+* This file is part of the QSC Cryptographic library.
+* The QSC library was written as a prototyping library for post-quantum primitives,
+* in the hopes that it would be useful for educational purposes only.
+* Any use of the QSC library in a commercial context, or reproduction of original material
+* contained in this library is strictly forbidden unless prior written consent is obtained
+* from the QSCS Corporation.
 *
-* NOTICE:  All information contained herein is, and remains
-* the property of John G. Underhill.
-* The intellectual and technical concepts contained
-* herein are proprietary to John G. Underhill
-* and his suppliers and may be covered by U.S. and Foreign Patents,
-* patents in process, and are protected by trade secret or copyright law.
-* Dissemination of this information or reproduction of this material
-* is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* The AGPL version 3 License (AGPLv3)
+* This program is free software : you can redistribute it and / or modify
+* it under the terms of the GNU Affero General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* 
-* This library was published publicly in hopes that it would aid in prototyping
-* post-quantum secure primitives for educational purposes only.
-* All and any commercial uses of this library are exclusively reserved by the author
-* John G. Underhill.
-* Any use of this library in a commercial context must be approved by the author
-* in writing.
-* All rights for commercial and/or non-educational purposes, are fully reserved
-* by the author.
-* Contact: john.underhill@protonmail.com
+* See the GNU Affero General Public License for more details.
+*
+* You should have received a copy of the GNU Affero General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef QSC_SHA2_H
@@ -151,7 +146,7 @@
 
 /*!
 * \def QSC_SHA2_256_RATE
-* \brief The SHA-256 byte absorption rate
+* \brief The SHA-256-bit absorption rate
 */
 #define QSC_SHA2_256_RATE 64
 
@@ -163,7 +158,7 @@
 
 /*!
 * \def QSC_SHA2_512_RATE
-* \brief The SHA2-512 byte absorption rate
+* \brief The SHA2-512-bit absorption rate
 */
 #define QSC_SHA2_512_RATE 128
 
@@ -551,49 +546,49 @@ QSC_EXPORT_API void qsc_hmac512_update(qsc_hmac512_state* ctx, const uint8_t* me
 * Short form api: initializes with the key and user info, and generates the output pseudo-random with a single call.
 *
 * \param output: The output pseudo-random byte array
-* \param outlen: The output array length
+* \param otplen: The output array length
 * \param key: [const] The HKDF key array
 * \param keylen: The key array length
 * \param info: [const] The info array
 * \param infolen: The info array length
 */
-QSC_EXPORT_API void qsc_hkdf256_expand(uint8_t* output, size_t outlen, const uint8_t* key, size_t keylen, const uint8_t* info, size_t infolen);
+QSC_EXPORT_API void qsc_hkdf256_expand(uint8_t* output, size_t otplen, const uint8_t* key, size_t keylen, const uint8_t* info, size_t infolen);
 
 /**
 * \brief Extract a key from a combined key and salt input using HMAC(SHA2-256).
 *
 * \param output: The output pseudo-random byte array
-* \param outlen: The output array length
+* \param otplen: The output array length
 * \param key: [const] The HKDF key array
 * \param keylen: The key array length
 * \param salt: [const] The salt array
 * \param saltlen: The salt array length
 */
-QSC_EXPORT_API void qsc_hkdf256_extract(uint8_t* output, size_t outlen, const uint8_t* key, size_t keylen, const uint8_t* salt, size_t saltlen);
+QSC_EXPORT_API void qsc_hkdf256_extract(uint8_t* output, size_t otplen, const uint8_t* key, size_t keylen, const uint8_t* salt, size_t saltlen);
 
 /**
 * \brief Initialize an instance of HKDF(HMAC(SHA2-512)), and output an array of pseudo-random.
 * Short form api: initializes with the key and user info, and generates the output pseudo-random with a single call.
 *
 * \param output: The output pseudo-random byte array
-* \param outlen: The output array length
+* \param otplen: The output array length
 * \param key: [const] The HKDF key array
 * \param keylen: The key array length
 * \param info: [const] The info array
 * \param infolen: The info array length
 */
-QSC_EXPORT_API void qsc_hkdf512_expand(uint8_t* output, size_t outlen, const uint8_t* key, size_t keylen, const uint8_t* info, size_t infolen);
+QSC_EXPORT_API void qsc_hkdf512_expand(uint8_t* output, size_t otplen, const uint8_t* key, size_t keylen, const uint8_t* info, size_t infolen);
 
 /**
 * \brief Extract a key from a combined key and salt input using HMAC(SHA2-512).
 *
 * \param output: The output pseudo-random byte array
-* \param outlen: The output array length
+* \param otplen: The output array length
 * \param key: [const] The HKDF key array
 * \param keylen: The key array length
 * \param salt: [const] The salt array
 * \param saltlen: The salt array length
 */
-QSC_EXPORT_API void qsc_hkdf512_extract(uint8_t* output, size_t outlen, const uint8_t* key, size_t keylen, const uint8_t* salt, size_t saltlen);
+QSC_EXPORT_API void qsc_hkdf512_extract(uint8_t* output, size_t otplen, const uint8_t* key, size_t keylen, const uint8_t* salt, size_t saltlen);
 
 #endif

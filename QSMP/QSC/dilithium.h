@@ -1,29 +1,25 @@
 /*
-* 2022 John G. Underhill
-* All Rights Reserved.
+* Copyright (c) 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca).
+* This file is part of the QSC Cryptographic library.
+* The QSC library was written as a prototyping library for post-quantum primitives,
+* in the hopes that it would be useful for educational purposes only.
+* Any use of the QSC library in a commercial context, or reproduction of original material
+* contained in this library is strictly forbidden unless prior written consent is obtained
+* from the QSCS Corporation.
 *
-* NOTICE:  All information contained herein is, and remains
-* the property of John G. Underhill.
-* The intellectual and technical concepts contained
-* herein are proprietary to John G. Underhill
-* and his suppliers and may be covered by U.S. and Foreign Patents,
-* patents in process, and are protected by trade secret or copyright law.
-* Dissemination of this information or reproduction of this material
-* is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* The AGPL version 3 License (AGPLv3)
+* This program is free software : you can redistribute it and / or modify
+* it under the terms of the GNU Affero General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Affero General Public License for more details.
 *
-* This library was published publicly in hopes that it would aid in prototyping
-* post-quantum secure primitives for educational purposes only.
-* All and any commercial uses of this library are exclusively reserved by the author
-* John G. Underhill.
-* Any use of this library in a commercial context must be approved by the author
-* in writing.
-* All rights for commercial and/or non-educational purposes, are fully reserved
-* by the author.
+* You should have received a copy of the GNU Affero General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef QSC_DILITHIUM_H
@@ -67,7 +63,7 @@
 * The Dilithium <a href="https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf">Algorithm</a> Specification.
 */
 
-#if defined(QSC_DILITHIUM_S2N256Q8380417K4)
+#if defined(QSC_DILITHIUM_S1P2544)
 
 /*!
 * \def QSC_DILITHIUM_PRIVATEKEY_SIZE
@@ -87,7 +83,7 @@
 */
 #	define QSC_DILITHIUM_SIGNATURE_SIZE 2420
 
-#elif defined(QSC_DILITHIUM_S3N256Q8380417K6)
+#elif defined(QSC_DILITHIUM_S3P4016)
 
 /*!
 * \def QSC_DILITHIUM_PRIVATEKEY_SIZE
@@ -107,7 +103,7 @@
 */
 #	define QSC_DILITHIUM_SIGNATURE_SIZE 3293
 
-#elif defined(QSC_DILITHIUM_S5N256Q8380417K8)
+#elif defined(QSC_DILITHIUM_S5P4880)
 
 /*!
 * \def QSC_DILITHIUM_PRIVATEKEY_SIZE
@@ -136,6 +132,12 @@
 * \brief The formal algorithm name
 */
 #define QSC_DILITHIUM_ALGNAME "DILITHIUM"
+
+/*!
+* \def QSC_DILITHIUM_RANDOMIZED_SIGNING
+* \brief Enables randomized signing
+*/
+/* #define QSC_DILITHIUM_RANDOMIZED_SIGNING */
 
 /**
 * \brief Generates a Dilithium public/private key-pair.

@@ -1,29 +1,25 @@
 /*
-* 2022 John G. Underhill
-* All Rights Reserved.
+* Copyright (c) 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca).
+* This file is part of the QSC Cryptographic library.
+* The QSC library was written as a prototyping library for post-quantum primitives,
+* in the hopes that it would be useful for educational purposes only.
+* Any use of the QSC library in a commercial context, or reproduction of original material
+* contained in this library is strictly forbidden unless prior written consent is obtained
+* from the QSCS Corporation.
 *
-* NOTICE:  All information contained herein is, and remains
-* the property of John G. Underhill.
-* The intellectual and technical concepts contained
-* herein are proprietary to John G. Underhill
-* and his suppliers and may be covered by U.S. and Foreign Patents,
-* patents in process, and are protected by trade secret or copyright law.
-* Dissemination of this information or reproduction of this material
-* is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* The AGPL version 3 License (AGPLv3)
+* This program is free software : you can redistribute it and / or modify
+* it under the terms of the GNU Affero General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Affero General Public License for more details.
 *
-* This library was published publicly in hopes that it would aid in prototyping
-* post-quantum secure primitives for educational purposes only.
-* All and any commercial uses of this library are exclusively reserved by the author
-* John G. Underhill.
-* Any use of this library in a commercial context must be approved by the author
-* in writing.
-* All rights for commercial and/or non-educational purposes, are fully reserved
-* by the author.
+* You should have received a copy of the GNU Affero General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef QSC_KYBERBASE_H
@@ -37,11 +33,13 @@
  \def QSC_KYBER_K
  * Read Only: The k level
  */
-#if defined(QSC_KYBER_S3Q3329N256K3)
+#if defined(QSC_KYBER_S1P1632)
+#	define QSC_KYBER_K 2
+#elif defined(QSC_KYBER_S3P2400)
 #	define QSC_KYBER_K 3
-#elif defined(QSC_KYBER_S5Q3329N256K4)
+#elif defined(QSC_KYBER_S5P3168)
 #	define QSC_KYBER_K 4
-#elif defined(QSC_KYBER_S6Q3329N256K5)
+#elif defined(QSC_KYBER_S6P3936)
 #	define QSC_KYBER_K 5
 #else
 #	error "The Kyber parameter set is invalid!"
@@ -60,10 +58,10 @@
 #define QSC_KYBER_Q 3329
 
 /*!
-\def QSC_KYBER_ETA
+\def QSC_KYBER_ETA2
 * Read Only: The binomial distribution factor
 */
-#define QSC_KYBER_ETA 2
+#define QSC_KYBER_ETA2 2
 
 /*!
 \def QSC_KYBER_MSGBYTES
@@ -83,24 +81,22 @@
 */
 #define QSC_KYBER_POLYBYTES 384
 
-/*!
-\def QSC_KYBER_POLYVEC_BYTES
-* Read Only: The base size of the compressed public key polynolial
-*/
-#if (QSC_KYBER_K == 3)
-#	define QSC_KYBER_POLYVECBASE_BYTES 320
-#elif (QSC_KYBER_K == 4 || QSC_KYBER_K == 5)
-#	define QSC_KYBER_POLYVECBASE_BYTES 352
-#endif
-
-/*!
-\def QSC_KYBER_POLYCOMPRESSED_BYTES
-* Read Only: The cipher-text compressed byte size
-*/
-#if (QSC_KYBER_K == 3)
+#if (QSC_KYBER_K == 2)
 #	define QSC_KYBER_POLYCOMPRESSED_BYTES 128
-#elif (QSC_KYBER_K == 4 || QSC_KYBER_K == 5)
+#	define QSC_KYBER_POLYVECBASE_BYTES 320
+#	define QSC_KYBER_ETA1 3
+#elif (QSC_KYBER_K == 3)
+#	define QSC_KYBER_POLYCOMPRESSED_BYTES 128
+#	define QSC_KYBER_POLYVECBASE_BYTES 320
+#	define QSC_KYBER_ETA1 2
+#elif (QSC_KYBER_K == 4)
 #	define QSC_KYBER_POLYCOMPRESSED_BYTES 160
+#	define QSC_KYBER_POLYVECBASE_BYTES 352
+#	define QSC_KYBER_ETA1 2
+#elif (QSC_KYBER_K == 5)
+#	define QSC_KYBER_POLYCOMPRESSED_BYTES 160
+#	define QSC_KYBER_POLYVECBASE_BYTES 352
+#	define QSC_KYBER_ETA1 2
 #endif
 
 /*!

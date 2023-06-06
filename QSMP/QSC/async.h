@@ -1,19 +1,24 @@
-/* The GPL version 3 License (GPLv3)
+/*
+* Copyright (c) 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca).
+* This file is part of the QSC Cryptographic library.
+* The QSC library was written as a prototyping library for post-quantum primitives,
+* in the hopes that it would be useful for educational purposes only.
+* Any use of the QSC library in a commercial context, or reproduction of original material
+* contained in this library is strictly forbidden unless prior written consent is obtained
+* from the QSCS Corporation.
 *
-* Copyright (c) 2022 Digital Freedom Defence Inc.
-* This file is part of the QSC Cryptographic library
-*
+* The AGPL version 3 License (AGPLv3)
 * This program is free software : you can redistribute it and / or modify
-* it under the terms of the GNU General Public License as published by
+* it under the terms of the GNU Affero General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-* GNU General Public License for more details.
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Affero General Public License for more details.
 *
-* You should have received a copy of the GNU General Public License
+* You should have received a copy of the GNU Affero General Public License
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
@@ -149,7 +154,7 @@ QSC_EXPORT_API int32_t qsc_async_thread_resume(qsc_thread handle);
 /**
 * \brief Pause the thread for a number of milliseconds
 *
-* \param msec: The number of milliseconds to wait
+* \param msec: The number of milliseconds to sleep
 */
 QSC_EXPORT_API void qsc_async_thread_sleep(uint32_t msec);
 
@@ -173,6 +178,14 @@ QSC_EXPORT_API bool qsc_async_thread_terminate(qsc_thread handle);
 * \param handle: The thread handle
 */
 QSC_EXPORT_API void qsc_async_thread_wait(qsc_thread handle);
+
+/**
+* \brief Wait a number of milliseconds for a thread to complete execution
+*
+* \param handle: The thread handle
+* \param msec: The number of milliseconds to wait
+*/
+QSC_EXPORT_API void qsc_async_thread_wait_time(qsc_thread handle, uint32_t msec);
 
 /**
 * \brief Wait for an array of threads to complete execution

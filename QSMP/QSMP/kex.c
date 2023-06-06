@@ -1,30 +1,34 @@
 ﻿#include "kex.h"
-#include "../QSC/acp.h"
-#include "../QSC/encoding.h"
-#include "../QSC/intutils.h"
-#include "../QSC/memutils.h"
-#include "../QSC/rcs.h"
-#include "../QSC/sha3.h"
-#include "../QSC/socketserver.h"
-#include "../QSC/stringutils.h"
-#include "../QSC/timestamp.h"
+#include "../../QSC/QSC/acp.h"
+#include "../../QSC/QSC/encoding.h"
+#include "../../QSC/QSC/intutils.h"
+#include "../../QSC/QSC/memutils.h"
+#include "../../QSC/QSC/rcs.h"
+#include "../../QSC/QSC/sha3.h"
+#include "../../QSC/QSC/socketserver.h"
+#include "../../QSC/QSC/stringutils.h"
+#include "../../QSC/QSC/timestamp.h"
 
 static void kex_client_send_error(const qsc_socket* sock, qsmp_errors err)
 {
 	assert(sock != NULL);
 
 	qsmp_packet resp = { 0 };
-	uint8_t spct[QSMP_MESSAGE_MAX] = { 0 };
+	
 	size_t plen;
 
 	if (sock != NULL)
 	{
 		if (qsc_socket_is_connected(sock) == true)
 		{
+			uint8_t spct[QSMP_HEADER_SIZE + sizeof(uint8_t)] = { 0 };
+			uint8_t pmsg[sizeof(uint8_t)] = { 0 };
+
+			resp.pmessage = pmsg;
 			resp.flag = qsmp_flag_error_condition;
 			resp.sequence = 0xFF;
 			resp.msglen = 1;
-			resp.message[0] = (uint8_t)err;
+			resp.pmessage[0] = (uint8_t)err;
 			plen = qsmp_packet_to_stream(&resp, spct);
 			qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
 		}
@@ -38,9 +42,11 @@ static void kex_server_send_error(const qsc_socket* sock, qsmp_errors error)
 	if (qsc_socket_is_connected(sock) == true)
 	{
 		qsmp_packet resp = { 0 };
-		uint8_t spct[QSMP_MESSAGE_MAX] = { 0 };
+		uint8_t spct[QSMP_HEADER_SIZE + sizeof(uint8_t)] = { 0 };
+		uint8_t pmsg[sizeof(uint8_t)] = { 0 };
 		size_t plen;
 
+		resp.pmessage = pmsg;
 		qsmp_packet_error_message(&resp, error);
 		plen = qsmp_packet_to_stream(&resp, spct);
 		qsc_socket_send(sock, spct, plen, qsc_socket_send_flag_none);
@@ -55,12 +61,14 @@ static void kex_duplex_client_reset(qsmp_kex_duplex_client_state* kcs)
 	{
 		qsc_memutils_clear(kcs->keyid, QSMP_KEYID_SIZE);
 		qsc_memutils_clear(kcs->schash, QSMP_DUPLEX_SCHASH_SIZE);
-		qsc_memutils_clear(kcs->prikey, QSMP_PRIVATEKEY_SIZE);
-		qsc_memutils_clear(kcs->pubkey, QSMP_PUBLICKEY_SIZE);
-		qsc_memutils_clear(kcs->verkey, QSMP_VERIFYKEY_SIZE);
-		qsc_memutils_clear(kcs->sigkey, QSMP_SIGNKEY_SIZE);
+		qsc_memutils_clear(kcs->prikey, QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
+		qsc_memutils_clear(kcs->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
+		qsc_memutils_clear(kcs->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+		qsc_memutils_clear(kcs->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
 		qsc_memutils_clear(kcs->ssec, QSMP_SECRET_SIZE);
-		qsc_memutils_clear(kcs->rverkey, QSMP_VERIFYKEY_SIZE);
+#if !defined(QSMP_ASYMMETRIC_RATCHET)
+		qsc_memutils_clear(kcs->rverkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+#endif
 		kcs->expiration = 0;
 	}
 }
@@ -73,11 +81,13 @@ static void kex_duplex_server_reset(qsmp_kex_duplex_server_state* kss)
 	{
 		qsc_memutils_clear(kss->keyid, QSMP_KEYID_SIZE);
 		qsc_memutils_clear(kss->schash, QSMP_DUPLEX_SCHASH_SIZE);
-		qsc_memutils_clear(kss->prikey, QSMP_PRIVATEKEY_SIZE);
-		qsc_memutils_clear(kss->pubkey, QSMP_PUBLICKEY_SIZE);
-		qsc_memutils_clear(kss->sigkey, QSMP_SIGNKEY_SIZE);
-		qsc_memutils_clear(kss->rverkey, QSMP_VERIFYKEY_SIZE);
-		qsc_memutils_clear(kss->verkey, QSMP_VERIFYKEY_SIZE);
+		qsc_memutils_clear(kss->prikey, QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
+		qsc_memutils_clear(kss->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
+		qsc_memutils_clear(kss->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
+#if !defined(QSMP_ASYMMETRIC_RATCHET)
+		qsc_memutils_clear(kss->rverkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+#endif
+		qsc_memutils_clear(kss->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 		kss->expiration = 0;
 	}
 }
@@ -90,7 +100,7 @@ static void kex_simplex_client_reset(qsmp_kex_simplex_client_state* kcs)
 	{
 		qsc_memutils_clear(kcs->keyid, QSMP_KEYID_SIZE);
 		qsc_memutils_clear(kcs->schash, QSMP_SIMPLEX_SCHASH_SIZE);
-		qsc_memutils_clear(kcs->verkey, QSMP_VERIFYKEY_SIZE);
+		qsc_memutils_clear(kcs->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 		kcs->expiration = 0;
 	}
 }
@@ -112,10 +122,10 @@ static void kex_simplex_server_reset(qsmp_kex_simplex_server_state* kss)
 	{
 		qsc_memutils_clear(kss->keyid, QSMP_KEYID_SIZE);
 		qsc_memutils_clear(kss->schash, QSMP_SIMPLEX_SCHASH_SIZE);
-		qsc_memutils_clear(kss->prikey, QSMP_PRIVATEKEY_SIZE);
-		qsc_memutils_clear(kss->pubkey, QSMP_PUBLICKEY_SIZE);
-		qsc_memutils_clear(kss->sigkey, QSMP_SIGNKEY_SIZE);
-		qsc_memutils_clear(kss->verkey, QSMP_VERIFYKEY_SIZE);
+		qsc_memutils_clear(kss->prikey, QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
+		qsc_memutils_clear(kss->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
+		qsc_memutils_clear(kss->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
+		qsc_memutils_clear(kss->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 		kss->expiration = 0;
 	}
 }
@@ -175,8 +185,8 @@ static qsmp_errors kex_duplex_client_connect_request(qsmp_kex_duplex_client_stat
 		if (tm <= kcs->expiration)
 		{
 			/* copy the key-id and configuration string to the message */
-			qsc_memutils_copy(packetout->message, kcs->keyid, QSMP_KEYID_SIZE);
-			qsc_memutils_copy(((uint8_t*)packetout->message + QSMP_KEYID_SIZE), QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
+			qsc_memutils_copy(packetout->pmessage, kcs->keyid, QSMP_KEYID_SIZE);
+			qsc_memutils_copy(((uint8_t*)packetout->pmessage + QSMP_KEYID_SIZE), QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
 			/* assemble the connection-request packet */
 			packetout->msglen = QSMP_KEYID_SIZE + QSMP_CONFIG_SIZE;
 			packetout->flag = qsmp_flag_connect_request;
@@ -187,8 +197,8 @@ static qsmp_errors kex_duplex_client_connect_request(qsmp_kex_duplex_client_stat
 			qsc_sha3_initialize(&kstate);
 			qsc_sha3_update(&kstate, qsc_keccak_rate_512, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
 			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->keyid, QSMP_KEYID_SIZE);
-			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->verkey, QSMP_VERIFYKEY_SIZE);
-			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->rverkey, QSMP_VERIFYKEY_SIZE);
+			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->rverkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 			qsc_sha3_finalize(&kstate, qsc_keccak_rate_512, kcs->schash);
 
 			qerr = qsmp_error_none;
@@ -248,44 +258,44 @@ static qsmp_errors kex_duplex_client_exchange_request(qsmp_kex_duplex_client_sta
 			const size_t FLCDLM = 42;
 			/* Note: accounts for a signature encoding length variance in falcon signature size,
 			by decoding the signature size directly from the raw signature */
-			mlen = ((size_t)packetin->message[0] << 8) | (size_t)packetin->message[1] + FLCDLM + QSMP_DUPLEX_HASH_SIZE;
+			mlen = ((size_t)packetin->pmessage[0] << 8) | (size_t)packetin->pmessage[1] + FLCDLM + QSMP_DUPLEX_HASH_SIZE;
 #else
-			mlen = QSMP_SIGNATURE_SIZE + QSMP_DUPLEX_HASH_SIZE;
+			mlen = QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_DUPLEX_HASH_SIZE;
 #endif
 
 			/* verify the asymmetric signature */
-			if (qsmp_signature_verify(khash, &slen, packetin->message, mlen, kcs->rverkey) == true)
+			if (qsmp_signature_verify(khash, &slen, packetin->pmessage, mlen, kcs->rverkey) == true)
 			{
 				uint8_t phash[QSMP_DUPLEX_HASH_SIZE] = { 0 };
-				uint8_t pubk[QSMP_PUBLICKEY_SIZE] = { 0 };
+				uint8_t pubk[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE] = { 0 };
 
-				qsc_memutils_copy(pubk, (packetin->message + mlen), QSMP_PUBLICKEY_SIZE);
+				qsc_memutils_copy(pubk, (packetin->pmessage + mlen), QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 				/* verify the public key hash */
-				qsc_sha3_compute512(phash, pubk, QSMP_PUBLICKEY_SIZE);
+				qsc_sha3_compute512(phash, pubk, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 				if (qsc_intutils_verify(phash, khash, QSMP_DUPLEX_HASH_SIZE) == 0)
 				{
 					/* generate, and encapsulate the secret */
-					qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
+					qsc_memutils_clear(packetout->pmessage, QSMP_MESSAGE_MAX);
 					/* store the cipher-text in the message */
-					qsmp_cipher_encapsulate(kcs->ssec, packetout->message, pubk, qsc_acp_generate);
+					qsmp_cipher_encapsulate(kcs->ssec, packetout->pmessage, pubk, qsc_acp_generate);
 
 					/* generate the asymmetric encryption key-pair */
 					qsmp_cipher_generate_keypair(kcs->pubkey, kcs->prikey, qsc_acp_generate);
 					/* copy the public key to the message */
-					qsc_memutils_copy(((uint8_t*)packetout->message + QSMP_CIPHERTEXT_SIZE), kcs->pubkey, QSMP_PUBLICKEY_SIZE);
+					qsc_memutils_copy(((uint8_t*)packetout->pmessage + QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE), kcs->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 					/* hash the public encapsulation key and cipher-text */
-					qsc_sha3_compute512(phash, packetout->message, QSMP_CIPHERTEXT_SIZE + QSMP_PUBLICKEY_SIZE);
+					qsc_sha3_compute512(phash, packetout->pmessage, QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 					/* sign the hash and add it to the message */
 					mlen = 0;
-					qsmp_signature_sign(packetout->message + QSMP_CIPHERTEXT_SIZE + QSMP_PUBLICKEY_SIZE, &mlen, phash, QSMP_DUPLEX_HASH_SIZE, kcs->sigkey, qsc_acp_generate);
+					qsmp_signature_sign(packetout->pmessage + QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE, &mlen, phash, QSMP_DUPLEX_HASH_SIZE, kcs->sigkey, qsc_acp_generate);
 
 					/* assemble the exchange-request packet */
 					packetout->flag = qsmp_flag_exchange_request;
-					packetout->msglen = QSMP_CIPHERTEXT_SIZE + QSMP_PUBLICKEY_SIZE + QSMP_DUPLEX_HASH_SIZE + QSMP_SIGNATURE_SIZE;
+					packetout->msglen = QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE + QSMP_DUPLEX_HASH_SIZE + QSMP_ASYMMETRIC_SIGNATURE_SIZE;
 					packetout->sequence = cns->txseq;
 
 					qerr = qsmp_error_none;
@@ -363,48 +373,50 @@ static qsmp_errors kex_duplex_client_establish_request(const qsmp_kex_duplex_cli
 			const size_t FLCDLM = 42;
 			/* Note: accounts for a signature encoding length variance in falcon signature size,
 			by decoding the signature size directly from the raw signature */
-			mlen = ((size_t)packetin->message[0] << 8) | (size_t)packetin->message[1] + FLCDLM + QSMP_DUPLEX_HASH_SIZE;
+			mlen = ((size_t)packetin->pmessage[0] << 8) | (size_t)packetin->pmessage[1] + FLCDLM + QSMP_DUPLEX_HASH_SIZE;
 #else
-			mlen = QSMP_SIGNATURE_SIZE + QSMP_DUPLEX_HASH_SIZE;
+			mlen = QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_DUPLEX_HASH_SIZE;
 #endif
 
 			/* verify the asymmetric signature */
-			if (qsmp_signature_verify(khash, &slen, packetin->message + QSMP_CIPHERTEXT_SIZE, mlen, kcs->rverkey) == true)
+			if (qsmp_signature_verify(khash, &slen, packetin->pmessage + QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE, mlen, kcs->rverkey) == true)
 			{
 				uint8_t phash[QSMP_DUPLEX_HASH_SIZE] = { 0 };
 				uint8_t secb[QSMP_SECRET_SIZE] = { 0 };
 
 				/* verify the cipher-text hash */
-				qsc_sha3_compute512(phash, packetin->message, QSMP_CIPHERTEXT_SIZE);
+				qsc_sha3_compute512(phash, packetin->pmessage, QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE);
 
 				if (qsc_intutils_verify(phash, khash, QSMP_DUPLEX_HASH_SIZE) == 0)
 				{
-					if (qsmp_cipher_decapsulate(secb, packetin->message, kcs->prikey) == true)
+					if (qsmp_cipher_decapsulate(secb, packetin->pmessage, kcs->prikey) == true)
 					{
+						qsc_keccak_state kstate = { 0 };
 						uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
 						uint8_t prnd[(QSC_KECCAK_512_RATE * 3)] = { 0 };
 
 						/* initialize cSHAKE k = H(seca, secb, pkh) */
-						qsc_keccak_initialize_state(&cns->rtcs);
-						qsc_cshake_initialize(&cns->rtcs, qsc_keccak_rate_512, kcs->ssec, QSMP_SECRET_SIZE, kcs->schash, QSMP_DUPLEX_SCHASH_SIZE, secb, sizeof(secb));
-						qsc_cshake_squeezeblocks(&cns->rtcs, qsc_keccak_rate_512, prnd, 3);
-						/* permute the state so we are distance+1 and not storing the current keys */
-						qsc_keccak_permute(&cns->rtcs, QSC_KECCAK_PERMUTATION_ROUNDS);
+						qsc_cshake_initialize(&kstate, qsc_keccak_rate_512, kcs->ssec, QSMP_SECRET_SIZE, kcs->schash, QSMP_DUPLEX_SCHASH_SIZE, secb, sizeof(secb));
+						qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_512, prnd, 3);
+						/* permute the state so we are not storing the current key */
+						qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
+						/* copy as next key */
+						qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 
 						/* initialize the symmetric cipher, and raise client channel-1 tx */
 						qsc_rcs_keyparams kp1;
 						kp1.key = prnd;
-						kp1.keylen = QSMP_DUPLEX_SKEY_SIZE;
-						kp1.nonce = prnd + QSMP_DUPLEX_SKEY_SIZE;
+						kp1.keylen = QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
+						kp1.nonce = prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
 						kp1.info = NULL;
 						kp1.infolen = 0;
 						qsc_rcs_initialize(&cns->txcpr, &kp1, true);
 
 						/* initialize the symmetric cipher, and raise client channel-1 rx */
 						qsc_rcs_keyparams kp2;
-						kp2.key = prnd + QSMP_DUPLEX_SKEY_SIZE + QSMP_NONCE_SIZE;
-						kp2.keylen = QSMP_DUPLEX_SKEY_SIZE;
-						kp2.nonce = prnd + QSMP_DUPLEX_SKEY_SIZE + QSMP_NONCE_SIZE + QSMP_DUPLEX_SKEY_SIZE;
+						kp2.key = prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE;
+						kp2.keylen = QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
+						kp2.nonce = prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
 						kp2.info = NULL;
 						kp2.infolen = 0;
 						qsc_rcs_initialize(&cns->rxcpr, &kp2, false);
@@ -531,7 +543,7 @@ static qsmp_errors kex_duplex_server_connect_response(qsmp_kex_duplex_server_sta
 		{
 			uint8_t keyid[QSMP_KEYID_SIZE] = { 0 };
 
-			qsc_memutils_copy(keyid, packetin->message, sizeof(keyid));
+			qsc_memutils_copy(keyid, packetin->pmessage, sizeof(keyid));
 			
 			/* compare the kid in the message, to stored kids through the interface */
 			if (kss->key_query(kss->rverkey, keyid) == true)
@@ -542,7 +554,7 @@ static qsmp_errors kex_duplex_server_connect_response(qsmp_kex_duplex_server_sta
 				if (tm <= kss->expiration)
 				{
 					/* get a copy of the configuration string */
-					qsc_memutils_copy(confs, packetin->message + QSMP_KEYID_SIZE, QSMP_CONFIG_SIZE);
+					qsc_memutils_copy(confs, packetin->pmessage + QSMP_KEYID_SIZE, QSMP_CONFIG_SIZE);
 
 					/* compare the state configuration string to the message configuration string */
 					if (qsc_stringutils_compare_strings(confs, QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE) == true)
@@ -553,30 +565,30 @@ static qsmp_errors kex_duplex_server_connect_response(qsmp_kex_duplex_server_sta
 						qsc_sha3_initialize(&kstate);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_512, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->keyid, QSMP_KEYID_SIZE);
-						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->rverkey, QSMP_VERIFYKEY_SIZE);
-						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->verkey, QSMP_VERIFYKEY_SIZE);
+						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->rverkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 						qsc_sha3_finalize(&kstate, qsc_keccak_rate_512, kss->schash);
 
 						/* initialize the packet and asymmetric encryption keys */
-						qsc_memutils_clear(kss->pubkey, QSMP_PUBLICKEY_SIZE);
-						qsc_memutils_clear(kss->prikey, QSMP_PRIVATEKEY_SIZE);
+						qsc_memutils_clear(kss->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
+						qsc_memutils_clear(kss->prikey, QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
 
 						/* generate the asymmetric encryption key-pair */
 						qsmp_cipher_generate_keypair(kss->pubkey, kss->prikey, qsc_acp_generate);
 
 						/* hash the public encapsulation key */
-						qsc_sha3_compute512(phash, kss->pubkey, QSMP_PUBLICKEY_SIZE);
+						qsc_sha3_compute512(phash, kss->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 						/* sign the hash and add it to the message */
 						mlen = 0;
-						qsmp_signature_sign(packetout->message, &mlen, phash, QSMP_DUPLEX_HASH_SIZE, kss->sigkey, qsc_acp_generate);
+						qsmp_signature_sign(packetout->pmessage, &mlen, phash, QSMP_DUPLEX_HASH_SIZE, kss->sigkey, qsc_acp_generate);
 
 						/* copy the public key to the message */
-						qsc_memutils_copy(((uint8_t*)packetout->message + mlen), kss->pubkey, QSMP_PUBLICKEY_SIZE);
+						qsc_memutils_copy(((uint8_t*)packetout->pmessage + mlen), kss->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 						/* assemble the connection-response packet */
 						packetout->flag = qsmp_flag_connect_response;
-						packetout->msglen = QSMP_DUPLEX_HASH_SIZE + QSMP_SIGNATURE_SIZE + QSMP_PUBLICKEY_SIZE;
+						packetout->msglen = QSMP_DUPLEX_HASH_SIZE + QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE;
 						packetout->sequence = cns->txseq;
 
 						qerr = qsmp_error_none;
@@ -659,65 +671,67 @@ static qsmp_errors kex_duplex_server_exchange_response(const qsmp_kex_duplex_ser
 			const size_t FLCDLM = 42;
 			/* Note: accounts for a signature encoding length variance in falcon signature size,
 			by decoding the signature size directly from the raw signature */
-			mlen = ((size_t)packetin->message[0] << 8) | (size_t)packetin->message[1] + FLCDLM + QSMP_DUPLEX_HASH_SIZE;
+			mlen = ((size_t)packetin->pmessage[0] << 8) | (size_t)packetin->pmessage[1] + FLCDLM + QSMP_DUPLEX_HASH_SIZE;
 #else
-			mlen = QSMP_SIGNATURE_SIZE + QSMP_DUPLEX_HASH_SIZE;
+			mlen = QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_DUPLEX_HASH_SIZE;
 #endif
 
 			/* verify the asymmetric signature */
-			if (qsmp_signature_verify(khash, &slen, packetin->message + QSMP_CIPHERTEXT_SIZE + QSMP_PUBLICKEY_SIZE, mlen, kss->rverkey) == true)
+			if (qsmp_signature_verify(khash, &slen, packetin->pmessage + QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE, mlen, kss->rverkey) == true)
 			{
 				uint8_t phash[QSMP_DUPLEX_HASH_SIZE] = { 0 };
 				uint8_t seca[QSMP_SECRET_SIZE] = { 0 };
 				uint8_t secb[QSMP_SECRET_SIZE] = { 0 };
 
 				/* verify the public key hash */
-				qsc_sha3_compute512(phash, packetin->message, QSMP_CIPHERTEXT_SIZE + QSMP_PUBLICKEY_SIZE);
+				qsc_sha3_compute512(phash, packetin->pmessage, QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 				if (qsc_intutils_verify(phash, khash, QSMP_DUPLEX_HASH_SIZE) == 0)
 				{
-					if (qsmp_cipher_decapsulate(seca, packetin->message, kss->prikey) == true)
+					if (qsmp_cipher_decapsulate(seca, packetin->pmessage, kss->prikey) == true)
 					{
+						qsc_keccak_state kstate = { 0 };
 						uint8_t prnd[(QSC_KECCAK_512_RATE * 3)] = { 0 };
 
 						/* generate, and encapsulate the secret and store the cipher-text in the message */
-						qsmp_cipher_encapsulate(secb, packetout->message, packetin->message + QSMP_CIPHERTEXT_SIZE, qsc_acp_generate);
+						qsmp_cipher_encapsulate(secb, packetout->pmessage, packetin->pmessage + QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE, qsc_acp_generate);
 
 						/* hash the cipher-text */
-						qsc_sha3_compute512(phash, packetout->message, QSMP_CIPHERTEXT_SIZE);
+						qsc_sha3_compute512(phash, packetout->pmessage, QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE);
 
 						/* sign the hash and add it to the message */
 						mlen = 0;
-						qsmp_signature_sign(packetout->message + QSMP_CIPHERTEXT_SIZE, &mlen, phash, QSMP_DUPLEX_HASH_SIZE, kss->sigkey, qsc_acp_generate);
+						qsmp_signature_sign(packetout->pmessage + QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE, &mlen, phash, QSMP_DUPLEX_HASH_SIZE, kss->sigkey, qsc_acp_generate);
 
 						/* initialize cSHAKE k = H(seca, secb, pkh) */
-						qsc_keccak_initialize_state(&cns->rtcs);
-						qsc_cshake_initialize(&cns->rtcs, qsc_keccak_rate_512, seca, sizeof(seca), kss->schash, QSMP_DUPLEX_SCHASH_SIZE, secb, sizeof(secb));
-						qsc_cshake_squeezeblocks(&cns->rtcs, qsc_keccak_rate_512, prnd, 3);
-						/* permute the state so we are distance+1 and not storing the current keys */
-						qsc_keccak_permute(&cns->rtcs, QSC_KECCAK_PERMUTATION_ROUNDS);
+						qsc_cshake_initialize(&kstate, qsc_keccak_rate_512, seca, sizeof(seca), kss->schash, QSMP_DUPLEX_SCHASH_SIZE, secb, sizeof(secb));
+						qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_512, prnd, 3);
+						/* permute the state so we are not storing the current key */
+						qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
+						/* copy as next key */
+						qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 
 						/* initialize the symmetric cipher, and raise client channel-1 tx */
 						qsc_rcs_keyparams kp1;
 						kp1.key = prnd;
-						kp1.keylen = QSMP_DUPLEX_SKEY_SIZE;
-						kp1.nonce = prnd + QSMP_DUPLEX_SKEY_SIZE;
+						kp1.keylen = QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
+						kp1.nonce = prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
 						kp1.info = NULL;
 						kp1.infolen = 0;
 						qsc_rcs_initialize(&cns->rxcpr, &kp1, false);
 
 						/* initialize the symmetric cipher, and raise client channel-1 rx */
 						qsc_rcs_keyparams kp2;
-						kp2.key = prnd + QSMP_DUPLEX_SKEY_SIZE + QSMP_NONCE_SIZE;
-						kp2.keylen = QSMP_DUPLEX_SKEY_SIZE;
-						kp2.nonce = prnd + QSMP_DUPLEX_SKEY_SIZE + QSMP_NONCE_SIZE + QSMP_DUPLEX_SKEY_SIZE;
+						kp2.key = prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE;
+						kp2.keylen = QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
+						kp2.nonce = prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
 						kp2.info = NULL;
 						kp2.infolen = 0;
 						qsc_rcs_initialize(&cns->txcpr, &kp2, true);
 
 						/* assemble the exstart-request packet */
 						packetout->flag = qsmp_flag_exchange_response;
-						packetout->msglen = QSMP_CIPHERTEXT_SIZE + QSMP_DUPLEX_HASH_SIZE + QSMP_SIGNATURE_SIZE;
+						packetout->msglen = QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_DUPLEX_HASH_SIZE + QSMP_ASYMMETRIC_SIGNATURE_SIZE;
 						packetout->sequence = cns->txseq;
 
 						qerr = qsmp_error_none;
@@ -801,6 +815,8 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 	assert(kcs != NULL);
 	assert(cns != NULL);
 
+	uint8_t mresp[QSMP_MESSAGE_MAX] = { 0 };
+	uint8_t mreqt[QSMP_MESSAGE_MAX] = { 0 };
 	uint8_t spct[QSMP_MESSAGE_MAX + 1] = { 0 };
 	qsmp_packet reqt = { 0 };
 	qsmp_packet resp = { 0 };
@@ -811,6 +827,7 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 
 	if (kcs != NULL && cns != NULL)
 	{
+		reqt.pmessage = mreqt;
 		/* create the connection request packet */
 		qerr = kex_duplex_client_connect_request(kcs, cns, &reqt);
 
@@ -824,7 +841,7 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 
 			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 			{
-				const size_t CONLEN = QSMP_DUPLEX_HASH_SIZE + QSMP_SIGNATURE_SIZE + QSMP_PUBLICKEY_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
+				const size_t CONLEN = QSMP_DUPLEX_HASH_SIZE + QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 
 				cns->txseq += 1;
 
@@ -834,6 +851,7 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 				if (rlen == CONLEN)
 				{
 					/* convert server response to packet */
+					resp.pmessage = mresp;
 					qsmp_stream_to_packet(spct, &resp);
 					qsc_memutils_clear(spct, sizeof(spct));
 
@@ -853,7 +871,7 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 							/* if we receive an error, set the error flag from the packet */
 							if (resp.flag == qsmp_flag_error_condition)
 							{
-								qerr = (qsmp_errors)resp.message[0];
+								qerr = (qsmp_errors)resp.pmessage[0];
 							}
 							else
 							{
@@ -887,7 +905,7 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 
 			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 			{
-				const size_t EXCLEN = QSMP_CIPHERTEXT_SIZE + QSMP_DUPLEX_HASH_SIZE + QSMP_SIGNATURE_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
+				const size_t EXCLEN = QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_DUPLEX_HASH_SIZE + QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 
 				cns->txseq += 1;
 
@@ -913,7 +931,7 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 						{
 							if (resp.flag == qsmp_flag_error_condition)
 							{
-								qerr = (qsmp_errors)resp.message[0];
+								qerr = (qsmp_errors)resp.pmessage[0];
 							}
 							else
 							{
@@ -968,7 +986,7 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 						{
 							if (resp.flag == qsmp_flag_error_condition)
 							{
-								qerr = (qsmp_errors)resp.message[0];
+								qerr = (qsmp_errors)resp.pmessage[0];
 							}
 							else
 							{
@@ -1019,6 +1037,8 @@ qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* ks
 	assert(cns != NULL);
 
 	uint8_t spct[QSMP_MESSAGE_MAX + 1] = { 0 };
+	uint8_t mreqt[QSMP_MESSAGE_MAX + 1] = { 0 };
+	uint8_t mresp[QSMP_MESSAGE_MAX + 1] = { 0 };
 	qsmp_packet reqt = { 0 };
 	qsmp_packet resp = { 0 };
 	qsmp_errors qerr;
@@ -1033,6 +1053,7 @@ qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* ks
 	if (rlen == CONLEN)
 	{
 		/* convert server response to packet */
+		resp.pmessage = mresp;
 		qsmp_stream_to_packet(spct, &resp);
 		qsc_memutils_clear(spct, sizeof(spct));
 
@@ -1043,6 +1064,7 @@ qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* ks
 			if (resp.flag == qsmp_flag_connect_request)
 			{
 				/* clear the request packet */
+				reqt.pmessage = mreqt;
 				qsmp_packet_clear(&reqt);
 				/* create the connection request packet */
 				qerr = kex_duplex_server_connect_response(kss, cns, &resp, &reqt);
@@ -1051,7 +1073,7 @@ qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* ks
 			{
 				if (resp.flag == qsmp_flag_error_condition)
 				{
-					qerr = (qsmp_errors)resp.message[0];
+					qerr = (qsmp_errors)resp.pmessage[0];
 				}
 				else
 				{
@@ -1077,7 +1099,7 @@ qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* ks
 
 		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 		{
-			const size_t EXCLEN = QSMP_CIPHERTEXT_SIZE + QSMP_PUBLICKEY_SIZE + QSMP_DUPLEX_HASH_SIZE + QSMP_SIGNATURE_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
+			const size_t EXCLEN = QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE + QSMP_DUPLEX_HASH_SIZE + QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 			cns->txseq += 1;
 			rlen = qsc_socket_receive(&cns->target, spct, EXCLEN, qsc_socket_receive_flag_wait_all);
 
@@ -1100,7 +1122,7 @@ qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* ks
 					{
 						if (resp.flag == qsmp_flag_error_condition)
 						{
-							qerr = (qsmp_errors)resp.message[0];
+							qerr = (qsmp_errors)resp.pmessage[0];
 						}
 						else
 						{
@@ -1172,7 +1194,7 @@ qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* ks
 				{
 					if (resp.flag == qsmp_flag_error_condition)
 					{
-						qerr = (qsmp_errors)resp.message[0];
+						qerr = (qsmp_errors)resp.pmessage[0];
 					}
 					else
 					{
@@ -1235,8 +1257,8 @@ static qsmp_errors kex_simplex_client_connect_request(qsmp_kex_simplex_client_st
 		if (tm <= kcs->expiration)
 		{
 			/* copy the key-id and configuration string to the message */
-			qsc_memutils_copy(packetout->message, kcs->keyid, QSMP_KEYID_SIZE);
-			qsc_memutils_copy(((uint8_t*)packetout->message + QSMP_KEYID_SIZE), QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
+			qsc_memutils_copy(packetout->pmessage, kcs->keyid, QSMP_KEYID_SIZE);
+			qsc_memutils_copy(((uint8_t*)packetout->pmessage + QSMP_KEYID_SIZE), QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
 			/* assemble the connection-request packet */
 			packetout->msglen = QSMP_KEYID_SIZE + QSMP_CONFIG_SIZE;
 			packetout->flag = qsmp_flag_connect_request;
@@ -1246,8 +1268,8 @@ static qsmp_errors kex_simplex_client_connect_request(qsmp_kex_simplex_client_st
 			qsc_memutils_clear(kcs->schash, QSMP_SIMPLEX_SCHASH_SIZE);
 			qsc_sha3_initialize(&kstate);
 			qsc_sha3_update(&kstate, qsc_keccak_rate_256, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
-			qsc_sha3_update(&kstate, qsc_keccak_rate_512, kcs->keyid, QSMP_KEYID_SIZE);
-			qsc_sha3_update(&kstate, qsc_keccak_rate_256, kcs->verkey, QSMP_VERIFYKEY_SIZE);
+			qsc_sha3_update(&kstate, qsc_keccak_rate_256, kcs->keyid, QSMP_KEYID_SIZE);
+			qsc_sha3_update(&kstate, qsc_keccak_rate_256, kcs->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 			qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, kcs->schash);
 
 			qerr = qsmp_error_none;
@@ -1305,58 +1327,60 @@ static qsmp_errors kex_simplex_client_exchange_request(const qsmp_kex_simplex_cl
 			const size_t FLCDLM = 42;
 			/* Note: accounts for a signature encoding length variance in falcon signature size,
 			by decoding the signature size directly from the raw signature */
-			mlen = ((size_t)packetin->message[0] << 8) | (size_t)packetin->message[1] + FLCDLM + QSMP_SIMPLEX_HASH_SIZE;
+			mlen = ((size_t)packetin->pmessage[0] << 8) | (size_t)packetin->pmessage[1] + FLCDLM + QSMP_SIMPLEX_HASH_SIZE;
 #else
-			mlen = QSMP_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE;
+			mlen = QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE;
 #endif
 
 			/* verify the asymmetric signature */
-			if (qsmp_signature_verify(khash, &slen, packetin->message, mlen, kcs->verkey) == true)
+			if (qsmp_signature_verify(khash, &slen, packetin->pmessage, mlen, kcs->verkey) == true)
 			{
 				uint8_t phash[QSMP_SIMPLEX_HASH_SIZE] = { 0 };
-				uint8_t pubk[QSMP_PUBLICKEY_SIZE] = { 0 };
+				uint8_t pubk[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE] = { 0 };
 				uint8_t ssec[QSMP_SECRET_SIZE] = { 0 };
 
-				qsc_memutils_copy(pubk, (packetin->message + mlen), QSMP_PUBLICKEY_SIZE);
+				qsc_memutils_copy(pubk, (packetin->pmessage + mlen), QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 				/* verify the public key hash */
-				qsc_sha3_compute256(phash, pubk, QSMP_PUBLICKEY_SIZE);
+				qsc_sha3_compute256(phash, pubk, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 				if (qsc_intutils_verify(phash, khash, QSMP_SIMPLEX_HASH_SIZE) == 0)
 				{
+					qsc_keccak_state kstate = { 0 };
 					uint8_t prnd[(QSC_KECCAK_256_RATE * 2)] = { 0 };
 
 					/* generate, and encapsulate the secret */
-					qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
+					qsc_memutils_clear(packetout->pmessage, QSMP_MESSAGE_MAX);
 					/* store the cipher-text in the message */
-					qsmp_cipher_encapsulate(ssec, packetout->message, pubk, qsc_acp_generate);
+					qsmp_cipher_encapsulate(ssec, packetout->pmessage, pubk, qsc_acp_generate);
 
 					/* assemble the exchange-request packet */
 					packetout->flag = qsmp_flag_exchange_request;
-					packetout->msglen = QSMP_CIPHERTEXT_SIZE;
+					packetout->msglen = QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE;
 					packetout->sequence = cns->txseq;
 
 					/* initialize cSHAKE k = H(sec, sch) */
-					qsc_keccak_initialize_state(&cns->rtcs);
-					qsc_cshake_initialize(&cns->rtcs, qsc_keccak_rate_256, ssec, QSMP_SECRET_SIZE, kcs->schash, QSMP_SIMPLEX_SCHASH_SIZE, NULL, 0);
-					qsc_cshake_squeezeblocks(&cns->rtcs, qsc_keccak_rate_256, prnd, 2);
-					/* permute the state so we are distance+1 and not storing the current keys */
-					qsc_keccak_permute(&cns->rtcs, QSC_KECCAK_PERMUTATION_ROUNDS);
+					qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, QSMP_SECRET_SIZE, kcs->schash, QSMP_SIMPLEX_SCHASH_SIZE, NULL, 0);
+					qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 2);
+					/* permute the state so we are not storing the current key */
+					qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
+					/* copy as next key */
+					qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 
 					/* initialize the symmetric cipher, and raise client channel-1 tx */
 					qsc_rcs_keyparams kp1;
 					kp1.key = prnd;
-					kp1.keylen = QSMP_SIMPLEX_SKEY_SIZE;
-					kp1.nonce = prnd + QSMP_SIMPLEX_SKEY_SIZE;
+					kp1.keylen = QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE;
+					kp1.nonce = prnd + QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE;
 					kp1.info = NULL;
 					kp1.infolen = 0;
 					qsc_rcs_initialize(&cns->txcpr, &kp1, true);
 
 					/* initialize the symmetric cipher, and raise client channel-1 rx */
 					qsc_rcs_keyparams kp2;
-					kp2.key = prnd + QSMP_SIMPLEX_SKEY_SIZE + QSMP_NONCE_SIZE;
-					kp2.keylen = QSMP_SIMPLEX_SKEY_SIZE;
-					kp2.nonce = prnd + QSMP_SIMPLEX_SKEY_SIZE + QSMP_NONCE_SIZE + QSMP_SIMPLEX_SKEY_SIZE;
+					kp2.key = prnd + QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE;
+					kp2.keylen = QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE;
+					kp2.nonce = prnd + QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE + QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE;
 					kp2.info = NULL;
 					kp2.infolen = 0;
 					qsc_rcs_initialize(&cns->rxcpr, &kp2, false);
@@ -1428,15 +1452,19 @@ static qsmp_errors kex_simplex_client_establish_verify(const qsmp_kex_simplex_cl
 
 /*
 Connect Response:
-The client sends a connection request with its configuration string, and asymmetric public signature key identity.
-The key identity (kid) is a multi-part 16-byte address and key identification array, 
-used to match the intended target to the corresponding key. 
-The configuration string defines the cryptographic protocol set being used, these must be identical.
-The client stores a hash of the configuration string, the key id, 
-and of the servers public asymmetric signature verification-key, which is used as a session cookie during the exchange.
+The server responds with either an error message, or a response packet. 
+Any error during the key exchange will generate an error-packet sent to the remote host, 
+which will trigger a tear down of the session, and network connection on both sides.
+The server first checks that it has the requested asymmetric signature verification key corresponding to that host 
+using the key-identity array, then verifies that it has a compatible protocol configuration. 
+The server stores a hash of the configuration string, key id, and the public signature verification-key, to create the session cookie hash.
 sch <- H(cfg || kid || pvk)
-The client sends the key identity string, and the configuration string to the server.
-C{ kid, cfg } -> S
+The server then generates an asymmetric encryption key-pair, stores the private key, hashes the public encapsulation key, and then signs the hash of the public encapsulation key using the asymmetric signature key. The public signature verification key can itself be signed by a ‘chain of trust’ model, like X.509, using a signature verification extension to this protocol. 
+pk, sk <- AG(cfg)
+pkh <- H(pk)
+spkh <- ASsk(pkh)
+The server sends a connect response message containing a signed hash of the public asymmetric encapsulation-key, and a copy of that key.
+S{ spkh, pk } -> C
 */
 static qsmp_errors kex_simplex_server_connect_response(qsmp_kex_simplex_server_state* kss, qsmp_connection_state* cns, const qsmp_packet* packetin, qsmp_packet* packetout)
 {
@@ -1459,7 +1487,7 @@ static qsmp_errors kex_simplex_server_connect_response(qsmp_kex_simplex_server_s
 		if (packetin->flag == qsmp_flag_connect_request)
 		{
 			/* compare the state key-id to the id in the message */
-			if (kex_simplex_server_keyid_verify(kss->keyid, packetin->message) == true)
+			if (kex_simplex_server_keyid_verify(kss->keyid, packetin->pmessage) == true)
 			{
 				tm = qsc_timestamp_epochtime_seconds();
 
@@ -1467,7 +1495,7 @@ static qsmp_errors kex_simplex_server_connect_response(qsmp_kex_simplex_server_s
 				if (tm <= kss->expiration)
 				{
 					/* get a copy of the configuration string */
-					qsc_memutils_copy(confs, (packetin->message + QSMP_KEYID_SIZE), QSMP_CONFIG_SIZE);
+					qsc_memutils_copy(confs, (packetin->pmessage + QSMP_KEYID_SIZE), QSMP_CONFIG_SIZE);
 
 					/* compare the state configuration string to the message configuration string */
 					if (qsc_stringutils_compare_strings(confs, QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE) == true)
@@ -1476,31 +1504,31 @@ static qsmp_errors kex_simplex_server_connect_response(qsmp_kex_simplex_server_s
 						qsc_memutils_clear(kss->schash, QSMP_SIMPLEX_SCHASH_SIZE);
 						qsc_sha3_initialize(&kstate);
 						qsc_sha3_update(&kstate, qsc_keccak_rate_256, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
-						qsc_sha3_update(&kstate, qsc_keccak_rate_512, kss->keyid, QSMP_KEYID_SIZE);
-						qsc_sha3_update(&kstate, qsc_keccak_rate_256, kss->verkey, QSMP_VERIFYKEY_SIZE);
+						qsc_sha3_update(&kstate, qsc_keccak_rate_256, kss->keyid, QSMP_KEYID_SIZE);
+						qsc_sha3_update(&kstate, qsc_keccak_rate_256, kss->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 						qsc_sha3_finalize(&kstate, qsc_keccak_rate_256, kss->schash);
 
 						/* initialize the packet and asymmetric encryption keys */
-						qsc_memutils_clear(kss->pubkey, QSMP_PUBLICKEY_SIZE);
-						qsc_memutils_clear(kss->prikey, QSMP_PRIVATEKEY_SIZE);
+						qsc_memutils_clear(kss->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
+						qsc_memutils_clear(kss->prikey, QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
 
 						/* generate the asymmetric encryption key-pair */
 						qsmp_cipher_generate_keypair(kss->pubkey, kss->prikey, qsc_acp_generate);
 
 						/* hash the public encapsulation key */
-						qsc_sha3_compute256(phash, kss->pubkey, QSMP_PUBLICKEY_SIZE);
+						qsc_sha3_compute256(phash, kss->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 						/* sign the hash and add it to the message */
 						mlen = 0;
-						qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
-						qsmp_signature_sign(packetout->message, &mlen, phash, QSMP_SIMPLEX_HASH_SIZE, kss->sigkey, qsc_acp_generate);
+						qsc_memutils_clear(packetout->pmessage, QSMP_MESSAGE_MAX);
+						qsmp_signature_sign(packetout->pmessage, &mlen, phash, QSMP_SIMPLEX_HASH_SIZE, kss->sigkey, qsc_acp_generate);
 
 						/* copy the public key to the message */
-						qsc_memutils_copy(((uint8_t*)packetout->message + mlen), kss->pubkey, QSMP_PUBLICKEY_SIZE);
+						qsc_memutils_copy(((uint8_t*)packetout->pmessage + mlen), kss->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 						/* assemble the connection-response packet */
 						packetout->flag = qsmp_flag_connect_response;
-						packetout->msglen = QSMP_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE + QSMP_PUBLICKEY_SIZE;
+						packetout->msglen = QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE;
 						packetout->sequence = cns->txseq;
 
 						qerr = qsmp_error_none;
@@ -1565,33 +1593,35 @@ static qsmp_errors kex_simplex_server_exchange_response(const qsmp_kex_simplex_s
 			uint8_t ssec[QSMP_SECRET_SIZE] = { 0 };
 
 				/* decapsulate the shared secret */
-			if (qsmp_cipher_decapsulate(ssec, packetin->message, kss->prikey) == true)
+			if (qsmp_cipher_decapsulate(ssec, packetin->pmessage, kss->prikey) == true)
 			{
+				qsc_keccak_state kstate = { 0 };
 				uint8_t prnd[(QSC_KECCAK_256_RATE * 2)] = { 0 };
 
-				qsc_memutils_clear(packetout->message, QSMP_MESSAGE_MAX);
+				qsc_memutils_clear(packetout->pmessage, QSMP_MESSAGE_MAX);
 
 				/* initialize cSHAKE k = H(ssec, sch) */
-				qsc_keccak_initialize_state(&cns->rtcs);
-				qsc_cshake_initialize(&cns->rtcs, qsc_keccak_rate_256, ssec, sizeof(ssec), kss->schash, QSMP_SIMPLEX_SCHASH_SIZE, NULL, 0);
-				qsc_cshake_squeezeblocks(&cns->rtcs, qsc_keccak_rate_256, prnd, 2);
-				/* permute the state so we are distance+1 and not storing the current keys */
-				qsc_keccak_permute(&cns->rtcs, QSC_KECCAK_PERMUTATION_ROUNDS);
+				qsc_cshake_initialize(&kstate, qsc_keccak_rate_256, ssec, sizeof(ssec), kss->schash, QSMP_SIMPLEX_SCHASH_SIZE, NULL, 0);
+				qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_256, prnd, 2);
+				/* permute the state so we are not storing the current key */
+				qsc_keccak_permute(&kstate, QSC_KECCAK_PERMUTATION_ROUNDS);
+				/* copy as next key */
+				qsc_memutils_copy(cns->rtcs, (uint8_t*)kstate.state, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 
 				/* initialize the symmetric cipher, and raise client channel-1 tx */
 				qsc_rcs_keyparams kp1;
 				kp1.key = prnd;
-				kp1.keylen = QSMP_SIMPLEX_SKEY_SIZE;
-				kp1.nonce = prnd + QSMP_SIMPLEX_SKEY_SIZE;
+				kp1.keylen = QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE;
+				kp1.nonce = prnd + QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE;
 				kp1.info = NULL;
 				kp1.infolen = 0;
 				qsc_rcs_initialize(&cns->rxcpr, &kp1, false);
 
 				/* initialize the symmetric cipher, and raise client channel-1 rx */
 				qsc_rcs_keyparams kp2;
-				kp2.key = prnd + QSMP_SIMPLEX_SKEY_SIZE + QSMP_NONCE_SIZE;
-				kp2.keylen = QSMP_SIMPLEX_SKEY_SIZE;
-				kp2.nonce = prnd + QSMP_SIMPLEX_SKEY_SIZE + QSMP_NONCE_SIZE + QSMP_SIMPLEX_SKEY_SIZE;
+				kp2.key = prnd + QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE;
+				kp2.keylen = QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE;
+				kp2.nonce = prnd + QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE + QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE;
 				kp2.info = NULL;
 				kp2.infolen = 0;
 				qsc_rcs_initialize(&cns->txcpr, &kp2, true);
@@ -1630,6 +1660,8 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
 	assert(cns != NULL);
 
 	uint8_t spct[QSMP_MESSAGE_MAX + 1] = { 0 };
+	uint8_t mreqt[QSMP_MESSAGE_MAX + 1] = { 0 };
+	uint8_t mresp[QSMP_MESSAGE_MAX + 1] = { 0 };
 	qsmp_packet reqt = { 0 };
 	qsmp_packet resp = { 0 };
 	qsmp_errors qerr;
@@ -1640,6 +1672,7 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
 	if (kcs != NULL && cns != NULL)
 	{
 		/* create the connection request packet */
+		reqt.pmessage = mreqt;
 		qerr = kex_simplex_client_connect_request(kcs, cns, &reqt);
 
 		if (qerr == qsmp_error_none)
@@ -1652,7 +1685,7 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
 
 			if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 			{
-				const size_t CONLEN = QSMP_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE + QSMP_PUBLICKEY_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
+				const size_t CONLEN = QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 
 				cns->txseq += 1;
 
@@ -1662,6 +1695,7 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
 				if (rlen == CONLEN)
 				{
 					/* convert server response to packet */
+					resp.pmessage = mresp;
 					qsmp_stream_to_packet(spct, &resp);
 					qsc_memutils_clear(spct, sizeof(spct));
 
@@ -1681,7 +1715,7 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
 							/* if we receive an error, set the error flag from the packet */
 							if (resp.flag == qsmp_flag_error_condition)
 							{
-								qerr = (qsmp_errors)resp.message[0];
+								qerr = (qsmp_errors)resp.pmessage[0];
 							}
 							else
 							{
@@ -1736,7 +1770,7 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
 						{
 							if (resp.flag == qsmp_flag_error_condition)
 							{
-								qerr = (qsmp_errors)resp.message[0];
+								qerr = (qsmp_errors)resp.pmessage[0];
 							}
 							else
 							{
@@ -1787,6 +1821,8 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
 	assert(cns != NULL);
 
 	uint8_t spct[QSMP_MESSAGE_MAX + 1] = { 0 };
+	uint8_t mreqt[QSMP_MESSAGE_MAX + 1] = { 0 };
+	uint8_t mresp[QSMP_MESSAGE_MAX + 1] = { 0 };
 	qsmp_packet reqt = { 0 };
 	qsmp_packet resp = { 0 };
 	qsmp_errors qerr;
@@ -1801,6 +1837,7 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
 	if (rlen == CONLEN)
 	{
 		/* convert server response to packet */
+		resp.pmessage = mresp;
 		qsmp_stream_to_packet(spct, &resp);
 		qsc_memutils_clear(spct, sizeof(spct));
 
@@ -1811,6 +1848,7 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
 			if (resp.flag == qsmp_flag_connect_request)
 			{
 				/* clear the request packet */
+				reqt.pmessage = mreqt;
 				qsmp_packet_clear(&reqt);
 				/* create the connection request packet */
 				qerr = kex_simplex_server_connect_response(kss, cns, &resp, &reqt);
@@ -1819,7 +1857,7 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
 			{
 				if (resp.flag == qsmp_flag_error_condition)
 				{
-					qerr = (qsmp_errors)resp.message[0];
+					qerr = (qsmp_errors)resp.pmessage[0];
 				}
 				else
 				{
@@ -1845,7 +1883,7 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
 
 		if (slen == plen + QSC_SOCKET_TERMINATOR_SIZE)
 		{
-			const size_t EXCLEN = QSMP_CIPHERTEXT_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
+			const size_t EXCLEN = QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
 			cns->txseq += 1;
 			rlen = qsc_socket_receive(&cns->target, spct, EXCLEN, qsc_socket_receive_flag_wait_all);
 
@@ -1868,7 +1906,7 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
 					{
 						if (resp.flag == qsmp_flag_error_condition)
 						{
-							qerr = (qsmp_errors)resp.message[0];
+							qerr = (qsmp_errors)resp.pmessage[0];
 						}
 						else
 						{
@@ -1934,13 +1972,17 @@ bool qsmp_kex_test()
 	qsmp_connection_state cns = { 0 };
 	qsmp_packet pckclt = { 0 };
 	qsmp_packet pcksrv = { 0 };
+	uint8_t mclt[QSMP_MESSAGE_MAX + 1] = { 0 };
+	uint8_t msrv[QSMP_MESSAGE_MAX + 1] = { 0 };
 	qsmp_errors qerr;
 	bool res;
 
+	pckclt.pmessage = mclt;
+	pcksrv.pmessage = msrv;
 	qsmp_signature_generate_keypair(dkcs.verkey, dkcs.sigkey, qsc_acp_generate);
 	qsmp_signature_generate_keypair(dkss.verkey, dkss.sigkey, qsc_acp_generate);
-	qsc_memutils_copy(dkcs.rverkey, dkss.verkey, QSMP_VERIFYKEY_SIZE);
-	qsc_memutils_copy(dkss.rverkey, dkcs.verkey, QSMP_VERIFYKEY_SIZE);
+	qsc_memutils_copy(dkcs.rverkey, dkss.verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+	qsc_memutils_copy(dkss.rverkey, dkcs.verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 
 	dkcs.expiration = qsc_timestamp_epochtime_seconds() + QSMP_PUBKEY_DURATION_SECONDS;
 	dkss.expiration = dkcs.expiration;
@@ -1986,7 +2028,7 @@ bool qsmp_kex_test()
 	if (res == true)
 	{
 		qsmp_signature_generate_keypair(skss.verkey, skss.sigkey, qsc_acp_generate);
-		qsc_memutils_copy(skcs.verkey, skss.verkey, QSMP_VERIFYKEY_SIZE);
+		qsc_memutils_copy(skcs.verkey, skss.verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 
 		skcs.expiration = qsc_timestamp_epochtime_seconds() + QSMP_PUBKEY_DURATION_SECONDS;
 		skss.expiration = skcs.expiration;

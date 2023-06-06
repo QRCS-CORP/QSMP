@@ -1,15 +1,15 @@
-/* 2022 Digital Freedom Defense Incorporated
+/* 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca)
 * All Rights Reserved.
 *
 * NOTICE:  All information contained herein is, and remains
-* the property of Digital Freedom Defense Incorporated.
+* the property of the QSCS Corporation.
 * The intellectual and technical concepts contained
-* herein are proprietary to Digital Freedom Defense Incorporated
+* herein are proprietary to the QSCS Corporation
 * and its suppliers and may be covered by U.S. and Foreign Patents,
 * patents in process, and are protected by trade secret or copyright law.
 * Dissemination of this information or reproduction of this material
 * is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* from the QSCS Corporation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of

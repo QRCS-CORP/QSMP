@@ -26,8 +26,8 @@
 #define QSMP_SERVER_APP_H
 
 #include "common.h"
-#include "../QSC/socketbase.h"
-#include "../QSC/socketserver.h"
+#include "../../QSC/QSC/socketbase.h"
+#include "../../QSC/QSC/socketserver.h"
 
 #define QSMP_SERVER_MAX_CLIENTS 8192
 

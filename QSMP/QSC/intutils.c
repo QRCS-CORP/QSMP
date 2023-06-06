@@ -19,11 +19,11 @@ bool qsc_intutils_are_equal8(const uint8_t* a, const uint8_t* b, size_t length)
 	return status;
 }
 
-void qsc_intutils_be8increment(uint8_t* output, size_t outlen)
+void qsc_intutils_be8increment(uint8_t* output, size_t otplen)
 {
-	size_t i = outlen;
+	size_t i = otplen;
 
-	if (outlen > 0)
+	if (otplen > 0)
 	{
 		do
 		{
@@ -217,19 +217,19 @@ void qsc_intutils_hex_to_bin(const char* hexstr, uint8_t* output, size_t length)
 
 	for (size_t pos = 0; pos < (length * 2); pos += 2)
 	{
-		idx0 = ((uint8_t)hexstr[pos + 0] & 0x1FU) ^ 0x10U;
+		idx0 = ((uint8_t)hexstr[pos] & 0x1FU) ^ 0x10U;
 		idx1 = ((uint8_t)hexstr[pos + 1] & 0x1FU) ^ 0x10U;
 		output[pos / 2] = (uint8_t)(hashmap[idx0] << 4) | hashmap[idx1];
 	}
 }
 
-void qsc_intutils_le8increment(uint8_t* output, size_t outlen)
+void qsc_intutils_le8increment(uint8_t* output, size_t otplen)
 {
 	size_t i;
 
 	i = 0;
 
-	while (i < outlen)
+	while (i < otplen)
 	{
 		++output[i];
 
@@ -316,6 +316,14 @@ size_t qsc_intutils_max(size_t a, size_t b)
 size_t qsc_intutils_min(size_t a, size_t b)
 {
 	return (a < b) ? a : b;
+}
+
+uint32_t qsc_intutils_popcount32(uint32_t v)
+{
+	v = v - ((v >> 1) & 0x55555555);
+	v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+
+	return (uint32_t)((v + (v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
 }
 
 #if defined(QSC_SYSTEM_HAS_AVX)

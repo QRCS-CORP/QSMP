@@ -1,13 +1,13 @@
 #include "appsrv.h"
 #include "../QSMP/qsmpserver.h"
-#include "../QSC/acp.h"
-#include "../QSC/async.h"
-#include "../QSC/consoleutils.h"
-#include "../QSC/fileutils.h"
-#include "../QSC/folderutils.h"
-#include "../QSC/ipinfo.h"
-#include "../QSC/netutils.h"
-#include "../QSC/stringutils.h"
+#include "../../QSC/QSC/acp.h"
+#include "../../QSC/QSC/async.h"
+#include "../../QSC/QSC/consoleutils.h"
+#include "../../QSC/QSC/fileutils.h"
+#include "../../QSC/QSC/folderutils.h"
+#include "../../QSC/QSC/ipinfo.h"
+#include "../../QSC/QSC/netutils.h"
+#include "../../QSC/QSC/stringutils.h"
 
 static void server_print_prompt(void)
 {
@@ -52,8 +52,8 @@ static void server_print_banner(void)
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Server Example Project                    *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.2.0.0a (A2)                       *");
-	qsc_consoleutils_print_line("* Date:      May 1, 2021                          *");
+	qsc_consoleutils_print_line("* Release:   v1.2.0.0c (A2)                       *");
+	qsc_consoleutils_print_line("* Date:      June 6, 2023                         *");
 	qsc_consoleutils_print_line("* Contact:   develop@dfdef.com                    *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
@@ -113,7 +113,7 @@ static bool server_pubkey_exists(char fpath[QSC_SYSTEM_MAX_PATH], size_t pathlen
 	return res;
 }
 
-static bool server_key_dialogue(qsmp_server_key* prik, qsmp_client_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
+static bool server_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_signature_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
 {
 	uint8_t spub[QSMP_PUBKEY_STRING_SIZE] = { 0 };
 	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0 };
@@ -138,7 +138,7 @@ static bool server_key_dialogue(qsmp_server_key* prik, qsmp_client_key* pubk, ui
 				qsc_memutils_copy(keyid, prik->keyid, QSMP_KEYID_SIZE);
 				qsc_memutils_copy(pubk->config, prik->config, QSMP_CONFIG_SIZE);
 				qsc_memutils_copy(pubk->keyid, prik->keyid, QSMP_KEYID_SIZE);
-				qsc_memutils_copy(pubk->verkey, prik->verkey, QSMP_VERIFYKEY_SIZE);
+				qsc_memutils_copy(pubk->verkey, prik->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 				pubk->expiration = prik->expiration;
 				qsc_consoleutils_print_line("server> The private-key has been loaded.");
 			}
@@ -206,6 +206,7 @@ static void server_send_echo(qsmp_connection_state* cns, const char* message, si
 
 	char mstr[QSMP_CONNECTION_MTU] = "ECHO: ";
 	char rstr[QSMP_CONNECTION_MTU] = "RCVD #";
+	uint8_t pmsg[QSMP_MESSAGE_MAX] = { 0 };
 	qsmp_packet pkt = { 0 };
 	qsc_mutex mtx;
 	size_t mlen;
@@ -222,6 +223,7 @@ static void server_send_echo(qsmp_connection_state* cns, const char* message, si
 		qsc_async_mutex_unlock_ex(mtx);
 
 		mlen = qsc_stringutils_concat_strings(mstr, sizeof(mstr), message);
+		pkt.pmessage = pmsg;
 		qsmp_encrypt_packet(cns, &pkt, (uint8_t*)mstr, mlen);
 		mlen = qsmp_packet_to_stream(&pkt, mstr);
 		qsc_socket_send(&cns->target, mstr, mlen, qsc_socket_send_flag_none);
@@ -238,17 +240,19 @@ static void server_receive_callback(qsmp_connection_state* cns, const char* mess
 
 int main(void)
 {
-	qsmp_server_key prik = { 0 };
-	qsmp_client_key pubk = { 0 };
+	qsmp_server_signature_key prik = { 0 };
+	qsmp_client_signature_key rverk = { 0 };
+	qsc_socket source = { 0 };
+
 	uint8_t kid[QSMP_KEYID_SIZE] = { 0 };
 	qsmp_errors qerr;
 
 	server_print_banner();
 
-	if (server_key_dialogue(&prik, &pubk, kid) == true)
+	if (server_key_dialogue(&prik, &rverk, kid) == true)
 	{
 		server_print_message("Waiting for a connection...");
-		qerr = qsmp_server_start_ipv4(&prik, &server_receive_callback);
+		qerr = qsmp_server_start_ipv4(&source , &prik, &server_receive_callback);
 
 		if (qerr != qsmp_error_none)
 		{

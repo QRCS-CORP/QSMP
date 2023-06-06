@@ -36,6 +36,9 @@
     <ClInclude Include="kex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="keychain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="qsmp.c">
@@ -54,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="kex.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="keychain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

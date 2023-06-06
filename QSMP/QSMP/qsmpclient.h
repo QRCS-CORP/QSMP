@@ -1,15 +1,15 @@
-/* 2022 Digital Freedom Defense Incorporated
+/* 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca)
 * All Rights Reserved.
 *
 * NOTICE:  All information contained herein is, and remains
-* the property of Digital Freedom Defense Incorporated.
+* the property of the QSCS Corporation.
 * The intellectual and technical concepts contained
-* herein are proprietary to Digital Freedom Defense Incorporated
+* herein are proprietary to the QSCS Corporation
 * and its suppliers and may be covered by U.S. and Foreign Patents,
 * patents in process, and are protected by trade secret or copyright law.
 * Dissemination of this information or reproduction of this material
 * is strictly forbidden unless prior written permission is obtained
-* from Digital Freedom Defense Incorporated.
+* from the QSCS Corporation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,31 +24,41 @@
 * \author   John G. Underhill
 * \version  1.2a: 2022-05-01
 * \date     May 1, 2022
-* \contact: develop@dfdef.com
+* \contact: develop@qscs.ca
 */
 
 #ifndef QSMP_CLIENT_H
 #define QSMP_CLIENT_H
 
 #include "qsmp.h"
-#include "../QSC/rcs.h"
-#include "../QSC/socketclient.h"
+#include "../../QSC/QSC/rcs.h"
+#include "../../QSC/QSC/socketclient.h"
+
+#if defined(QSMP_ASYMMETRIC_RATCHET)
+/**
+* \brief Send an asymmetric key-ratchet request to the remote host
+*
+* \param cns: A pointer to the connection state
+*
+* \return: Returns true if the operation succeeded
+*/
+QSMP_EXPORT_API bool qsmp_duplex_send_asymmetric_ratchet_request(qsmp_connection_state* cns);
+#endif
 
 /**
 * \brief Send a symmetric key-ratchet request to the remote host
 *
 * \param cns: A pointer to the connection state
-* \param listener: Reverses the key to channel direction between listener and sender
 *
 * \return: Returns true if the operation succeeded
 */
-QSMP_EXPORT_API bool qsmp_client_duplex_send_ratchet_request(qsmp_connection_state* cns, bool listener);
+QSMP_EXPORT_API bool qsmp_duplex_send_symmetric_ratchet_request(qsmp_connection_state* cns);
 
 /**
 * \brief Connect to the remote host using IPv4, and run the Duplex key exchange function.
 * Returns the connected socket and the QSMP client state through the callback functions.
 *
-* \param prik: [const] A pointer to the client's private signature key
+* \param kset: [const] A pointer to the client's private signature key
 * \param rverkey: [const] A pointer to the remote clients public signature verification key
 * \param address: [const] The servers IPv4 network address
 * \param port: The QSMP application port number (QSMP_CLIENT_PORT)
@@ -57,7 +67,7 @@ QSMP_EXPORT_API bool qsmp_client_duplex_send_ratchet_request(qsmp_connection_sta
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_key* prik, const qsmp_client_key* rverkey, 
+QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kset, const qsmp_client_signature_key* rverkey, 
 	const qsc_ipinfo_ipv4_address* address, uint16_t port, 
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t));
@@ -66,7 +76,7 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_ke
 * \brief Connect to the remote host using IPv6, and run the Duplex key exchange function.
 * Returns the connected socket and the QSMP client state through the callback functions.
 *
-* \param prik: [const] A pointer to the client's private signature key
+* \param kset: [const] A pointer to the client's private signature key
 * \param rverkey: [const] A pointer to the remote clients public signature verification key
 * \param address: [const] The servers IPv6 network address
 * \param port: The QSMP application port number (QSMP_CLIENT_PORT)
@@ -75,7 +85,7 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_ke
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_key* prik, const qsmp_client_key* rverkey,
+QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_signature_key* kset, const qsmp_client_signature_key* rverkey,
 	const qsc_ipinfo_ipv6_address* address, uint16_t port,
 	void (*send_func)(qsmp_connection_state*),
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t));
@@ -92,7 +102,7 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_ke
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_key* pubk, 
+QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_signature_key* pubk, 
 	const qsc_ipinfo_ipv4_address* address, uint16_t port, 
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t));
@@ -109,7 +119,7 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_k
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_key* pubk, 
+QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_signature_key* pubk, 
 	const qsc_ipinfo_ipv6_address* address, uint16_t port, 
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t));
@@ -119,13 +129,13 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_k
 * which executes the Simplex key exchange each time a client connects.
 * Returns the connected socket in the connected state through the callback functions.
 *
-* \param prik: [const] A pointer to the qsmp server key
+* \param kset: [const] A pointer to the qsmp server key
 * \param send_func: A pointer to the send callback function, that contains a message send loop
 * \param receive_callback: A pointer to the receive callback function, used to process the server data stream
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv4(const qsmp_server_key* prik, 
+QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv4(const qsmp_server_signature_key* kset, 
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t));
 
@@ -134,13 +144,13 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv4(const qsmp_server_ke
 * which executes the Simplex key exchange each time a client connects.
 * Returns the connected socket in the connection state through the callback functions.
 *
-* \param prik: [const] A pointer to the qsmp server key
+* \param kset: [const] A pointer to the qsmp server key
 * \param send_func: A pointer to the send callback function, that contains a message send loop
 * \param receive_callback: A pointer to the receive callback function, used to process the server data stream
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv6(const qsmp_server_key* prik, 
+QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv6(const qsmp_server_signature_key* kset, 
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t));
 
@@ -149,14 +159,14 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv6(const qsmp_server_ke
 * which executes the Duplex key exchange when the remote host connects.
 * Places the local socket in the listening state for a single host-to-host connection operation.
 *
-* \param prik: [const] A pointer to the qsmp server key
+* \param kset: [const] A pointer to the qsmp server key
 * \param send_func: A pointer to the send callback function, that contains a message send loop
 * \param receive_callback: A pointer to the receive callback function, used to process the client data stream
 * \param key_query: A pointer the key-query function, used to identify and return the correct public key
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_listen_ipv4(const qsmp_server_key* prik, 
+QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_listen_ipv4(const qsmp_server_signature_key* kset, 
 	void (*send_func)(qsmp_connection_state*),
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t),
 	bool (*key_query)(uint8_t* rvkey, const uint8_t* pkid));
@@ -166,14 +176,14 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_listen_ipv4(const qsmp_server_key
 * which executes the Duplex key exchange when the remote host connects.
 * Places the local socket in the listening state for a single host-to-host connection operation.
 *
-* \param prik: [const] A pointer to the qsmp server key
+* \param kset: [const] A pointer to the qsmp server key
 * \param send_func: A pointer to the send callback function, that contains a message send loop
 * \param receive_callback: A pointer to the receive callback function, used to process the client data stream
 * \param key_query: A pointer the key-query function, used to identify and return the correct public key
 *
 * \return: Returns the function error state
 */
-QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_listen_ipv6(const qsmp_server_key* prik, 
+QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_listen_ipv6(const qsmp_server_signature_key* kset, 
 	void (*send_func)(qsmp_connection_state*),
 	void (*receive_callback)(qsmp_connection_state*, const char*, size_t),
 	bool (*key_query)(uint8_t* rvkey, const uint8_t* pkid));
