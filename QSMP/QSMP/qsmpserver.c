@@ -60,19 +60,18 @@ static void server_poll_sockets()
 		}
 	}
 }
-// TODO: check buffer sizes, can we reduce buffer to MTU size?
-// do we need 3 buffers here?
+
 static void server_receive_loop(server_receiver_state* prcv)
 {
 	assert(prcv != NULL);
 
-	uint8_t buffer[QSMP_CONNECTION_MTU] = { 0 };
-	char mstr[QSMP_CONNECTION_MTU + 1] = { 0 };
-	uint8_t pmsg[QSMP_MESSAGE_MAX] = { 0 };
-	qsmp_packet pkt = { 0 };
+	qsmp_network_packet pkt = { 0 };
 	qsmp_kex_simplex_server_state* pkss;
-	qsmp_errors qerr;
+	uint8_t* rbuf;
 	size_t mlen;
+	size_t plen;
+	size_t slen;
+	qsmp_errors qerr;
 
 	pkss = (qsmp_kex_simplex_server_state*)qsc_memutils_malloc(sizeof(qsmp_kex_simplex_server_state));
 
@@ -86,31 +85,83 @@ static void server_receive_loop(server_receiver_state* prcv)
 		{
 			while (prcv->pcns->target.connection_status == qsc_socket_state_connected)
 			{
-				mlen = qsc_socket_receive(&prcv->pcns->target, buffer, sizeof(buffer), qsc_socket_receive_flag_none);
+				mlen = 0;
+				slen = 0;
+				rbuf = (uint8_t*)qsc_memutils_malloc(QSMP_HEADER_SIZE);
 
-				if (mlen != 0)
+				if (rbuf != NULL)
 				{
-					/* convert the bytes to packet */
-					pkt.pmessage = pmsg;
-					qsmp_stream_to_packet(buffer, &pkt);
-					qsc_memutils_clear(buffer, mlen);
+					plen = qsc_socket_peek(&prcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
 
-					if (pkt.flag == qsmp_flag_encrypted_message)
+					if (plen == QSMP_HEADER_SIZE)
 					{
-						qerr = qsmp_decrypt_packet(prcv->pcns, (uint8_t*)mstr, &mlen, &pkt);
+						qsmp_packet_header_deserialize(rbuf, &pkt);
 
-						if (qerr == qsmp_error_none)
+						if (pkt.msglen > 0 && pkt.msglen <= QSMP_MESSAGE_MAX)
 						{
-							mlen = qsc_stringutils_string_size(mstr);
-							prcv->receive_callback(prcv->pcns, mstr, mlen);
-							qsc_memutils_clear(mstr, mlen);
+							plen = pkt.msglen + QSMP_HEADER_SIZE + QSC_SOCKET_TERMINATOR_SIZE;
+							rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
+						}
+
+						if (rbuf != NULL)
+						{
+							qsc_memutils_clear(rbuf, plen);
+							mlen = qsc_socket_receive(&prcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_none);
 						}
 						else
 						{
-							/* close the connection on authentication failure */
-							qsmp_log_write(qsmp_messages_decryption_fail, (const char*)prcv->pcns->target.address);
-							qsmp_connection_close(prcv->pcns, qsmp_error_authentication_failure, true);
-							break; 
+							/* close the connection on memory allocation failure */
+							qsmp_log_write(qsmp_messages_allocate_fail, (const char*)prcv->pcns->target.address);
+							qsmp_connection_close(prcv->pcns, qsmp_messages_allocate_fail, true);
+							break;
+						}
+					}
+				}
+				else
+				{
+					/* close the connection on memory allocation failure */
+					qsmp_log_write(qsmp_messages_allocate_fail, (const char*)prcv->pcns->target.address);
+					qsmp_connection_close(prcv->pcns, qsmp_messages_allocate_fail, true);
+					break;
+				}
+
+				if (mlen != 0)
+				{
+					pkt.pmessage = rbuf + QSMP_HEADER_SIZE;
+
+					if (pkt.flag == qsmp_flag_encrypted_message)
+					{
+						uint8_t* mstr;
+
+						slen = pkt.msglen + QSC_SOCKET_TERMINATOR_SIZE - QSMP_SIMPLEX_MACTAG_SIZE;
+						mstr = (uint8_t*)qsc_memutils_malloc(slen);
+
+						if (mstr != NULL)
+						{
+							qsc_memutils_clear(mstr, slen);
+
+							qerr = qsmp_decrypt_packet(prcv->pcns, mstr, &mlen, &pkt);
+
+							if (qerr == qsmp_error_none)
+							{
+								prcv->receive_callback(prcv->pcns, (char*)mstr, mlen);
+							}
+							else
+							{
+								/* close the connection on authentication failure */
+								qsmp_log_write(qsmp_messages_decryption_fail, (const char*)prcv->pcns->target.address);
+								qsmp_connection_close(prcv->pcns, qsmp_error_authentication_failure, true);
+								break;
+							}
+
+							qsc_memutils_alloc_free(mstr);
+						}
+						else
+						{
+							/* close the connection on memory allocation failure */
+							qsmp_log_write(qsmp_messages_allocate_fail, (const char*)prcv->pcns->target.address);
+							qsmp_connection_close(prcv->pcns, qsmp_messages_allocate_fail, true);
+							break;
 						}
 					}
 					else if (pkt.flag == qsmp_flag_connection_terminate)
@@ -149,6 +200,8 @@ static void server_receive_loop(server_receiver_state* prcv)
 						}
 					}
 				}
+
+				qsc_memutils_alloc_free(rbuf);
 			}
 		}
 		else
@@ -246,8 +299,8 @@ void qsmp_server_broadcast(const uint8_t* message, size_t msglen)
 	size_t clen;
 	size_t mlen;
 	qsc_mutex mtx;
-	qsmp_packet pkt = { 0 };
-	uint8_t msgstr[QSMP_MESSAGE_MAX] = { 0 };
+	qsmp_network_packet pkt = { 0 };
+	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0 };
 
 	clen = qsmp_connections_size();
 

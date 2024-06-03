@@ -156,6 +156,7 @@ bool qsmp_logger_write(const char* message)
 		qsc_timestamp_current_datetime(buf);
 		qsc_stringutils_concat_strings(buf, sizeof(buf), dlm);
 		blen = qsc_stringutils_concat_strings(buf, sizeof(buf), message);
+
 		mtx = qsc_async_mutex_lock_ex();
 		res = qsc_fileutils_write_line(m_log_path, buf, blen);
 		qsc_async_mutex_unlock_ex(mtx);

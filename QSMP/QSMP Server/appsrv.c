@@ -1,3 +1,21 @@
+
+/* 2024 Quantum Resistant Cryptographic Solutions Corporation
+ * All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Quantum Resistant Cryptographic Solutions Incorporated.
+ * The intellectual and technical concepts contained
+ * herein are proprietary to Quantum Resistant Cryptographic Solutions Incorporated
+ * and its suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Quantum Resistant Cryptographic Solutions Incorporated.
+ *
+ * Written by John G. Underhill
+ * Contact: develop@qrcs.ca
+ */
+
 #include "appsrv.h"
 #include "../QSMP/qsmpserver.h"
 #include "../../QSC/QSC/acp.h"
@@ -52,9 +70,9 @@ static void server_print_banner(void)
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("* QSMP: Server Example Project                    *");
 	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.2.0.0c (A2)                       *");
-	qsc_consoleutils_print_line("* Date:      June 6, 2023                         *");
-	qsc_consoleutils_print_line("* Contact:   develop@dfdef.com                    *");
+	qsc_consoleutils_print_line("* Release:   v1.3.0.0a (A3)                       *");
+	qsc_consoleutils_print_line("* Date:      March 29, 2024                       *");
+	qsc_consoleutils_print_line("* Contact:   develop@qscs.ca                      *");
 	qsc_consoleutils_print_line("***************************************************");
 	qsc_consoleutils_print_line("");
 }
@@ -206,8 +224,8 @@ static void server_send_echo(qsmp_connection_state* cns, const char* message, si
 
 	char mstr[QSMP_CONNECTION_MTU] = "ECHO: ";
 	char rstr[QSMP_CONNECTION_MTU] = "RCVD #";
-	uint8_t pmsg[QSMP_MESSAGE_MAX] = { 0 };
-	qsmp_packet pkt = { 0 };
+	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0 };
+	qsmp_network_packet pkt = { 0 };
 	qsc_mutex mtx;
 	size_t mlen;
 

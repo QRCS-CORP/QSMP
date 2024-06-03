@@ -1,26 +1,36 @@
-/* 2023 Quantum Secure Cryptographic Solutions QSCS Corp. (QSCS.ca)
-* All Rights Reserved.
-*
-* NOTICE:  All information contained herein is, and remains
-* the property of the QSCS Corporation.
-* The intellectual and technical concepts contained
-* herein are proprietary to the QSCS Corporation
-* and its suppliers and may be covered by U.S. and Foreign Patents,
-* patents in process, and are protected by trade secret or copyright law.
-* Dissemination of this information or reproduction of this material
-* is strictly forbidden unless prior written permission is obtained
-* from the QSCS Corporation.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-*/
+
+/* 2024 Quantum Resistant Cryptographic Solutions Corporation
+ * All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Quantum Resistant Cryptographic Solutions Incorporated.
+ * The intellectual and technical concepts contained
+ * herein are proprietary to Quantum Resistant Cryptographic Solutions Incorporated
+ * and its suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Quantum Resistant Cryptographic Solutions Incorporated.
+ *
+ * Written by John G. Underhill
+ * Contact: develop@qrcs.ca
+ */
 
 #ifndef QSMP_KEYCHAIN_H
 #define QSMP_KEYCHAIN_H
 
 #include "common.h"
 #include "qsmp.h"
+
+/**
+* \file keychain.h
+* \brief QSMP key-chain functions.
+* 
+* \author   John G. Underhill
+* \version  1.2a: 2022-05-01
+* \date     May 1, 2022
+* \contact: develop@qscs.ca
+*/
 
 #define QSMP_KEYCHAIN_SIZE (((QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE + QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE) * QSMP_ASYMMETRIC_KEYCHAIN_COUNT) + (2 * QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE) + sizeof(uint32_t))
 
