@@ -1,23 +1,44 @@
-
-/* 2024 Quantum Resistant Cryptographic Solutions Corporation
+/* 2025 Quantum Resistant Cryptographic Solutions Corporation
  * All Rights Reserved.
  *
- * NOTICE:  All information contained herein is, and remains
- * the property of Quantum Resistant Cryptographic Solutions Incorporated.
- * The intellectual and technical concepts contained
- * herein are proprietary to Quantum Resistant Cryptographic Solutions Incorporated
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Quantum Resistant Cryptographic Solutions Incorporated.
+ * NOTICE: This software and all accompanying materials are the exclusive 
+ * property of Quantum Resistant Cryptographic Solutions Corporation (QRCS).
+ * The intellectual and technical concepts contained within this implementation 
+ * are proprietary to QRCS and its authorized licensors and are protected under 
+ * applicable U.S. and international copyright, patent, and trade secret laws.
  *
- * Written by John G. Underhill
- * Contact: develop@qrcs.ca
+ * CRYPTOGRAPHIC STANDARDS:
+ * - This software includes implementations of cryptographic algorithms such as 
+ *   SHA3, AES, and others. These algorithms are public domain or standardized 
+ *   by organizations such as NIST and are NOT the property of QRCS.
+ * - However, all source code, optimizations, and implementations in this library 
+ *   are original works of QRCS and are protected under this license.
+ *
+ * RESTRICTIONS:
+ * - Redistribution, modification, or unauthorized distribution of this software, 
+ *   in whole or in part, is strictly prohibited.
+ * - This software is provided for non-commercial, educational, and research 
+ *   purposes only. Commercial use in any form is expressly forbidden.
+ * - Licensing and authorized distribution are solely at the discretion of QRCS.
+ * - Any use of this software implies acceptance of these restrictions.
+ *
+ * DISCLAIMER:
+ * This software is provided "as is," without warranty of any kind, express or 
+ * implied, including but not limited to warranties of merchantability or fitness 
+ * for a particular purpose. QRCS disclaims all liability for any direct, indirect, 
+ * incidental, or consequential damages resulting from the use or misuse of this software.
+ *
+ * FULL LICENSE:
+ * This software is subject to the **Quantum Resistant Cryptographic Solutions 
+ * Proprietary License (QRCS-PL)**. The complete license terms are included 
+ * in the LICENSE.txt file distributed with this software.
+ *
+ * Written by: John G. Underhill
+ * Contact: john.underhill@protonmail.com
  */
 
 #include "appsdr.h"
-#include "../QSMP/qsmpclient.h"
+#include "../QSMP/client.h"
 #include "../../QSC/QSC/acp.h"
 #include "../../QSC/QSC/async.h"
 #include "../../QSC/QSC/consoleutils.h"
@@ -25,9 +46,6 @@
 #include "../../QSC/QSC/folderutils.h"
 #include "../../QSC/QSC/memutils.h"
 #include "../../QSC/QSC/stringutils.h"
-
-static qsmp_asymmetric_cipher_keypair m_cprkeys;
-static qsmp_asymmetric_signature_keypair m_sigkeys;
 
 static void sender_print_prompt(void)
 {
@@ -77,13 +95,14 @@ static void sender_print_string(const char* message, size_t msglen)
 
 static void sender_print_banner(void)
 {
-	qsc_consoleutils_print_line("***************************************************");
-	qsc_consoleutils_print_line("* QSMP: Sender Example Project                    *");
-	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.3.0.0a (A3)                       *");
-	qsc_consoleutils_print_line("* Date:      March 29, 2024                       *");
-	qsc_consoleutils_print_line("* Contact:   develop@qscs.ca                      *");
-	qsc_consoleutils_print_line("***************************************************");
+	qsc_consoleutils_print_line("QSMP: Sender Example Project");
+	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol duplex-mode sender.");
+	qsc_consoleutils_print_line("Enter the IP address and the server public key to connect.");
+	qsc_consoleutils_print_line("Type 'qsmp quit' to close the connection and exit the application.");
+	qsc_consoleutils_print_line("");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0a (A3)");
+	qsc_consoleutils_print_line("Date:      December 08, 2024");
+	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
 	qsc_consoleutils_print_line("");
 }
 
@@ -121,14 +140,15 @@ static bool sender_prikey_exists(char fpath[QSC_SYSTEM_MAX_PATH], size_t pathlen
 	return res;
 }
 
-static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_signature_key* prik, qsmp_client_signature_key* rverk)
+static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_signature_key* sigk, qsmp_client_verification_key* verk)
 {
 	qsc_ipinfo_ipv4_address addv4t = { 0 };
-	uint8_t spub[QSMP_PUBKEY_STRING_SIZE] = { 0 };
 	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0 };
 	char sadd[QSC_IPINFO_IPV4_STRNLEN] = { 0 };
 	char dir[QSC_SYSTEM_MAX_PATH] = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
+	char* spub;
+	size_t elen;
 	size_t slen;
 	bool res;
 
@@ -162,23 +182,34 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 	/* get the path to the targets public key */
 	if (res == true)
 	{
-		sender_print_message("Enter the path of the public key:");
+		sender_print_message("Enter the path of the listener's public key:");
 		sender_print_message("");
 		slen = qsc_consoleutils_get_line(fpath, sizeof(fpath)) - 1;
 		res = false;
 
 		if (slen > 0)
 		{
-			uint8_t pskey[QSMP_PUBKEY_STRING_SIZE] = { 0 };
-
-			if (qsc_fileutils_exists(fpath) == true && qsc_stringutils_string_contains(fpath, QSMP_PUBKEY_EXTENSION) == true)
+			if (qsc_fileutils_exists(fpath) == true && 
+				qsc_stringutils_string_contains(fpath, QSMP_PUBKEY_EXTENSION) == true)
 			{
-				qsc_fileutils_copy_file_to_stream(fpath, (char*)pskey, sizeof(pskey));
-				res = qsmp_decode_public_key(rverk, (char*)pskey);
+				elen = qsmp_public_key_encoding_size();
+				spub = qsc_memutils_malloc(elen);
 
-				if (res == false)
+				if (spub != NULL)
 				{
-					sender_print_message("The public key is invalid.");
+					qsc_memutils_clear(spub, elen);
+					qsc_fileutils_copy_file_to_stream(fpath, spub, elen);
+					res = qsmp_public_key_decode(verk, spub, elen);
+					qsc_memutils_alloc_free(spub);
+
+					if (res == false)
+					{
+						sender_print_message("The public key is invalid.");
+					}
+				}
+				else
+				{
+					sender_print_message("The public could not be allocated.");
 				}
 			}
 			else
@@ -199,7 +230,7 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 
 			if (res == true)
 			{
-				qsmp_deserialize_signature_key(prik, spri);
+				qsmp_signature_key_deserialize(sigk, spri);
 				qsc_consoleutils_print_line("sender> The private-key has been loaded.");
 			}
 			else
@@ -224,32 +255,44 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 
 				if (res == true)
 				{
-					qsmp_client_signature_key pubk = { 0 };
+					qsmp_client_verification_key pubk = { 0 };
 
-					qsmp_generate_keypair(&pubk, prik, keyid);
-					/* note: copies the public verify-key and key attributes contained in the server key */
-					qsmp_encode_public_key((char*)spub, prik);
-					/* store the encoded public key */
-					res = qsc_fileutils_copy_stream_to_file(fpath, (char*)spub, sizeof(spub));
+					qsmp_generate_keypair(&pubk, sigk, keyid);
 
-					if (res == true)
+					elen = qsmp_public_key_encoding_size();
+					spub = qsc_memutils_malloc(elen);
+
+					if (spub != NULL)
 					{
-						qsc_consoleutils_print_safe("sender> The publickey has been saved to ");
-						qsc_consoleutils_print_line(fpath);
-						qsc_consoleutils_print_line("sender> Distribute the public-key to intended clients.");
-						qsc_consoleutils_print_line("sender> ");
+						qsc_memutils_clear(spub, elen);
+						qsmp_public_key_encode(spub, elen, &pubk);
+						/* store the encoded public key */
+						res = qsc_fileutils_copy_stream_to_file(fpath, spub, elen);
+						qsc_memutils_alloc_free(spub);
 
-						/* store the private key */
-						qsc_stringutils_clear_string(fpath);
-						qsc_stringutils_copy_string(fpath, sizeof(fpath), dir);
-						qsc_folderutils_append_delimiter(fpath);
-						qsc_stringutils_concat_strings(fpath, sizeof(fpath), QSMP_PRIKEY_NAME);
-						qsmp_serialize_signature_key(spri, prik);
-						res = qsc_fileutils_copy_stream_to_file(fpath, (char*)spri, sizeof(spri));
+						if (res == true)
+						{
+							qsc_consoleutils_print_safe("sender> The publickey has been saved to ");
+							qsc_consoleutils_print_line(fpath);
+							qsc_consoleutils_print_line("sender> Distribute the public-key to intended clients.");
+							qsc_consoleutils_print_line("sender> ");
+
+							/* store the private key */
+							qsc_stringutils_clear_string(fpath);
+							qsc_stringutils_copy_string(fpath, sizeof(fpath), dir);
+							qsc_folderutils_append_delimiter(fpath);
+							qsc_stringutils_concat_strings(fpath, sizeof(fpath), QSMP_PRIKEY_NAME);
+							qsmp_signature_key_serialize(spri, sigk);
+							res = qsc_fileutils_copy_stream_to_file(fpath, (char*)spri, sizeof(spri));
+						}
+						else
+						{
+							qsc_consoleutils_print_line("sender> Could not load the key-pair, aborting startup.");
+						}
 					}
 					else
 					{
-						qsc_consoleutils_print_line("sender> Could not load the key-pair, aborting startup.");
+						qsc_consoleutils_print_line("sender> Public key could not be allocated.");
 					}
 				}
 				else
@@ -263,11 +306,21 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 	return res;
 }
 
-static void sender_receive_callback(const qsmp_connection_state* cns, const char* pmsg, size_t msglen)
+static void sender_receive_callback(const qsmp_connection_state* cns, const uint8_t* pmsg, size_t msglen)
 {
-	qsc_consoleutils_print_safe("RECD: ");
-	sender_print_string(pmsg, msglen);
-	sender_print_prompt();
+	char* cmsg;
+
+	cmsg = qsc_memutils_malloc(msglen + sizeof(char));
+
+	if (cmsg != NULL)
+	{
+		qsc_memutils_clear(cmsg, msglen + sizeof(char));
+		qsc_memutils_copy(cmsg, pmsg, msglen);
+		qsc_consoleutils_print_safe("RECD: ");
+		sender_print_string(cmsg, msglen);
+		sender_print_prompt();
+		qsc_memutils_alloc_free(cmsg);
+	}
 }
 
 static void sender_send_loop(qsmp_connection_state* cns)
@@ -291,11 +344,13 @@ static void sender_send_loop(qsmp_connection_state* cns)
 		{
 			break;
 		}
+#if defined(QSMP_ASYMMETRIC_RATCHET)
 		else if (qsc_consoleutils_line_contains(sin, "qsmp asymmetric ratchet"))
 		{
 			qsmp_duplex_send_asymmetric_ratchet_request(cns);
 			qsc_memutils_clear((uint8_t*)sin, sizeof(sin));
 		}
+#endif
 		else if (qsc_consoleutils_line_contains(sin, "qsmp symmetric ratchet"))
 		{
 			qsmp_duplex_send_symmetric_ratchet_request(cns);
@@ -306,7 +361,7 @@ static void sender_send_loop(qsmp_connection_state* cns)
 			if (mlen > 0)
 			{
 				/* convert the packet to bytes */
-				qsmp_encrypt_packet(cns, &pkt, (const uint8_t*)sin, mlen);
+				qsmp_packet_encrypt(cns, &pkt, (const uint8_t*)sin, mlen);
 				qsc_memutils_clear((uint8_t*)sin, sizeof(sin));
 				mlen = qsmp_packet_to_stream(&pkt, msgstr);
 				qsc_socket_send(&cns->target, msgstr, mlen, qsc_socket_send_flag_none);
@@ -327,8 +382,8 @@ static void sender_send_loop(qsmp_connection_state* cns)
 
 int main(void)
 {
-	qsmp_server_signature_key prik = { 0 };
-	qsmp_client_signature_key rverk = { 0 };
+	qsmp_server_signature_key sigk = { 0 };
+	qsmp_client_verification_key verk = { 0 };
 	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	size_t ectr;
 	bool res;
@@ -338,11 +393,7 @@ int main(void)
 
 	while (ectr < 3)
 	{
-		res = sender_ipv4_dialogue(&addv4t, &prik , &rverk);
-				
-		/* store the signature keys for asymmetyric ratchet option */
-		qsc_memutils_copy(m_sigkeys.sigkey, prik.sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
-		qsc_memutils_copy(m_sigkeys.verkey, prik.verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+		res = sender_ipv4_dialogue(&addv4t, &sigk, &verk);
 
 		if (res == true)
 		{
@@ -360,7 +411,7 @@ int main(void)
 	{
 		qsmp_errors err;
 
-		err = qsmp_client_duplex_connect_ipv4(&prik, &rverk , &addv4t, QSMP_CLIENT_PORT, &sender_send_loop, &sender_receive_callback);
+		err = qsmp_client_duplex_connect_ipv4(&sigk, &verk, &addv4t, QSMP_CLIENT_PORT, &sender_send_loop, &sender_receive_callback);
 
 		if (err != qsmp_error_none)
 		{
@@ -371,7 +422,7 @@ int main(void)
 	{
 		qsc_consoleutils_print_line("Invalid input, exiting the application.");
 	}
-
+	
 	qsc_consoleutils_print_line("The application has exited. Press any key to close..");
 	qsc_consoleutils_get_wait();
 

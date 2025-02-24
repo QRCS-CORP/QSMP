@@ -1,0 +1,100 @@
+\doxysection{client.\+h}
+\hypertarget{client_8h_source}{}\label{client_8h_source}\index{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSMP/QSMP/client.h@{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSMP/QSMP/client.h}}
+\mbox{\hyperlink{client_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ 2025\ Quantum\ Resistant\ Cryptographic\ Solutions\ Corporation}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ All\ Rights\ Reserved.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ NOTICE:\ This\ software\ and\ all\ accompanying\ materials\ are\ the\ exclusive\ }}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ property\ of\ Quantum\ Resistant\ Cryptographic\ Solutions\ Corporation\ (QRCS).}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ The\ intellectual\ and\ technical\ concepts\ contained\ within\ this\ implementation\ }}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ are\ proprietary\ to\ QRCS\ and\ its\ authorized\ licensors\ and\ are\ protected\ under\ }}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ applicable\ U.S.\ and\ international\ copyright,\ patent,\ and\ trade\ secret\ laws.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ CRYPTOGRAPHIC\ STANDARDS:}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ -\/\ This\ software\ includes\ implementations\ of\ cryptographic\ algorithms\ such\ as\ }}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ SHA3,\ AES,\ and\ others.\ These\ algorithms\ are\ public\ domain\ or\ standardized\ }}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ by\ organizations\ such\ as\ NIST\ and\ are\ NOT\ the\ property\ of\ QRCS.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ -\/\ However,\ all\ source\ code,\ optimizations,\ and\ implementations\ in\ this\ library\ }}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *\ \ \ are\ original\ works\ of\ QRCS\ and\ are\ protected\ under\ this\ license.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ RESTRICTIONS:}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ -\/\ Redistribution,\ modification,\ or\ unauthorized\ distribution\ of\ this\ software,\ }}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ \ \ in\ whole\ or\ in\ part,\ is\ strictly\ prohibited.}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ -\/\ This\ software\ is\ provided\ for\ non-\/commercial,\ educational,\ and\ research\ }}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ \ \ purposes\ only.\ Commercial\ use\ in\ any\ form\ is\ expressly\ forbidden.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ -\/\ Licensing\ and\ authorized\ distribution\ are\ solely\ at\ the\ discretion\ of\ QRCS.}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ -\/\ Any\ use\ of\ this\ software\ implies\ acceptance\ of\ these\ restrictions.}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ *\ DISCLAIMER:}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ This\ software\ is\ provided\ "{}as\ is,"{}\ without\ warranty\ of\ any\ kind,\ express\ or\ }}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ implied,\ including\ but\ not\ limited\ to\ warranties\ of\ merchantability\ or\ fitness\ }}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ for\ a\ particular\ purpose.\ QRCS\ disclaims\ all\ liability\ for\ any\ direct,\ indirect,\ }}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ incidental,\ or\ consequential\ damages\ resulting\ from\ the\ use\ or\ misuse\ of\ this\ software.}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *\ FULL\ LICENSE:}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *\ This\ software\ is\ subject\ to\ the\ **Quantum\ Resistant\ Cryptographic\ Solutions\ }}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ Proprietary\ License\ (QRCS-\/PL)**.\ The\ complete\ license\ terms\ are\ included\ }}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ in\ the\ LICENSE.txt\ file\ distributed\ with\ this\ software.}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ Written\ by:\ John\ G.\ Underhill}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *\ Contact:\ john.underhill@protonmail.com}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#ifndef\ QSMP\_CLIENT\_H}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#define\ QSMP\_CLIENT\_H}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{qsmp_8h}{qsmp.h}}"{}}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#include\ "{}../../QSC/QSC/rcs.h"{}}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#include\ "{}../../QSC/QSC/socketclient.h"{}}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{preprocessor}{\#if\ defined(QSMP\_ASYMMETRIC\_RATCHET)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00108\ QSMP\_EXPORT\_API\ \textcolor{keywordtype}{bool}\ qsmp\_duplex\_send\_asymmetric\_ratchet\_request(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*\ cns);}
+\DoxyCodeLine{00109\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00123\ QSMP\_EXPORT\_API\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{client_8h_a3e33326ae871a40836648db31902875d}{qsmp\_duplex\_send\_symmetric\_ratchet\_request}}(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*\ cns);}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00143\ QSMP\_EXPORT\_API\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{client_8h_ac02e20e6f3a5687fcce9c86cb5e050c6}{qsmp\_client\_duplex\_connect\_ipv4}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__server__signature__key}{qsmp\_server\_signature\_key}}*\ kset,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__client__verification__key}{qsmp\_client\_verification\_key}}*\ rverkey,\ }
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keyword}{const}\ qsc\_ipinfo\_ipv4\_address*\ address,\ uint16\_t\ port,\ }
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keywordtype}{void}\ (*send\_func)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*),\ }
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordtype}{void}\ (*receive\_callback)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*,\ \textcolor{keyword}{const}\ uint8\_t*,\ \textcolor{keywordtype}{size\_t}));}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00165\ QSMP\_EXPORT\_API\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{client_8h_a6636b873b7aa9b74a39e809eafc0b9a7}{qsmp\_client\_duplex\_connect\_ipv6}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__server__signature__key}{qsmp\_server\_signature\_key}}*\ kset,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__client__verification__key}{qsmp\_client\_verification\_key}}*\ rverkey,}
+\DoxyCodeLine{00166\ \ \ \ \ \textcolor{keyword}{const}\ qsc\_ipinfo\_ipv6\_address*\ address,\ uint16\_t\ port,}
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{keywordtype}{void}\ (*send\_func)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*),}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{void}\ (*receive\_callback)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*,\ \textcolor{keyword}{const}\ uint8\_t*,\ \textcolor{keywordtype}{size\_t}));}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00187\ QSMP\_EXPORT\_API\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{client_8h_ab5989e03fa79c662c5b7a9feff38d650}{qsmp\_client\_simplex\_connect\_ipv4}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__client__verification__key}{qsmp\_client\_verification\_key}}*\ pubk,\ }
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{keyword}{const}\ qsc\_ipinfo\_ipv4\_address*\ address,\ uint16\_t\ port,\ }
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{keywordtype}{void}\ (*send\_func)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*),\ }
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keywordtype}{void}\ (*receive\_callback)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*,\ \textcolor{keyword}{const}\ uint8\_t*,\ \textcolor{keywordtype}{size\_t}));}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00208\ QSMP\_EXPORT\_API\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{client_8h_ad1dceb27d9321c795569dcc5b114f10a}{qsmp\_client\_simplex\_connect\_ipv6}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__client__verification__key}{qsmp\_client\_verification\_key}}*\ pubk,\ }
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keyword}{const}\ qsc\_ipinfo\_ipv6\_address*\ address,\ uint16\_t\ port,\ }
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordtype}{void}\ (*send\_func)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*),\ }
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{keywordtype}{void}\ (*receive\_callback)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*,\ \textcolor{keyword}{const}\ uint8\_t*,\ \textcolor{keywordtype}{size\_t}));}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00228\ QSMP\_EXPORT\_API\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{client_8h_ac451d696879717d76829599a9e1cb98e}{qsmp\_client\_simplex\_listen\_ipv4}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__server__signature__key}{qsmp\_server\_signature\_key}}*\ kset,\ }
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordtype}{void}\ (*send\_func)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*),\ }
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keywordtype}{void}\ (*receive\_callback)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*,\ \textcolor{keyword}{const}\ uint8\_t*,\ \textcolor{keywordtype}{size\_t}));}
+\DoxyCodeLine{00231\ }
+\DoxyCodeLine{00246\ QSMP\_EXPORT\_API\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{client_8h_a443dbe43db63e33f4dd514fa5d063e52}{qsmp\_client\_simplex\_listen\_ipv6}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__server__signature__key}{qsmp\_server\_signature\_key}}*\ kset,\ }
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{keywordtype}{void}\ (*send\_func)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*),\ }
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{keywordtype}{void}\ (*receive\_callback)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*,\ \textcolor{keyword}{const}\ uint8\_t*,\ \textcolor{keywordtype}{size\_t}));}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00266\ QSMP\_EXPORT\_API\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{client_8h_a06d2e98886f6df2779ba132ab1f6516b}{qsmp\_client\_duplex\_listen\_ipv4}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__server__signature__key}{qsmp\_server\_signature\_key}}*\ kset,\ }
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{keywordtype}{void}\ (*send\_func)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*),}
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{keywordtype}{void}\ (*receive\_callback)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*,\ \textcolor{keyword}{const}\ uint8\_t*,\ \textcolor{keywordtype}{size\_t}),}
+\DoxyCodeLine{00269\ \ \ \ \ \textcolor{keywordtype}{bool}\ (*key\_query)(uint8\_t*\ rvkey,\ \textcolor{keyword}{const}\ uint8\_t*\ pkid));}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00287\ QSMP\_EXPORT\_API\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{client_8h_a4234204f2e435b03bc24058eb3e0967b}{qsmp\_client\_duplex\_listen\_ipv6}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structqsmp__server__signature__key}{qsmp\_server\_signature\_key}}*\ kset,\ }
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{keywordtype}{void}\ (*send\_func)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*),}
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordtype}{void}\ (*receive\_callback)(\mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*,\ \textcolor{keyword}{const}\ uint8\_t*,\ \textcolor{keywordtype}{size\_t}),}
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keywordtype}{bool}\ (*key\_query)(uint8\_t*\ rvkey,\ \textcolor{keyword}{const}\ uint8\_t*\ pkid));}
+\DoxyCodeLine{00291\ }
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

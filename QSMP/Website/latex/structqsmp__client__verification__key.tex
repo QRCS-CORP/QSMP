@@ -1,0 +1,57 @@
+\doxysection{qsmp\+\_\+client\+\_\+verification\+\_\+key Struct Reference}
+\hypertarget{structqsmp__client__verification__key}{}\label{structqsmp__client__verification__key}\index{qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}}
+
+
+The QSMP client key structure.  
+
+
+
+
+{\ttfamily \#include $<$qsmp.\+h$>$}
+
+\doxysubsubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{structqsmp__client__verification__key_a6d579765908169e6fcb1bdc8f105132d}{expiration}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structqsmp__client__verification__key_a3b3c1d2d94245d824ed676dc79773f10}{config}} \mbox{[}\mbox{\hyperlink{qsmp_8h_a9c1beabe139465ba6eacc5f0b8506722}{QSMP\+\_\+\+CONFIG\+\_\+\+SIZE}}\mbox{]}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structqsmp__client__verification__key_ac8077425086229f5be2d26f80bd49691}{keyid}} \mbox{[}\mbox{\hyperlink{qsmp_8h_ae25f569a2a4da5d4a921600354ed795c}{QSMP\+\_\+\+KEYID\+\_\+\+SIZE}}\mbox{]}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structqsmp__client__verification__key_ac489678efbed6cefebe6d835d2053415}{verkey}} \mbox{[}\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\+\_\+\+ASYMMETRIC\+\_\+\+VERIFY\+\_\+\+KEY\+\_\+\+SIZE}}\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The QSMP client key structure. 
+
+\doxysubsection{Field Documentation}
+\Hypertarget{structqsmp__client__verification__key_a3b3c1d2d94245d824ed676dc79773f10}\index{qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}!config@{config}}
+\index{config@{config}!qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}}
+\doxysubsubsection{\texorpdfstring{config}{config}}
+{\footnotesize\ttfamily \label{structqsmp__client__verification__key_a3b3c1d2d94245d824ed676dc79773f10} 
+uint8\+\_\+t config\mbox{[}\mbox{\hyperlink{qsmp_8h_a9c1beabe139465ba6eacc5f0b8506722}{QSMP\+\_\+\+CONFIG\+\_\+\+SIZE}}\mbox{]}}
+
+The primitive configuration string \Hypertarget{structqsmp__client__verification__key_a6d579765908169e6fcb1bdc8f105132d}\index{qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}!expiration@{expiration}}
+\index{expiration@{expiration}!qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}}
+\doxysubsubsection{\texorpdfstring{expiration}{expiration}}
+{\footnotesize\ttfamily \label{structqsmp__client__verification__key_a6d579765908169e6fcb1bdc8f105132d} 
+uint64\+\_\+t expiration}
+
+The expiration time, in seconds from epoch \Hypertarget{structqsmp__client__verification__key_ac8077425086229f5be2d26f80bd49691}\index{qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}!keyid@{keyid}}
+\index{keyid@{keyid}!qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}}
+\doxysubsubsection{\texorpdfstring{keyid}{keyid}}
+{\footnotesize\ttfamily \label{structqsmp__client__verification__key_ac8077425086229f5be2d26f80bd49691} 
+uint8\+\_\+t keyid\mbox{[}\mbox{\hyperlink{qsmp_8h_ae25f569a2a4da5d4a921600354ed795c}{QSMP\+\_\+\+KEYID\+\_\+\+SIZE}}\mbox{]}}
+
+The key identity string \Hypertarget{structqsmp__client__verification__key_ac489678efbed6cefebe6d835d2053415}\index{qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}!verkey@{verkey}}
+\index{verkey@{verkey}!qsmp\_client\_verification\_key@{qsmp\_client\_verification\_key}}
+\doxysubsubsection{\texorpdfstring{verkey}{verkey}}
+{\footnotesize\ttfamily \label{structqsmp__client__verification__key_ac489678efbed6cefebe6d835d2053415} 
+uint8\+\_\+t verkey\mbox{[}\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\+\_\+\+ASYMMETRIC\+\_\+\+VERIFY\+\_\+\+KEY\+\_\+\+SIZE}}\mbox{]}}
+
+The asymmetric signatures verification-\/key 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/stepp/\+Documents/\+Visual Studio 2022/\+Projects/\+C/\+QSMP/\+QSMP/\mbox{\hyperlink{qsmp_8h}{qsmp.\+h}}\end{DoxyCompactItemize}

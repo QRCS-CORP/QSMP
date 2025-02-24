@@ -17,7 +17,7 @@
  */
 
 #include "appclt.h"
-#include "../QSMP/qsmpclient.h"
+#include "../QSMP/client.h"
 #include "../../QSC/QSC/async.h"
 #include "../../QSC/QSC/consoleutils.h"
 #include "../../QSC/QSC/fileutils.h"
@@ -73,22 +73,24 @@ static void client_print_string(const char* message, size_t msglen)
 
 static void client_print_banner(void)
 {
-	qsc_consoleutils_print_line("***************************************************");
-	qsc_consoleutils_print_line("* QSMP: Client Example Project                    *");
-	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.3.0.0a (A3)                       *");
-	qsc_consoleutils_print_line("* Date:      March 29, 2024                       *");
-	qsc_consoleutils_print_line("* Contact:   develop@qscs.ca                      *");
-	qsc_consoleutils_print_line("***************************************************");
+	qsc_consoleutils_print_line("QSMP: Client Example Project");
+	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol simplex-mode client.");
+	qsc_consoleutils_print_line("Enter the IP address and the server public key to connect.");
+	qsc_consoleutils_print_line("Type 'qsmp quit' to close the connection and exit the application.");
+	qsc_consoleutils_print_line("");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0a (A3)");
+	qsc_consoleutils_print_line("Date:      December 08, 2024");
+	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
 	qsc_consoleutils_print_line("");
 }
 
-static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_signature_key* ckey)
+static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_verification_key* ckey)
 {
-	uint8_t pskey[QSMP_PUBKEY_STRING_SIZE];
-	char fpath[QSC_SYSTEM_MAX_PATH + 1] = { 0 };
-	char sadd[QSC_IPINFO_IPV4_STRNLEN] = { 0 };
+	uint8_t* pkey;
+	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
+	char sadd[QSC_SYSTEM_MAX_PATH] = { 0 };
 	qsc_ipinfo_ipv4_address addv4t = { 0 };
+	size_t elen;
 	size_t slen;
 	bool res;
 
@@ -129,8 +131,20 @@ static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_s
 		{
 			if (qsc_fileutils_exists(fpath) == true && qsc_stringutils_string_contains(fpath, QSMP_PUBKEY_NAME) == true)
 			{
-				qsc_fileutils_copy_file_to_stream(fpath, (char*)pskey, sizeof(pskey));
-				res = qsmp_decode_public_key(ckey, (char*)pskey);
+				elen = qsmp_public_key_encoding_size();
+				pkey = qsc_memutils_malloc(elen);
+
+				if (pkey != NULL)
+				{
+					qsc_memutils_clear(pkey, elen);
+					qsc_fileutils_copy_file_to_stream(fpath, (char*)pkey, elen);
+					res = qsmp_public_key_decode(ckey, (char*)pkey, elen);
+					qsc_memutils_alloc_free(pkey);
+				}
+				else
+				{
+					res = false;
+				}
 
 				if (res == false)
 				{
@@ -148,10 +162,20 @@ static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_s
 	return res;
 }
 
-static void client_receive_callback(const qsmp_connection_state* cns, const char* pmsg, size_t msglen)
+static void client_receive_callback(const qsmp_connection_state* cns, const uint8_t* pmsg, size_t msglen)
 {
-	client_print_string(pmsg, msglen);
-	client_print_prompt();
+	char* cmsg;
+	
+	cmsg = qsc_memutils_malloc(msglen + sizeof(char));
+
+	if (cmsg != NULL)
+	{
+		qsc_memutils_clear(cmsg, msglen + sizeof(char));
+		qsc_memutils_copy(cmsg, pmsg, msglen);
+		client_print_string(cmsg, msglen);
+		client_print_prompt();
+		qsc_memutils_alloc_free(cmsg);
+	}
 }
 
 static void client_send_loop(qsmp_connection_state* cns)
@@ -180,7 +204,7 @@ static void client_send_loop(qsmp_connection_state* cns)
 			{
 				/* convert the packet to bytes */
 				pkt.pmessage = pmsg;
-				qsmp_encrypt_packet(cns, &pkt, (const uint8_t*)sin, mlen);
+				qsmp_packet_encrypt(cns, &pkt, (const uint8_t*)sin, mlen);
 				qsc_memutils_clear((uint8_t*)sin, sizeof(sin));
 				mlen = qsmp_packet_to_stream(&pkt, msgstr);
 				qsc_socket_send(&cns->target, msgstr, mlen, qsc_socket_send_flag_none);
@@ -199,7 +223,7 @@ static void client_send_loop(qsmp_connection_state* cns)
 
 int main(void)
 {
-	qsmp_client_signature_key ckey = { 0 };
+	qsmp_client_verification_key ckey = { 0 };
 	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	size_t ectr;
 	bool res;

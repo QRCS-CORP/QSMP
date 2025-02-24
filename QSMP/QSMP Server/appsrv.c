@@ -17,7 +17,7 @@
  */
 
 #include "appsrv.h"
-#include "../QSMP/qsmpserver.h"
+#include "../QSMP/server.h"
 #include "../../QSC/QSC/acp.h"
 #include "../../QSC/QSC/async.h"
 #include "../../QSC/QSC/consoleutils.h"
@@ -67,13 +67,11 @@ static void server_print_error(qsmp_errors error)
 
 static void server_print_banner(void)
 {
-	qsc_consoleutils_print_line("***************************************************");
-	qsc_consoleutils_print_line("* QSMP: Server Example Project                    *");
-	qsc_consoleutils_print_line("*                                                 *");
-	qsc_consoleutils_print_line("* Release:   v1.3.0.0a (A3)                       *");
-	qsc_consoleutils_print_line("* Date:      March 29, 2024                       *");
-	qsc_consoleutils_print_line("* Contact:   develop@qscs.ca                      *");
-	qsc_consoleutils_print_line("***************************************************");
+	qsc_consoleutils_print_line("QSMP: Server Example Project");
+	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol simplex-mode server.");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0a (A3)");
+	qsc_consoleutils_print_line("Date:      December 08, 2024");
+	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
 	qsc_consoleutils_print_line("");
 }
 
@@ -131,9 +129,33 @@ static bool server_pubkey_exists(char fpath[QSC_SYSTEM_MAX_PATH], size_t pathlen
 	return res;
 }
 
-static bool server_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_signature_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
+static void server_certificate_print(const qsmp_client_verification_key* pubk)
 {
-	uint8_t spub[QSMP_PUBKEY_STRING_SIZE] = { 0 };
+	assert(pubk != NULL);
+
+	char* penk;
+	size_t elen;
+	size_t slen;
+
+	elen = qsmp_public_key_encoding_size();
+	penk = qsc_memutils_malloc(elen);
+
+	if (penk != NULL)
+	{
+		slen = qsmp_public_key_encode(penk, elen, pubk);
+
+		if (slen == elen)
+		{
+			qsc_consoleutils_print_safe(penk);
+			qsc_consoleutils_print_line("");
+		}
+
+		qsc_memutils_alloc_free(penk);
+	}
+}
+
+static bool server_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_verification_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
+{
 	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0 };
 	char dir[QSC_SYSTEM_MAX_PATH] = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
@@ -152,7 +174,7 @@ static bool server_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_sig
 
 			if (res == true)
 			{
-				qsmp_deserialize_signature_key(prik, spri);
+				qsmp_signature_key_deserialize(prik, spri);
 				qsc_memutils_copy(keyid, prik->keyid, QSMP_KEYID_SIZE);
 				qsc_memutils_copy(pubk->config, prik->config, QSMP_CONFIG_SIZE);
 				qsc_memutils_copy(pubk->keyid, prik->keyid, QSMP_KEYID_SIZE);
@@ -185,9 +207,25 @@ static bool server_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_sig
 
 			if (res == true)
 			{
+				char* spub;
+				size_t elen;
+
 				qsmp_generate_keypair(pubk, prik, keyid);
-				qsmp_encode_public_key((char*)spub, prik);
-				res = qsc_fileutils_copy_stream_to_file(fpath, (char*)spub, sizeof(spub));
+
+				elen = qsmp_public_key_encoding_size();
+				spub = qsc_memutils_malloc(elen);
+
+				if (spub != NULL)
+				{
+					qsc_memutils_clear(spub, elen);
+					qsmp_public_key_encode(spub, elen, pubk);
+					res = qsc_fileutils_copy_stream_to_file(fpath, spub, elen);
+					qsc_memutils_alloc_free(spub);
+				}
+				else
+				{
+					res = false;
+				}
 
 				if (res == true)
 				{
@@ -200,7 +238,7 @@ static bool server_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_sig
 					qsc_stringutils_copy_string(fpath, sizeof(fpath), dir);
 					qsc_folderutils_append_delimiter(fpath);
 					qsc_stringutils_concat_strings(fpath, sizeof(fpath), QSMP_PRIKEY_NAME);
-					qsmp_serialize_signature_key(spri, prik);
+					qsmp_signature_key_serialize(spri, prik);
 					qsc_fileutils_copy_stream_to_file(fpath, (char*)spri, sizeof(spri));
 				}
 				else
@@ -242,13 +280,24 @@ static void server_send_echo(qsmp_connection_state* cns, const char* message, si
 
 		mlen = qsc_stringutils_concat_strings(mstr, sizeof(mstr), message);
 		pkt.pmessage = pmsg;
-		qsmp_encrypt_packet(cns, &pkt, (uint8_t*)mstr, mlen);
+		qsmp_packet_encrypt(cns, &pkt, (uint8_t*)mstr, mlen);
 		mlen = qsmp_packet_to_stream(&pkt, mstr);
 		qsc_socket_send(&cns->target, mstr, mlen, qsc_socket_send_flag_none);
 	}
 }
 
-static void server_receive_callback(qsmp_connection_state* cns, const char* message, size_t msglen)
+static void server_disconnect_callback(qsmp_connection_state* cns)
+{
+	qsc_mutex mtx;
+
+	mtx = qsc_async_mutex_lock_ex();
+	server_print_prompt();
+	qsc_consoleutils_print_safe("The server has disconnected from host: ");
+	qsc_consoleutils_print_line(cns->target.address);
+	qsc_async_mutex_unlock_ex(mtx);
+}
+
+static void server_receive_callback(qsmp_connection_state* cns, const uint8_t* message, size_t msglen)
 {
 	/* Envelope data in an application header, in a request->response model.
 	   Parse that header here, process requests from the client, and transmit the response. */
@@ -259,18 +308,19 @@ static void server_receive_callback(qsmp_connection_state* cns, const char* mess
 int main(void)
 {
 	qsmp_server_signature_key prik = { 0 };
-	qsmp_client_signature_key rverk = { 0 };
+	qsmp_client_verification_key verk = { 0 };
 	qsc_socket source = { 0 };
-
 	uint8_t kid[QSMP_KEYID_SIZE] = { 0 };
 	qsmp_errors qerr;
 
+	qsmp_certificate_encoding_test();
+
 	server_print_banner();
 
-	if (server_key_dialogue(&prik, &rverk, kid) == true)
+	if (server_key_dialogue(&prik, &verk, kid) == true)
 	{
 		server_print_message("Waiting for a connection...");
-		qerr = qsmp_server_start_ipv4(&source , &prik, &server_receive_callback);
+		qerr = qsmp_server_start_ipv4(&source, &prik, &server_receive_callback, &server_disconnect_callback);
 
 		if (qerr != qsmp_error_none)
 		{

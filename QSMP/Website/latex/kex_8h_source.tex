@@ -1,0 +1,112 @@
+\doxysection{kex.\+h}
+\hypertarget{kex_8h_source}{}\label{kex_8h_source}\index{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSMP/QSMP/kex.h@{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSMP/QSMP/kex.h}}
+\mbox{\hyperlink{kex_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ 2025\ Quantum\ Resistant\ Cryptographic\ Solutions\ Corporation}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ All\ Rights\ Reserved.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ NOTICE:\ This\ software\ and\ all\ accompanying\ materials\ are\ the\ exclusive\ }}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ property\ of\ Quantum\ Resistant\ Cryptographic\ Solutions\ Corporation\ (QRCS).}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ The\ intellectual\ and\ technical\ concepts\ contained\ within\ this\ implementation\ }}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ are\ proprietary\ to\ QRCS\ and\ its\ authorized\ licensors\ and\ are\ protected\ under\ }}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ applicable\ U.S.\ and\ international\ copyright,\ patent,\ and\ trade\ secret\ laws.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ CRYPTOGRAPHIC\ STANDARDS:}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ -\/\ This\ software\ includes\ implementations\ of\ cryptographic\ algorithms\ such\ as\ }}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ SHA3,\ AES,\ and\ others.\ These\ algorithms\ are\ public\ domain\ or\ standardized\ }}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ by\ organizations\ such\ as\ NIST\ and\ are\ NOT\ the\ property\ of\ QRCS.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ -\/\ However,\ all\ source\ code,\ optimizations,\ and\ implementations\ in\ this\ library\ }}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *\ \ \ are\ original\ works\ of\ QRCS\ and\ are\ protected\ under\ this\ license.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ RESTRICTIONS:}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ -\/\ Redistribution,\ modification,\ or\ unauthorized\ distribution\ of\ this\ software,\ }}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ \ \ in\ whole\ or\ in\ part,\ is\ strictly\ prohibited.}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ -\/\ This\ software\ is\ provided\ for\ non-\/commercial,\ educational,\ and\ research\ }}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ \ \ purposes\ only.\ Commercial\ use\ in\ any\ form\ is\ expressly\ forbidden.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ -\/\ Licensing\ and\ authorized\ distribution\ are\ solely\ at\ the\ discretion\ of\ QRCS.}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ -\/\ Any\ use\ of\ this\ software\ implies\ acceptance\ of\ these\ restrictions.}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ *\ DISCLAIMER:}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ This\ software\ is\ provided\ "{}as\ is,"{}\ without\ warranty\ of\ any\ kind,\ express\ or\ }}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ implied,\ including\ but\ not\ limited\ to\ warranties\ of\ merchantability\ or\ fitness\ }}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ for\ a\ particular\ purpose.\ QRCS\ disclaims\ all\ liability\ for\ any\ direct,\ indirect,\ }}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ incidental,\ or\ consequential\ damages\ resulting\ from\ the\ use\ or\ misuse\ of\ this\ software.}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *\ FULL\ LICENSE:}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *\ This\ software\ is\ subject\ to\ the\ **Quantum\ Resistant\ Cryptographic\ Solutions\ }}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ Proprietary\ License\ (QRCS-\/PL)**.\ The\ complete\ license\ terms\ are\ included\ }}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ in\ the\ LICENSE.txt\ file\ distributed\ with\ this\ software.}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ Written\ by:\ John\ G.\ Underhill}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *\ Contact:\ john.underhill@protonmail.com}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#ifndef\ QSMP\_KEX\_H}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#define\ QSMP\_KEX\_H}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#include\ "{}common.h"{}}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{qsmp_8h}{../QSMP/qsmp.h}}"{}}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00091\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structqsmp__kex__duplex__client__state}{qsmp\_kex\_duplex\_client\_state}}}
+\DoxyCodeLine{00092\ \{}
+\DoxyCodeLine{00093\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_ac8077425086229f5be2d26f80bd49691}{keyid}}[\mbox{\hyperlink{qsmp_8h_ae25f569a2a4da5d4a921600354ed795c}{QSMP\_KEYID\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00094\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_a811948d89aa672ea6f77bc9f7663e79f}{schash}}[\mbox{\hyperlink{qsmp_8h_ae715f1745eecc132c2e1b56f10d1daac}{QSMP\_DUPLEX\_SCHASH\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00095\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_a88c92a63a5992e12e963a2990c3f5ac2}{prikey}}[\mbox{\hyperlink{qsmp_8h_a388514199c28be974814ce1794ed93d3}{QSMP\_ASYMMETRIC\_PRIVATE\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00096\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_af87a098f98cc71ee6f2916558cab711c}{pubkey}}[\mbox{\hyperlink{qsmp_8h_a4ebcb317b4ee33f1a4e6c25a92fe9a85}{QSMP\_ASYMMETRIC\_PUBLIC\_KEY\_SIZE}}];\ \ \ \ \ \ \ }
+\DoxyCodeLine{00097\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_a82bc4e944434b36500fce2ce45636f37}{rverkey}}[\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\_ASYMMETRIC\_VERIFY\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00098\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_a98a65b947b83be4cc4a4550e3913a5c1}{sigkey}}[\mbox{\hyperlink{qsmp_8h_a827d6feadce7550f8436788c84d858a1}{QSMP\_ASYMMETRIC\_SIGNING\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00099\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_afc16addf9b361042bc09f24ac0263661}{ssec}}[\mbox{\hyperlink{qsmp_8h_a36806d6c03df11439163d7c5d4f60831}{QSMP\_SECRET\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00100\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_ac489678efbed6cefebe6d835d2053415}{verkey}}[\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\_ASYMMETRIC\_VERIFY\_KEY\_SIZE}}];\ \ \ \ \ \ \ }
+\DoxyCodeLine{00101\ \ \ \ \ uint64\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state_a6d579765908169e6fcb1bdc8f105132d}{expiration}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00102\ \}\ \mbox{\hyperlink{structqsmp__kex__duplex__client__state}{qsmp\_kex\_duplex\_client\_state}};}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00114\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structqsmp__kex__duplex__server__state}{qsmp\_kex\_duplex\_server\_state}}}
+\DoxyCodeLine{00115\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state_ac8077425086229f5be2d26f80bd49691}{keyid}}[\mbox{\hyperlink{qsmp_8h_ae25f569a2a4da5d4a921600354ed795c}{QSMP\_KEYID\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00117\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state_a811948d89aa672ea6f77bc9f7663e79f}{schash}}[\mbox{\hyperlink{qsmp_8h_ae715f1745eecc132c2e1b56f10d1daac}{QSMP\_DUPLEX\_SCHASH\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00118\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state_a88c92a63a5992e12e963a2990c3f5ac2}{prikey}}[\mbox{\hyperlink{qsmp_8h_a388514199c28be974814ce1794ed93d3}{QSMP\_ASYMMETRIC\_PRIVATE\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00119\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state_af87a098f98cc71ee6f2916558cab711c}{pubkey}}[\mbox{\hyperlink{qsmp_8h_a4ebcb317b4ee33f1a4e6c25a92fe9a85}{QSMP\_ASYMMETRIC\_PUBLIC\_KEY\_SIZE}}];\ \ \ \ \ \ \ }
+\DoxyCodeLine{00120\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state_a82bc4e944434b36500fce2ce45636f37}{rverkey}}[\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\_ASYMMETRIC\_VERIFY\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00121\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state_a98a65b947b83be4cc4a4550e3913a5c1}{sigkey}}[\mbox{\hyperlink{qsmp_8h_a827d6feadce7550f8436788c84d858a1}{QSMP\_ASYMMETRIC\_SIGNING\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00122\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state_ac489678efbed6cefebe6d835d2053415}{verkey}}[\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\_ASYMMETRIC\_VERIFY\_KEY\_SIZE}}];\ \ \ \ \ \ \ }
+\DoxyCodeLine{00123\ \ \ \ \ uint64\_t\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state_a6d579765908169e6fcb1bdc8f105132d}{expiration}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00124\ \ \ \ \ bool\ (*\mbox{\hyperlink{structqsmp__kex__duplex__server__state_acb76d7565f602d39351f102939479555}{key\_query}})(uint8\_t*,\ \textcolor{keyword}{const}\ uint8\_t*);\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00125\ \}\ \mbox{\hyperlink{structqsmp__kex__duplex__server__state}{qsmp\_kex\_duplex\_server\_state}};}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00136\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structqsmp__kex__simplex__client__state}{qsmp\_kex\_simplex\_client\_state}}}
+\DoxyCodeLine{00137\ \{}
+\DoxyCodeLine{00138\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__client__state_ac8077425086229f5be2d26f80bd49691}{keyid}}[\mbox{\hyperlink{qsmp_8h_ae25f569a2a4da5d4a921600354ed795c}{QSMP\_KEYID\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00139\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__client__state_a82bc4e944434b36500fce2ce45636f37}{rverkey}}[\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\_ASYMMETRIC\_VERIFY\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00140\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__client__state_a98a65b947b83be4cc4a4550e3913a5c1}{sigkey}}[\mbox{\hyperlink{qsmp_8h_a827d6feadce7550f8436788c84d858a1}{QSMP\_ASYMMETRIC\_SIGNING\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00141\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__client__state_ab35ad16bbd8c8f888abe338a138656f8}{schash}}[\mbox{\hyperlink{qsmp_8h_af9af3f6c638096356d520d7aef3ec138}{QSMP\_SIMPLEX\_SCHASH\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00142\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__client__state_ac489678efbed6cefebe6d835d2053415}{verkey}}[\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\_ASYMMETRIC\_VERIFY\_KEY\_SIZE}}];\ \ \ \ \ \ \ }
+\DoxyCodeLine{00143\ \ \ \ \ uint64\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__client__state_a6d579765908169e6fcb1bdc8f105132d}{expiration}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00144\ \}\ \mbox{\hyperlink{structqsmp__kex__simplex__client__state}{qsmp\_kex\_simplex\_client\_state}};}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00155\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structqsmp__kex__simplex__server__state}{qsmp\_kex\_simplex\_server\_state}}}
+\DoxyCodeLine{00156\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__server__state_ac8077425086229f5be2d26f80bd49691}{keyid}}[\mbox{\hyperlink{qsmp_8h_ae25f569a2a4da5d4a921600354ed795c}{QSMP\_KEYID\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00158\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__server__state_ab35ad16bbd8c8f888abe338a138656f8}{schash}}[\mbox{\hyperlink{qsmp_8h_af9af3f6c638096356d520d7aef3ec138}{QSMP\_SIMPLEX\_SCHASH\_SIZE}}];\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00159\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__server__state_a88c92a63a5992e12e963a2990c3f5ac2}{prikey}}[\mbox{\hyperlink{qsmp_8h_a388514199c28be974814ce1794ed93d3}{QSMP\_ASYMMETRIC\_PRIVATE\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00160\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__server__state_af87a098f98cc71ee6f2916558cab711c}{pubkey}}[\mbox{\hyperlink{qsmp_8h_a4ebcb317b4ee33f1a4e6c25a92fe9a85}{QSMP\_ASYMMETRIC\_PUBLIC\_KEY\_SIZE}}];\ \ \ \ \ \ \ }
+\DoxyCodeLine{00161\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__server__state_a98a65b947b83be4cc4a4550e3913a5c1}{sigkey}}[\mbox{\hyperlink{qsmp_8h_a827d6feadce7550f8436788c84d858a1}{QSMP\_ASYMMETRIC\_SIGNING\_KEY\_SIZE}}];\ \ \ \ \ }
+\DoxyCodeLine{00162\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__server__state_ac489678efbed6cefebe6d835d2053415}{verkey}}[\mbox{\hyperlink{qsmp_8h_a3ac45bf0e3235ae6acced4693d38427e}{QSMP\_ASYMMETRIC\_VERIFY\_KEY\_SIZE}}];\ \ \ \ \ \ \ }
+\DoxyCodeLine{00163\ \ \ \ \ uint64\_t\ \mbox{\hyperlink{structqsmp__kex__simplex__server__state_a6d579765908169e6fcb1bdc8f105132d}{expiration}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00164\ \}\ \mbox{\hyperlink{structqsmp__kex__simplex__server__state}{qsmp\_kex\_simplex\_server\_state}};}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00181\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{kex_8h_aff1db2cda787bfb2879c04997df5cd58}{qsmp\_kex\_duplex\_server\_key\_exchange}}(\mbox{\hyperlink{structqsmp__kex__duplex__server__state}{qsmp\_kex\_duplex\_server\_state}}*\ kss,\ \mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*\ cns);}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00198\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{kex_8h_ab8863bf4d47f7119408f22bb5740cb11}{qsmp\_kex\_duplex\_client\_key\_exchange}}(\mbox{\hyperlink{structqsmp__kex__duplex__client__state}{qsmp\_kex\_duplex\_client\_state}}*\ kcs,\ \mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*\ cns);}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00215\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{kex_8h_a5b2885a6c289e43ac0b5c14f4c76fb21}{qsmp\_kex\_simplex\_server\_key\_exchange}}(\mbox{\hyperlink{structqsmp__kex__simplex__server__state}{qsmp\_kex\_simplex\_server\_state}}*\ kss,\ \mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*\ cns);}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00232\ \mbox{\hyperlink{qsmp_8h_a558f889f6d19c213d49a646d3f733ffd}{qsmp\_errors}}\ \mbox{\hyperlink{kex_8h_ae9736e127d0d94508b80bd555d3dcb63}{qsmp\_kex\_simplex\_client\_key\_exchange}}(\mbox{\hyperlink{structqsmp__kex__simplex__client__state}{qsmp\_kex\_simplex\_client\_state}}*\ kcs,\ \mbox{\hyperlink{structqsmp__connection__state}{qsmp\_connection\_state}}*\ cns);}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00251\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{kex_8h_af4efcc3a75bf209b53575929b98fa605}{qsmp\_kex\_test}}();}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00255\ }
+
+\end{DoxyCode}

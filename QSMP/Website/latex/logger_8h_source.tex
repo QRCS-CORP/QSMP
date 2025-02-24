@@ -1,0 +1,76 @@
+\doxysection{logger.\+h}
+\hypertarget{logger_8h_source}{}\label{logger_8h_source}\index{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSMP/QSMP/logger.h@{C:/Users/stepp/Documents/Visual Studio 2022/Projects/C/QSMP/QSMP/logger.h}}
+\mbox{\hyperlink{logger_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ 2025\ Quantum\ Resistant\ Cryptographic\ Solutions\ Corporation}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ All\ Rights\ Reserved.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ NOTICE:\ This\ software\ and\ all\ accompanying\ materials\ are\ the\ exclusive\ }}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ property\ of\ Quantum\ Resistant\ Cryptographic\ Solutions\ Corporation\ (QRCS).}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ The\ intellectual\ and\ technical\ concepts\ contained\ within\ this\ implementation\ }}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ are\ proprietary\ to\ QRCS\ and\ its\ authorized\ licensors\ and\ are\ protected\ under\ }}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ applicable\ U.S.\ and\ international\ copyright,\ patent,\ and\ trade\ secret\ laws.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ CRYPTOGRAPHIC\ STANDARDS:}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ -\/\ This\ software\ includes\ implementations\ of\ cryptographic\ algorithms\ such\ as\ }}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ SHA3,\ AES,\ and\ others.\ These\ algorithms\ are\ public\ domain\ or\ standardized\ }}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ by\ organizations\ such\ as\ NIST\ and\ are\ NOT\ the\ property\ of\ QRCS.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ -\/\ However,\ all\ source\ code,\ optimizations,\ and\ implementations\ in\ this\ library\ }}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *\ \ \ are\ original\ works\ of\ QRCS\ and\ are\ protected\ under\ this\ license.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ RESTRICTIONS:}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ -\/\ Redistribution,\ modification,\ or\ unauthorized\ distribution\ of\ this\ software,\ }}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ \ \ in\ whole\ or\ in\ part,\ is\ strictly\ prohibited.}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ -\/\ This\ software\ is\ provided\ for\ non-\/commercial,\ educational,\ and\ research\ }}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ \ \ purposes\ only.\ Commercial\ use\ in\ any\ form\ is\ expressly\ forbidden.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ -\/\ Licensing\ and\ authorized\ distribution\ are\ solely\ at\ the\ discretion\ of\ QRCS.}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ -\/\ Any\ use\ of\ this\ software\ implies\ acceptance\ of\ these\ restrictions.}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ *\ DISCLAIMER:}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ This\ software\ is\ provided\ "{}as\ is,"{}\ without\ warranty\ of\ any\ kind,\ express\ or\ }}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ implied,\ including\ but\ not\ limited\ to\ warranties\ of\ merchantability\ or\ fitness\ }}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ for\ a\ particular\ purpose.\ QRCS\ disclaims\ all\ liability\ for\ any\ direct,\ indirect,\ }}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ incidental,\ or\ consequential\ damages\ resulting\ from\ the\ use\ or\ misuse\ of\ this\ software.}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *\ FULL\ LICENSE:}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *\ This\ software\ is\ subject\ to\ the\ **Quantum\ Resistant\ Cryptographic\ Solutions\ }}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ Proprietary\ License\ (QRCS-\/PL)**.\ The\ complete\ license\ terms\ are\ included\ }}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ in\ the\ LICENSE.txt\ file\ distributed\ with\ this\ software.}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ Written\ by:\ John\ G.\ Underhill}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *\ Contact:\ john.underhill@protonmail.com}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#ifndef\ QSMP\_LOGGER\_H}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#define\ QSMP\_LOGGER\_H}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#include\ "{}common.h"{}}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\#define\ QSMP\_LOGGING\_MESSAGE\_MAX\ 256}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00079\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ QSMP\_LOGGER\_PATH[]\ =\ \textcolor{stringliteral}{"{}QSMP"{}};}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00087\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ QSMP\_LOGGER\_FILE[]\ =\ \textcolor{stringliteral}{"{}qsmp.log"{}};}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00095\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ QSMP\_LOGGER\_HEAD[]\ =\ \textcolor{stringliteral}{"{}QSMP\ Version\ 1.1a"{}};}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00105\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{logger_8h_aae9a934a2c9bc1042e403c4f266cb677}{qsmp\_logger\_exists}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00116\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{logger_8h_aad9116e5bfae0917471faed930dae8fc}{qsmp\_logger\_initialize}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ path);}
+\DoxyCodeLine{00117\ }
+\DoxyCodeLine{00125\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{logger_8h_a1548b911f553d27af661676023c0bdd0}{qsmp\_logger\_print}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00137\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{logger_8h_a11cf8471e90ea189c9e1c15cb204823e}{qsmp\_logger\_read}}(\textcolor{keywordtype}{char}*\ output,\ \textcolor{keywordtype}{size\_t}\ otplen);}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00146\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{logger_8h_af87854f725730d693db986dd78ea4eb6}{qsmp\_logger\_reset}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00156\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{logger_8h_ab3d65bc2dfddc030970f27f2af998422}{qsmp\_logger\_size}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00169\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{logger_8h_aa572fe285670dcce61fa9a8e34e07c3c}{qsmp\_logger\_write}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ message);}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00187\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{logger_8h_a4534c9d47b9ebccd11184161b2c42a80}{qsmp\_logger\_test}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00188\ }
+\DoxyCodeLine{00189\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

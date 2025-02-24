@@ -32,25 +32,30 @@ static void logger_default_path(char* path, size_t pathlen)
 
 void qsmp_logger_initialize(const char* path)
 {
-	qsc_memutils_clear(m_log_path, sizeof(m_log_path));
+	logger_default_path(m_log_path, QSC_SYSTEM_MAX_PATH);
 
-	if (path != NULL)
+	if (qsmp_logger_exists() == false)
 	{
-		if (qsc_fileutils_valid_path(path) == true)
+		qsc_memutils_clear(m_log_path, QSC_SYSTEM_MAX_PATH);
+
+		if (path != NULL)
 		{
-			size_t plen;
+			if (qsc_fileutils_valid_path(path) == true)
+			{
+				size_t plen;
 
-			plen = qsc_stringutils_string_size(path);
-			qsc_memutils_copy(m_log_path, path, plen);
+				plen = qsc_stringutils_string_size(path);
+				qsc_memutils_copy(m_log_path, path, plen);
+			}
 		}
-	}
 
-	if (qsc_stringutils_string_size(m_log_path) == 0)
-	{
-		logger_default_path(m_log_path, sizeof(m_log_path));
-	}
+		if (qsc_stringutils_string_size(m_log_path) == 0)
+		{
+			logger_default_path(m_log_path, QSC_SYSTEM_MAX_PATH);
+		}
 
-	qsmp_logger_reset();
+		qsmp_logger_reset();
+	}
 }
 
 bool qsmp_logger_exists()

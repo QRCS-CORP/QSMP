@@ -21,10 +21,10 @@
     <ClInclude Include="qsmp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qsmpclient.h">
+    <ClInclude Include="client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qsmpserver.h">
+    <ClInclude Include="server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="connections.h">
@@ -36,7 +36,7 @@
     <ClInclude Include="kex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="keychain.h">
+    <ClInclude Include="doxymain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,10 +44,10 @@
     <ClCompile Include="qsmp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="qsmpclient.c">
+    <ClCompile Include="client.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="qsmpserver.c">
+    <ClCompile Include="server.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="connections.c">
@@ -57,9 +57,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="kex.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="keychain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

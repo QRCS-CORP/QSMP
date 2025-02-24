@@ -2,6 +2,7 @@
 #include "../../QSC/QSC/common.h"
 #include "../../QSC/QSC/memutils.h"
 
+/** \cond */
 QSC_SIMD_ALIGN typedef struct qsmp_connection_set
 {
 	qsmp_connection_state* conset;
@@ -11,6 +12,7 @@ QSC_SIMD_ALIGN typedef struct qsmp_connection_set
 } qsmp_connection_set;
 
 static qsmp_connection_set m_connection_set;
+/** \endcond */
 
 bool qsmp_connections_active(size_t index)
 {
@@ -40,7 +42,7 @@ qsmp_connection_state* qsmp_connections_add()
 		if (m_connection_set.conset != NULL && m_connection_set.active != NULL)
 		{
 			qsc_memutils_clear(&m_connection_set.conset[m_connection_set.length], sizeof(qsmp_connection_state));
-			m_connection_set.conset[m_connection_set.length].instance = (uint32_t)m_connection_set.length;
+			m_connection_set.conset[m_connection_set.length].cid = (uint32_t)m_connection_set.length;
 			m_connection_set.active[m_connection_set.length] = true;
 			cns = &m_connection_set.conset[m_connection_set.length];
 			++m_connection_set.length;
@@ -74,7 +76,7 @@ void qsmp_connections_clear()
 	for (size_t i = 0; i < m_connection_set.length; ++i)
 	{
 		m_connection_set.active[i] = false;
-		m_connection_set.conset[i].instance = (uint32_t)i;
+		m_connection_set.conset[i].cid = (uint32_t)i;
 	}
 }
 
@@ -133,7 +135,7 @@ bool qsmp_connections_full()
 	return res;
 }
 
-qsmp_connection_state* qsmp_connections_get(uint32_t instance)
+qsmp_connection_state* qsmp_connections_get(uint32_t cid)
 {
 	qsmp_connection_state* res;
 
@@ -141,7 +143,7 @@ qsmp_connection_state* qsmp_connections_get(uint32_t instance)
 
 	for (size_t i = 0; i < m_connection_set.length; ++i)
 	{
-		if (m_connection_set.conset[i].instance == instance)
+		if (m_connection_set.conset[i].cid == cid)
 		{
 			res = &m_connection_set.conset[i];
 		}
@@ -169,7 +171,7 @@ void qsmp_connections_initialize(size_t count, size_t maximum)
 
 			for (size_t i = 0; i < count; ++i)
 			{
-				m_connection_set.conset[i].instance = (uint32_t)i;
+				m_connection_set.conset[i].cid = (uint32_t)i;
 				m_connection_set.active[i] = false;
 			}
 		}
@@ -202,14 +204,14 @@ qsmp_connection_state* qsmp_connections_next()
 	return res;
 }
 
-void qsmp_connections_reset(uint32_t instance)
+void qsmp_connections_reset(uint32_t cid)
 {
 	for (size_t i = 0; i < m_connection_set.length; ++i)
 	{
-		if (m_connection_set.conset[i].instance == instance)
+		if (m_connection_set.conset[i].cid == cid)
 		{
 			qsc_memutils_clear(&m_connection_set.conset[i], sizeof(qsmp_connection_state));
-			m_connection_set.conset[i].instance = (uint32_t)i;
+			m_connection_set.conset[i].cid = (uint32_t)i;
 			m_connection_set.active[i] = false;
 			break;
 		}
