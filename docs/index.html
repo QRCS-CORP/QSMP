@@ -85,12 +85,13 @@ Protocol Specifications</h1>
 <li><b>SIMPLEX Protocol:</b> This protocol defines a streamlined, one-way authenticated key exchange. In SIMPLEX, the client trusts the server. As part of the exchange, the server signs its public asymmetric key, and the client verifies the signature using the server's public signature-verification key. This protocol establishes a 256-bit secure two-way encrypted network stream between the server and client in just two round trips, making it ideal for scenarios where an efficient and secure encrypted channel is needed between a server and a client.</li>
 <li><b>DUPLEX Protocol:</b> In contrast, the DUPLEX protocol implements a bi-directional trust model. Both hosts authenticate each other by exchanging signed public asymmetric cipher keys and verifying them using pre-shared public signature-verification keys. Each host then creates and exchanges a shared secret, and these secrets are combined to key 512-bit secure symmetric cipher instances. The DUPLEX protocol is best suited for high-security communications between remote hosts and can be used alongside SIMPLEX to register hosts, distribute public signature keys, and establish a secure network.</li>
 </ul>
+<p>QSMP offers a modern, flexible, and secure alternative to traditional key exchange protocols that are now being retrofitted with quantum-safe algorithms. Designed specifically for the post-quantum era, QSMP integrates robust key exchange, authentication, and encryption into a single protocol. It is ideally suited for any environment where strong post-quantum security is a priority.</p>
+<h2><a class="anchor" id="library_dependencies"></a>
+Cryptographic Dependencies</h2>
+<p>QSTP uses the QSC cryptographic library: <a href="https://github.com/QRCS-CORP/QSC">The QSC Library</a> </p>
 <h1><a class="anchor" id="conclusion_sec"></a>
 Conclusion</h1>
-<p>QSMP offers a modern, flexible, and secure alternative to traditional key exchange protocols that are now being retrofitted with quantum-safe algorithms. Designed specifically for the post-quantum era, QSMP integrates robust key exchange, authentication, and encryption into a single protocol. It is ideally suited for any environment where strong post-quantum security is a priority.</p>
-<h1><a class="anchor" id="license_sec"></a>
-License</h1>
-<p>[QRCS-PL License. See license file for details.]</p>
+<p>QRCS-PL private License. See license file for details. All rights reserved by QRCS Corporation, copyrighted and patents pending.</p>
 <dl class="section author"><dt>Author</dt><dd>John G. Underhill </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2025-02-10 </dd></dl>
 </div></div><!-- PageDoc -->

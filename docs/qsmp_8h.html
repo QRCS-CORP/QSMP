@@ -273,10 +273,6 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_MESSAGE_MAX</b>&#160;&#160;&#160;0x3D090000</td></tr>
 <tr class="memdesc:a5ce611e5dc8ec3cfc5ca8fc219998912"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum message size used during the key exchange (1 GB) <br /></td></tr>
 <tr class="separator:a5ce611e5dc8ec3cfc5ca8fc219998912"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad497cd133f18c9aad29e28469200690e" id="r_ad497cd133f18c9aad29e28469200690e"><td class="memItemLeft" align="right" valign="top"><a id="ad497cd133f18c9aad29e28469200690e" name="ad497cd133f18c9aad29e28469200690e"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_SIGKEY_ENCODED_SIZE</b>&#160;&#160;&#160;(<a class="el" href="#ae25f569a2a4da5d4a921600354ed795c">QSMP_KEYID_SIZE</a> + <a class="el" href="#a255914f9a6cd0a9f8e4f9118504cad71">QSMP_TIMESTAMP_SIZE</a> + <a class="el" href="#a9c1beabe139465ba6eacc5f0b8506722">QSMP_CONFIG_SIZE</a> + <a class="el" href="#a827d6feadce7550f8436788c84d858a1">QSMP_ASYMMETRIC_SIGNING_KEY_SIZE</a> + <a class="el" href="#a3ac45bf0e3235ae6acced4693d38427e">QSMP_ASYMMETRIC_VERIFY_KEY_SIZE</a>)</td></tr>
-<tr class="memdesc:ad497cd133f18c9aad29e28469200690e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The secret signature key size. <br /></td></tr>
-<tr class="separator:ad497cd133f18c9aad29e28469200690e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a458b13e41315e0b674c33712e6e6d864" id="r_a458b13e41315e0b674c33712e6e6d864"><td class="memItemLeft" align="right" valign="top"><a id="a458b13e41315e0b674c33712e6e6d864" name="a458b13e41315e0b674c33712e6e6d864"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>qsmp_cipher_generate_keypair</b>&#160;&#160;&#160;qsc_kyber_generate_keypair</td></tr>
 <tr class="memdesc:a458b13e41315e0b674c33712e6e6d864"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate an asymmetric cipher key-pair. <br /></td></tr>
@@ -301,8 +297,9 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>qsmp_signature_verify</b>&#160;&#160;&#160;qsc_dilithium_verify</td></tr>
 <tr class="memdesc:a8e9166570ca902d4625df84940bb71ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify a message with the asymmetric signature scheme. <br /></td></tr>
 <tr class="separator:a8e9166570ca902d4625df84940bb71ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7db3e549702d1f106eb8227e1199ef15" id="r_a7db3e549702d1f106eb8227e1199ef15"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7db3e549702d1f106eb8227e1199ef15">QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE</a>&#160;&#160;&#160;(QSC_KYBER_CIPHERTEXT_SIZE)</td></tr>
-<tr class="memdesc:a7db3e549702d1f106eb8227e1199ef15"><td class="mdescLeft">&#160;</td><td class="mdescRight">The byte size of the asymmetric cipher-text array.  <br /></td></tr>
+<tr class="memitem:a7db3e549702d1f106eb8227e1199ef15" id="r_a7db3e549702d1f106eb8227e1199ef15"><td class="memItemLeft" align="right" valign="top"><a id="a7db3e549702d1f106eb8227e1199ef15" name="a7db3e549702d1f106eb8227e1199ef15"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE</b>&#160;&#160;&#160;(QSC_KYBER_CIPHERTEXT_SIZE)</td></tr>
+<tr class="memdesc:a7db3e549702d1f106eb8227e1199ef15"><td class="mdescLeft">&#160;</td><td class="mdescRight">The byte size of the asymmetric cipher-text array. <br /></td></tr>
 <tr class="separator:a7db3e549702d1f106eb8227e1199ef15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a388514199c28be974814ce1794ed93d3" id="r_a388514199c28be974814ce1794ed93d3"><td class="memItemLeft" align="right" valign="top"><a id="a388514199c28be974814ce1794ed93d3" name="a388514199c28be974814ce1794ed93d3"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE</b>&#160;&#160;&#160;(QSC_KYBER_PRIVATEKEY_SIZE)</td></tr>
@@ -324,6 +321,10 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_ASYMMETRIC_SIGNATURE_SIZE</b>&#160;&#160;&#160;(QSC_DILITHIUM_SIGNATURE_SIZE)</td></tr>
 <tr class="memdesc:ab87f48c1d46a93ac5308b4b37e49a7dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The byte size of the asymmetric signature array. <br /></td></tr>
 <tr class="separator:ab87f48c1d46a93ac5308b4b37e49a7dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad497cd133f18c9aad29e28469200690e" id="r_ad497cd133f18c9aad29e28469200690e"><td class="memItemLeft" align="right" valign="top"><a id="ad497cd133f18c9aad29e28469200690e" name="ad497cd133f18c9aad29e28469200690e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_SIGKEY_ENCODED_SIZE</b>&#160;&#160;&#160;(<a class="el" href="#ae25f569a2a4da5d4a921600354ed795c">QSMP_KEYID_SIZE</a> + <a class="el" href="#a255914f9a6cd0a9f8e4f9118504cad71">QSMP_TIMESTAMP_SIZE</a> + <a class="el" href="#a9c1beabe139465ba6eacc5f0b8506722">QSMP_CONFIG_SIZE</a> + <a class="el" href="#a827d6feadce7550f8436788c84d858a1">QSMP_ASYMMETRIC_SIGNING_KEY_SIZE</a> + <a class="el" href="#a3ac45bf0e3235ae6acced4693d38427e">QSMP_ASYMMETRIC_VERIFY_KEY_SIZE</a>)</td></tr>
+<tr class="memdesc:ad497cd133f18c9aad29e28469200690e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The secret signature key size. <br /></td></tr>
+<tr class="separator:ad497cd133f18c9aad29e28469200690e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f7b23070650cdfb7c29ffb8db65b090" id="r_a9f7b23070650cdfb7c29ffb8db65b090"><td class="memItemLeft" align="right" valign="top"><a id="a9f7b23070650cdfb7c29ffb8db65b090" name="a9f7b23070650cdfb7c29ffb8db65b090"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_PUBKEY_HEADER_SIZE</b>&#160;&#160;&#160;40</td></tr>
 <tr class="memdesc:a9f7b23070650cdfb7c29ffb8db65b090"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the QSMP public key header. <br /></td></tr>
@@ -356,8 +357,9 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_ERROR_STRING_WIDTH</b>&#160;&#160;&#160;128</td></tr>
 <tr class="memdesc:a47eef1d1c80a2d69a135fd11d8cff56f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The width of each QSMP error string. <br /></td></tr>
 <tr class="separator:a47eef1d1c80a2d69a135fd11d8cff56f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf450bf800f55d6a78390bc412274606" id="r_aaf450bf800f55d6a78390bc412274606"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaf450bf800f55d6a78390bc412274606">QSMP_MESSAGE_STRING_DEPTH</a>&#160;&#160;&#160;22</td></tr>
-<tr class="memdesc:aaf450bf800f55d6a78390bc412274606"><td class="mdescLeft">&#160;</td><td class="mdescRight">The depth of the QSMP message string array.  <br /></td></tr>
+<tr class="memitem:aaf450bf800f55d6a78390bc412274606" id="r_aaf450bf800f55d6a78390bc412274606"><td class="memItemLeft" align="right" valign="top"><a id="aaf450bf800f55d6a78390bc412274606" name="aaf450bf800f55d6a78390bc412274606"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_MESSAGE_STRING_DEPTH</b>&#160;&#160;&#160;22</td></tr>
+<tr class="memdesc:aaf450bf800f55d6a78390bc412274606"><td class="mdescLeft">&#160;</td><td class="mdescRight">The depth of the QSMP message string array. <br /></td></tr>
 <tr class="separator:aaf450bf800f55d6a78390bc412274606"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50af35c5cd99396ae64b9ccba1e33b22" id="r_a50af35c5cd99396ae64b9ccba1e33b22"><td class="memItemLeft" align="right" valign="top"><a id="a50af35c5cd99396ae64b9ccba1e33b22" name="a50af35c5cd99396ae64b9ccba1e33b22"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>QSMP_MESSAGE_STRING_WIDTH</b>&#160;&#160;&#160;128</td></tr>
@@ -630,42 +632,7 @@ Functions</h2></td></tr>
 <p>Parameter Sets: Kyber-S1, Dilithium-S1 Kyber-S3, Dilithium-S3 Kyber-S5, Dilithium-S5 Kyber-S6, Dilithium-S5 McEliece-S1, Dilithium-S1 McEliece-S3, Dilithium-S3 McEliece-S5, Dilithium-S5 McEliece-S6, Dilithium-S5 McEliece-S7, Dilithium-S5 McEliece-S1, Sphincs-S1(f,s) McEliece-S3, Sphincs-S3(f,s) McEliece-S5, Sphincs-S5(f,s) McEliece-S6, Sphincs-S5(f,s) McEliece-S7, Sphincs-S6(f,s)</p>
 <p>Recommended: Kyber-S5, Dilithium-S5 Kyber-S6, Dilithium-S5 McEliece-S5, Dilithium-S5 McEliece-S5, Sphincs-S5(f,s)</p>
 <p>The parameter sets used by QSMP are selected in the QSC library in the libraries <a class="el" href="common_8h_source.html">common.h</a> file. Settings are at library defaults, however, a true 512-bit security system can be acheived by selecting the McEliece/SPHINCS+ parameter in QSMP and setting SPHINCS+ to one of the 512-bit options in the QSC library. </p>
-</div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a7db3e549702d1f106eb8227e1199ef15" name="a7db3e549702d1f106eb8227e1199ef15"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7db3e549702d1f106eb8227e1199ef15">&#9670;&#160;</a></span>QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE&#160;&#160;&#160;(QSC_KYBER_CIPHERTEXT_SIZE)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The byte size of the asymmetric cipher-text array. </p>
-<p>DOXYGEN_IGNORE </p>
-
-</div>
-</div>
-<a id="aaf450bf800f55d6a78390bc412274606" name="aaf450bf800f55d6a78390bc412274606"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaf450bf800f55d6a78390bc412274606">&#9670;&#160;</a></span>QSMP_MESSAGE_STRING_DEPTH</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define QSMP_MESSAGE_STRING_DEPTH&#160;&#160;&#160;22</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The depth of the QSMP message string array. </p>
-<p>DOXYGEN_IGNORE </p>
-
-</div>
-</div>
-<h2 class="groupheader">Enumeration Type Documentation</h2>
+</div><h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="a65bda1b0824d0f20b39a31a107aab3d3" name="a65bda1b0824d0f20b39a31a107aab3d3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a65bda1b0824d0f20b39a31a107aab3d3">&#9670;&#160;</a></span>qsmp_configuration</h2>
 
@@ -679,7 +646,6 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The asymmetric cryptographic primitive configuration. </p>
-<p>DOXYGEN_IGNORE </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a65bda1b0824d0f20b39a31a107aab3d3a9337d0b212092d80186d3836c4f54ced" name="a65bda1b0824d0f20b39a31a107aab3d3a9337d0b212092d80186d3836c4f54ced"></a>qsmp_configuration_none&#160;</td><td class="fielddoc"><p>No configuration was specified </p>
 </td></tr>

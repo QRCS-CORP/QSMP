@@ -46,7 +46,7 @@ var NAVTREEINDEX0 =
 "index.html#crypto_sec":[0,3],
 "index.html#design_sec":[0,2],
 "index.html#intro_sec":[0,0],
-"index.html#license_sec":[0,6],
+"index.html#library_dependencies":[0,4,0],
 "index.html#protocol_spec":[0,4],
 "index.html#qsmp_sec":[0,1],
 "kex_8h.html":[2,0,0,4],
