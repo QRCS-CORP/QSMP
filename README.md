@@ -64,7 +64,7 @@ QSMP employs state-of-the-art cryptographic algorithms:
 
 ### Additional Primitives
 - **DRBG, XOF, and PRNGs:**  
-  - Uses Keccak-based functions (SHAKE, cSHAKE, and a SHAKE Cost Based KDF) for key derivation and random number generation.
+  - Uses Keccak-based functions (SHA3, SHAKE, cSHAKE).
   
 - **Entropy Providers:**  
   - ACP that integrates system providers, system state, hardware randomness (e.g., Intel RDRAND) hashed with SHAKE-512.
