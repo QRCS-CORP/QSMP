@@ -53,7 +53,6 @@ QSMP employs state-of-the-art cryptographic algorithms:
 ### Symmetric Cryptography
 
 - **Stream Ciphers:**  
-  - *ChaChaPoly20,* *RCS,* and *CSX* (a ChaCha-based cipher with 64-bit integers and 512-bit keys).
   - *RCS:* An authenticated stream cipher based on wide-block Rijndael with enhanced key schedules and AEAD (using KMAC/QMAC).
 
 ### Hash Functions and MACs
