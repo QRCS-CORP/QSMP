@@ -2,7 +2,7 @@
 
 **QSMP is a post-quantum alternative to traditional key exchange protocols (such as TLS) that integrates robust key exchange, authentication, and an encrypted tunnel into a single specification.**
 
-See the dcumentation at: https://qrcs-corp.github.io/QSMP/
+[View full documentation online](https://qrcs-corp.github.io/QSMP/)
 
 ## Overview
 
@@ -14,7 +14,7 @@ QSMP is designed to provide strong post-quantum security using modern asymmetric
 - **DUPLEX Protocol:**  
   A two-way trust model where both hosts authenticate each other. Each host contributes a secret that is combined to key 512-bit secure symmetric cipher instances (using the RCS cipher). This mode is well suited for peer-to-peer and high-security communications, delivering a fully 512-bit secure end-to-end crypto system when configured with the appropriate parameter sets.
 
-QSMP breaks new ground by designing these mechanisms from the ground up—eschewing backward compatibility concerns—to deliver streamlined, modern, and quantum-safe cryptographic solutions.
+QSMP breaks new ground by designing these mechanisms from the ground up, eschewing backward compatibility concerns—to deliver streamlined, modern, and quantum-safe cryptographic solutions.
 
 
 ## Introduction
@@ -23,7 +23,7 @@ In today's digital landscape, many key exchange protocols (like those used in TL
 
 QSMP provides a complete specification that:
 - Integrates post-quantum secure key exchange with built-in authentication and encrypted tunnel establishment.
-- Uses state-of-the-art asymmetric ciphers (e.g., Kyber and McEliece) and signature schemes (e.g., Dilithium or SPHINCS+) standardized by NIST.
+- Uses state-of-the-art asymmetric ciphers (e.g., Kyber or McEliece) and signature schemes (e.g., Dilithium or SPHINCS+) standardized by NIST.
 - Leverages a robust symmetric cipher (RCS) with enhanced key schedules and authenticated encryption (via KMAC or QMAC).
 
 By designing QSMP without the constraints of legacy systems, the protocol offers simplicity, improved performance, and superior security for future-proof communications.
@@ -45,22 +45,22 @@ QSMP employs state-of-the-art cryptographic algorithms:
 ### Asymmetric Cryptography
 - **Key Encapsulation Mechanisms:**  
   - *McEliece:* Uses the Niederreiter dual form.  
-  - *Kyber:* Supports the full range of parameter sets (updated to NIST standards).  
+  - *Kyber:* Supports the full range of parameter sets (updated to the NIST FIPS 203 standard).  
 
 - **Digital Signature Schemes:**  
-  - *Dilithium* and *Sphincs+:* NIST-standardized for post-quantum security.  
+  - *Dilithium* and *Sphincs+:* NIST-standardized for post-quantum security (updated to the FIPS 204 AND 205 standards).  
 
 ### Symmetric Cryptography
 
 - **Stream Ciphers:**  
-  - *RCS:* An authenticated stream cipher based on wide-block Rijndael with enhanced key schedules and AEAD (using KMAC/QMAC).
+  - *RCS:* An authenticated stream cipher based on wide-block Rijndael with enhanced key schedule and AEAD (using KMAC/QMAC).
 
 ### Hash Functions and MACs
 - **Hash Functions:**  
   - *SHA3* (256 and 512-bit variants).
 
 - **Message Authentication Codes:**  
-  - *KMAC, plus a variant called *QMAC* (GMAC(2^256)).
+  - *KMAC, or a variant called *QMAC* (GMAC(2^256)).
 
 ### Additional Primitives
 - **DRBG, XOF, and PRNGs:**  
