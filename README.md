@@ -2,7 +2,9 @@
 
 **QSMP is a post-quantum alternative to traditional key exchange protocols (such as TLS) that integrates robust key exchange, authentication, and an encrypted tunnel into a single specification.**
 
-[View full documentation online](https://qrcs-corp.github.io/QSMP/)
+[QSMP Help Documentation](https://qrcs-corp.github.io/QSMP/)  
+[QSMP Protocol Specification](https://qrcs-corp.github.io/QSMP/pdf/QSMP_Specification.pdf)  
+[QSMP Summary Document](https://qrcs-corp.github.io/QSMP/pdf/QSMP_Summary.pdf)  
 
 ## Overview
 
