@@ -27,7 +27,7 @@ bool qsmp_connections_active(size_t index)
 	return res;
 }
 
-qsmp_connection_state* qsmp_connections_add()
+qsmp_connection_state* qsmp_connections_add(void)
 {
 	qsmp_connection_state* cns;
 
@@ -51,7 +51,7 @@ qsmp_connection_state* qsmp_connections_add()
 	return cns;
 }
 
-size_t qsmp_connections_available()
+size_t qsmp_connections_available(void)
 {
 	size_t count;
 
@@ -68,7 +68,7 @@ size_t qsmp_connections_available()
 	return count;
 }
 
-void qsmp_connections_clear()
+void qsmp_connections_clear(void)
 {
 	qsc_memutils_clear(m_connection_set.conset, sizeof(qsmp_connection_state) * m_connection_set.length);
 
@@ -79,7 +79,7 @@ void qsmp_connections_clear()
 	}
 }
 
-void qsmp_connections_dispose()
+void qsmp_connections_dispose(void)
 {
 	if (m_connection_set.conset != NULL)
 	{
@@ -116,7 +116,7 @@ qsmp_connection_state* qsmp_connections_index(size_t index)
 	return res;
 }
 
-bool qsmp_connections_full()
+bool qsmp_connections_full(void)
 {
 	bool res;
 
@@ -153,9 +153,9 @@ qsmp_connection_state* qsmp_connections_get(uint32_t cid)
 
 void qsmp_connections_initialize(size_t count, size_t maximum)
 {
-	assert(count != 0);
-	assert(maximum != 0);
-	assert(count <= maximum);
+	QSMP_ASSERT(count != 0);
+	QSMP_ASSERT(maximum != 0);
+	QSMP_ASSERT(count <= maximum);
 	
 	if (count != 0 && maximum != 0 && count <= maximum)
 	{
@@ -217,12 +217,12 @@ void qsmp_connections_reset(uint32_t cid)
 	}
 }
 
-size_t qsmp_connections_size()
+size_t qsmp_connections_size(void)
 {
 	return m_connection_set.length;
 }
 
-void qsmp_connections_self_test()
+void qsmp_connections_self_test(void)
 {
 	qsmp_connection_state* xn[20] = { 0 };
 	size_t cnt;

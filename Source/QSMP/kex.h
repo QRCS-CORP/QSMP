@@ -247,8 +247,6 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
  *
  * \note This is an internal non-exportable API.
  */
-bool qsmp_kex_test();
-
+bool qsmp_kex_test(void);
 
 #endif
-

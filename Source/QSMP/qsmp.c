@@ -104,7 +104,7 @@ qsmp_asymmetric_signature_keypair* qsmp_asymmetric_signature_keypair_initialize(
 
 void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool notify)
 {
-	assert(cns != NULL);
+	QSMP_ASSERT(cns != NULL);
 
 	if (cns != NULL)
 	{
@@ -182,7 +182,7 @@ void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool not
 
 void qsmp_connection_state_dispose(qsmp_connection_state* cns)
 {
-	assert(cns != NULL);
+	QSMP_ASSERT(cns != NULL);
 
 	if (cns != NULL)
 	{
@@ -276,8 +276,8 @@ qsmp_errors qsmp_header_validate(qsmp_connection_state* cns, const qsmp_network_
 
 void qsmp_generate_keypair(qsmp_client_verification_key* pubkey, qsmp_server_signature_key* prikey, const uint8_t keyid[QSMP_KEYID_SIZE])
 {
-	assert(prikey != NULL);
-	assert(pubkey != NULL);
+	QSMP_ASSERT(prikey != NULL);
+	QSMP_ASSERT(pubkey != NULL);
 
 	if (prikey != NULL && pubkey != NULL)
 	{
@@ -316,7 +316,7 @@ const char* qsmp_get_error_description(qsmp_messages message)
 
 void qsmp_log_error(qsmp_messages emsg, qsc_socket_exceptions err, const char* msg)
 {
-	assert(msg != NULL);
+	QSMP_ASSERT(msg != NULL);
 
 	char mtmp[QSMP_ERROR_STRING_WIDTH * 2] = { 0 };
 	const char* perr;
@@ -363,7 +363,7 @@ void qsmp_log_message(qsmp_messages emsg)
 
 void qsmp_log_write(qsmp_messages emsg, const char* msg)
 {
-	assert(msg != NULL);
+	QSMP_ASSERT(msg != NULL);
 
 	const char* pmsg = qsmp_get_error_description(emsg);
 
@@ -399,10 +399,10 @@ void qsmp_packet_clear(qsmp_network_packet* packet)
 
 qsmp_errors qsmp_packet_decrypt(qsmp_connection_state* cns, uint8_t* message, size_t* msglen, const qsmp_network_packet* packetin)
 {
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(message != NULL);
-	assert(msglen != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(message != NULL);
+	QSMP_ASSERT(msglen != NULL);
 
 	uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
 	qsmp_errors qerr;
@@ -460,9 +460,9 @@ qsmp_errors qsmp_packet_decrypt(qsmp_connection_state* cns, uint8_t* message, si
 
 qsmp_errors qsmp_packet_encrypt(qsmp_connection_state* cns, qsmp_network_packet* packetout, const uint8_t* message, size_t msglen)
 {
-	assert(cns != NULL);
-	assert(message != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(message != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	qsmp_errors qerr;
 
@@ -498,7 +498,7 @@ qsmp_errors qsmp_packet_encrypt(qsmp_connection_state* cns, qsmp_network_packet*
 
 void qsmp_packet_error_message(qsmp_network_packet* packet, qsmp_errors error)
 {
-	assert(packet != NULL);
+	QSMP_ASSERT(packet != NULL);
 
 	if (packet != NULL)
 	{
@@ -512,8 +512,8 @@ void qsmp_packet_error_message(qsmp_network_packet* packet, qsmp_errors error)
 
 void qsmp_packet_header_deserialize(const uint8_t* header, qsmp_network_packet* packet)
 {
-	assert(header != NULL);
-	assert(packet != NULL);
+	QSMP_ASSERT(header != NULL);
+	QSMP_ASSERT(packet != NULL);
 
 	if (header != NULL && packet != NULL)
 	{
@@ -531,8 +531,8 @@ void qsmp_packet_header_deserialize(const uint8_t* header, qsmp_network_packet* 
 
 void qsmp_packet_header_serialize(const qsmp_network_packet* packet, uint8_t* header)
 {
-	assert(header != NULL);
-	assert(packet != NULL);
+	QSMP_ASSERT(header != NULL);
+	QSMP_ASSERT(packet != NULL);
 
 	if (header != NULL && packet != NULL)
 	{
@@ -584,7 +584,7 @@ bool qsmp_public_key_compare(const qsmp_client_verification_key* a, const qsmp_c
 
 bool qsmp_public_key_decode(qsmp_client_verification_key* pubk, const char* enck, size_t enclen)
 {
-	assert(pubk != NULL);
+	QSMP_ASSERT(pubk != NULL);
 
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
 	char* pvk;
@@ -638,7 +638,7 @@ bool qsmp_public_key_decode(qsmp_client_verification_key* pubk, const char* enck
 
 size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verification_key* pubk)
 {
-	assert(pubk != NULL);
+	QSMP_ASSERT(pubk != NULL);
 
 	char dtm[QSMP_TIMESTAMP_STRING_SIZE] = { 0 };
 	char hexid[(QSMP_KEYID_SIZE * 2)] = { 0 };
@@ -713,7 +713,7 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 	return spos;
 }
 
-size_t qsmp_public_key_encoding_size()
+size_t qsmp_public_key_encoding_size(void)
 {
 	size_t elen;
 	size_t klen;
@@ -742,7 +742,7 @@ size_t qsmp_public_key_encoding_size()
 
 void qsmp_signature_key_deserialize(qsmp_server_signature_key* kset, const uint8_t serk[QSMP_SIGKEY_ENCODED_SIZE])
 {
-	assert(kset != NULL);
+	QSMP_ASSERT(kset != NULL);
 
 	size_t pos;
 
@@ -759,7 +759,7 @@ void qsmp_signature_key_deserialize(qsmp_server_signature_key* kset, const uint8
 
 void qsmp_signature_key_serialize(uint8_t serk[QSMP_SIGKEY_ENCODED_SIZE], const qsmp_server_signature_key* kset)
 {
-	assert(kset != NULL);
+	QSMP_ASSERT(kset != NULL);
 
 	size_t pos;
 
@@ -776,8 +776,8 @@ void qsmp_signature_key_serialize(uint8_t serk[QSMP_SIGKEY_ENCODED_SIZE], const 
 
 void qsmp_stream_to_packet(const uint8_t* pstream, qsmp_network_packet* packet)
 {
-	assert(packet != NULL);
-	assert(pstream != NULL);
+	QSMP_ASSERT(packet != NULL);
+	QSMP_ASSERT(pstream != NULL);
 
 	size_t pos;
 
@@ -797,8 +797,8 @@ void qsmp_stream_to_packet(const uint8_t* pstream, qsmp_network_packet* packet)
 
 size_t qsmp_packet_to_stream(const qsmp_network_packet* packet, uint8_t* pstream)
 {
-	assert(packet != NULL);
-	assert(pstream != NULL);
+	QSMP_ASSERT(packet != NULL);
+	QSMP_ASSERT(pstream != NULL);
 
 	size_t pos;
 	size_t res;
@@ -822,7 +822,7 @@ size_t qsmp_packet_to_stream(const qsmp_network_packet* packet, uint8_t* pstream
 	return res;
 }
 
-bool qsmp_certificate_encoding_test()
+bool qsmp_certificate_encoding_test(void)
 {
 	qsmp_client_verification_key pcpy = { 0 };
 	qsmp_client_verification_key pkey = { 0 };

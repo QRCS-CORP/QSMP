@@ -218,5 +218,4 @@ size_t qsmp_connections_size(void);
  */
 void qsmp_connections_self_test(void);
 
-
 #endif

@@ -40,12 +40,12 @@
 #ifndef QSMP_MASTER_COMMON_H
 #define QSMP_MASTER_COMMON_H
 
-#include <assert.h>
+#include "qsccommon.h"
+#include <QSMP_ASSERT.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "qsccommon.h"
 
 /**
 * \internal
@@ -53,6 +53,8 @@
 * \brief QSMP common includes and definitions
 * \note These are internal definitions.
 */
+
+/** \cond DOXYGEN_IGNORE */
 
 /*!
 \def QSMP_DLL_API
@@ -95,5 +97,24 @@
 #	define QSMP_EXPORT_API
 #endif
 
+#if defined(DEBUG) || defined(_DEBUG) || defined(__DEBUG__) || (defined(__GNUC__) && !defined(__OPTIMIZE__))
+  /*!
+   * \def QSMP_DEBUG_MODE
+   * \brief Defined when the build is in debug mode.
+   */
+#	define QSMP_DEBUG_MODE
+#endif
+
+#ifdef QSMP_DEBUG_MODE
+  /*!
+   * \def QSMP_ASSERT
+   * \brief Define the QSMP_ASSERT function and guarantee it as debug only.
+   */
+#  define QSMP_ASSERT(expr) QSMP_ASSERT(expr)
+#else
+#  define QSMP_ASSERT(expr) ((void)0)
+#endif
+
+/** \endcond DOXYGEN_IGNORE */
 
 #endif

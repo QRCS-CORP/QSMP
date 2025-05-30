@@ -58,7 +58,7 @@ void qsmp_logger_initialize(const char* path)
 	}
 }
 
-bool qsmp_logger_exists()
+bool qsmp_logger_exists(void)
 {
 	bool res;
 
@@ -72,7 +72,7 @@ bool qsmp_logger_exists()
 	return res;
 }
 
-void qsmp_logger_print()
+void qsmp_logger_print(void)
 {
 	char buf[QSMP_LOGGING_MESSAGE_MAX] = { 0 };
 	size_t lctr;
@@ -109,7 +109,7 @@ void qsmp_logger_read(char* output, size_t otplen)
 	}
 }
 
-void qsmp_logger_reset()
+void qsmp_logger_reset(void)
 {
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
 	char msg[QSMP_LOGGING_MESSAGE_MAX] = "Created: ";
@@ -130,7 +130,7 @@ void qsmp_logger_reset()
 	qsc_fileutils_write_line(m_log_path, msg, mlen);
 }
 
-size_t qsmp_logger_size()
+size_t qsmp_logger_size(void)
 {
 	size_t res;
 
@@ -170,7 +170,7 @@ bool qsmp_logger_write(const char* message)
 	return res;
 }
 
-bool qsmp_logger_test()
+bool qsmp_logger_test(void)
 {
 	char buf[4 * QSMP_LOGGING_MESSAGE_MAX] = { 0 };
 	char msg1[] = "This is a test message: 1";

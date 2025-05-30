@@ -34,7 +34,7 @@ static void server_state_initialize(qsmp_kex_simplex_server_state* kss, const se
 	kss->expiration = prcv->pprik->expiration;
 }
 
-static void server_poll_sockets()
+static void server_poll_sockets(void)
 {
 	size_t clen;
 	qsc_mutex mtx;
@@ -61,7 +61,7 @@ static void server_poll_sockets()
 
 static void server_receive_loop(server_receiver_state* prcv)
 {
-	assert(prcv != NULL);
+	QSMP_ASSERT(prcv != NULL);
 
 	qsmp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
@@ -226,9 +226,9 @@ static qsmp_errors server_start(const qsmp_server_signature_key* kset,
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
 	void (*disconnect_callback)(qsmp_connection_state*))
 {
-	assert(kset != NULL);
-	assert(source != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(source != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsc_socket_exceptions res;
 	qsmp_errors qerr;
@@ -326,12 +326,12 @@ void qsmp_server_broadcast(const uint8_t* message, size_t msglen)
 	}
 }
 
-void qsmp_server_pause()
+void qsmp_server_pause(void)
 {
 	m_server_pause = true;
 }
 
-void qsmp_server_quit()
+void qsmp_server_quit(void)
 {
 	size_t clen;
 	qsc_mutex mtx;
@@ -361,7 +361,7 @@ void qsmp_server_quit()
 	m_server_run = false;
 }
 
-void qsmp_server_resume()
+void qsmp_server_resume(void)
 {
 	m_server_pause = false;
 }
@@ -371,8 +371,8 @@ qsmp_errors qsmp_server_start_ipv4(qsc_socket* source,
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
 	void (*disconnect_callback)(qsmp_connection_state*))
 {
-	assert(kset != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv4_address addt = { 0 };
 	qsc_socket_exceptions res;
@@ -420,8 +420,8 @@ qsmp_errors qsmp_server_start_ipv6(qsc_socket* source,
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
 	void (*disconnect_callback)(qsmp_connection_state*))
 {
-	assert(kset != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv6_address addt = { 0 };
 	qsc_socket_exceptions res;

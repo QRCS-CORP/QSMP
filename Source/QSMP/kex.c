@@ -42,7 +42,7 @@ static void kex_subheader_serialize(uint8_t* pstream, const qsmp_network_packet*
 
 static void kex_send_network_error(const qsc_socket* sock, qsmp_errors error)
 {
-	assert(sock != NULL);
+	QSMP_ASSERT(sock != NULL);
 
 	if (qsc_socket_is_connected(sock) == true)
 	{
@@ -58,7 +58,7 @@ static void kex_send_network_error(const qsc_socket* sock, qsmp_errors error)
 
 static void kex_duplex_client_reset(qsmp_kex_duplex_client_state* kcs)
 {
-	assert(kcs != NULL);
+	QSMP_ASSERT(kcs != NULL);
 
 	if (kcs != NULL)
 	{
@@ -78,7 +78,7 @@ static void kex_duplex_client_reset(qsmp_kex_duplex_client_state* kcs)
 
 static void kex_duplex_server_reset(qsmp_kex_duplex_server_state* kss)
 {
-	assert(kss != NULL);
+	QSMP_ASSERT(kss != NULL);
 
 	if (kss != NULL)
 	{
@@ -97,7 +97,7 @@ static void kex_duplex_server_reset(qsmp_kex_duplex_server_state* kss)
 
 static void kex_simplex_client_reset(qsmp_kex_simplex_client_state* kcs)
 {
-	assert(kcs != NULL);
+	QSMP_ASSERT(kcs != NULL);
 
 	if (kcs != NULL)
 	{
@@ -119,7 +119,7 @@ static bool kex_simplex_server_keyid_verify(const uint8_t* keyid, const uint8_t*
 
 static void kex_simplex_server_reset(qsmp_kex_simplex_server_state* kss)
 {
-	assert(kss != NULL);
+	QSMP_ASSERT(kss != NULL);
 
 	if (kss != NULL)
 	{
@@ -177,8 +177,8 @@ C{ kid || cfg || sm }->S
 */
 static qsmp_errors kex_duplex_client_connect_request(qsmp_kex_duplex_client_state* kcs, qsmp_connection_state* cns, qsmp_network_packet* packetout)
 {
-	assert(kcs != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	qsc_keccak_state kstate = { 0 };
 	qsmp_errors qerr;
@@ -261,9 +261,9 @@ C{ cpta || pk || skch }-> S
 */
 static qsmp_errors kex_duplex_client_exchange_request(qsmp_kex_duplex_client_state* kcs, qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_network_packet* packetout)
 {
-	assert(kcs != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	uint8_t khash[QSMP_DUPLEX_SCHASH_SIZE] = { 0 };
 	size_t mlen;
@@ -366,9 +366,9 @@ C{ cm }-> S
 */
 static qsmp_errors kex_duplex_client_establish_request(const qsmp_kex_duplex_client_state* kcs, qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_network_packet* packetout)
 {
-	assert(kcs != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	qsmp_errors qerr;
 	uint8_t khash[QSMP_DUPLEX_HASH_SIZE] = { 0 };
@@ -478,8 +478,8 @@ The client sets the operational state to session established, and is now ready t
 */
 static qsmp_errors kex_duplex_client_establish_verify(const qsmp_kex_duplex_client_state* kcs, qsmp_connection_state* cns, const qsmp_network_packet* packetin)
 {
-	assert(kcs != NULL);
-	assert(packetin != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(packetin != NULL);
 
 	qsmp_errors qerr;
 
@@ -552,10 +552,10 @@ S{ spkh || pk }-> C
 */
 static qsmp_errors kex_duplex_server_connect_response(qsmp_kex_duplex_server_state* kss, qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_network_packet* packetout)
 {
-	assert(cns != NULL);
-	assert(kss != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(kss != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	qsmp_errors qerr;
 
@@ -709,9 +709,9 @@ S{ scph || cptb }-> C
 */
 static qsmp_errors kex_duplex_server_exchange_response(const qsmp_kex_duplex_server_state* kss, qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_network_packet* packetout)
 {
-	assert(kss != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(kss != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	qsmp_errors qerr;
 
@@ -838,9 +838,9 @@ S{ cm }-> C
 */
 static qsmp_errors kex_duplex_server_establish_response(const qsmp_kex_duplex_server_state* kss, qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_network_packet* packetout)
 {
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(packetout != NULL);
 	
 	qsmp_errors qerr;
 
@@ -892,8 +892,8 @@ static qsmp_errors kex_duplex_server_establish_response(const qsmp_kex_duplex_se
 
 qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kcs, qsmp_connection_state* cns)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(cns != NULL);
 
 	qsmp_network_packet reqt = { 0 };
 	qsmp_network_packet resp = { 0 };
@@ -1126,8 +1126,8 @@ qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kc
 
 qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* kss, qsmp_connection_state* cns)
 {
-	assert(kss != NULL);
-	assert(cns != NULL);
+	QSMP_ASSERT(kss != NULL);
+	QSMP_ASSERT(cns != NULL);
 
 	qsmp_network_packet reqt = { 0 };
 	qsmp_network_packet resp = { 0 };
@@ -1360,9 +1360,9 @@ C{ kid || cfg }-> S
 */
 static qsmp_errors kex_simplex_client_connect_request(qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns, qsmp_network_packet* packetout)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	qsc_keccak_state kstate = { 0 };
 	qsmp_errors qerr;
@@ -1425,10 +1425,10 @@ C{ cpt }-> S
 */
 static qsmp_errors kex_simplex_client_exchange_request(const qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_network_packet* packetout)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	uint8_t khash[QSMP_SIMPLEX_SCHASH_SIZE] = { 0 };
 	size_t mlen;
@@ -1532,9 +1532,9 @@ The client sets the operational state to session established, and is now ready t
 */
 static qsmp_errors kex_simplex_client_establish_verify(const qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns, const qsmp_network_packet* packetin)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
-	assert(packetin != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(packetin != NULL);
 
 	qsmp_errors qerr;
 
@@ -1572,10 +1572,10 @@ S{ spkh || pk }-> C
 */
 static qsmp_errors kex_simplex_server_connect_response(qsmp_kex_simplex_server_state* kss, qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_network_packet* packetout)
 {
-	assert(kss != NULL);
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(kss != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	char confs[QSMP_CONFIG_SIZE + 1] = { 0 };
 	uint8_t phash[QSMP_SIMPLEX_HASH_SIZE] = { 0 };
@@ -1677,10 +1677,10 @@ S{ f }-> C
 */
 static qsmp_errors kex_simplex_server_exchange_response(const qsmp_kex_simplex_server_state* kss, qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_network_packet* packetout)
 {
-	assert(kss != NULL);
-	assert(cns != NULL);
-	assert(packetin != NULL);
-	assert(packetout != NULL);
+	QSMP_ASSERT(kss != NULL);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(packetin != NULL);
+	QSMP_ASSERT(packetout != NULL);
 
 	qsmp_errors qerr;
 
@@ -1743,8 +1743,8 @@ static qsmp_errors kex_simplex_server_exchange_response(const qsmp_kex_simplex_s
 
 qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns)
 {
-	assert(kcs != NULL);
-	assert(cns != NULL);
+	QSMP_ASSERT(kcs != NULL);
+	QSMP_ASSERT(cns != NULL);
 
 	uint8_t* rbuf;
 	uint8_t* sbuf;
@@ -1915,8 +1915,8 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
 
 qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* kss, qsmp_connection_state* cns)
 {
-	assert(kss != NULL);
-	assert(cns != NULL);
+	QSMP_ASSERT(kss != NULL);
+	QSMP_ASSERT(cns != NULL);
 
 	uint8_t* rbuf;
 	uint8_t* sbuf;
@@ -2062,7 +2062,7 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
 	return qerr;
 }
 
-bool qsmp_kex_test()
+bool qsmp_kex_test(void)
 {
 	qsmp_kex_simplex_client_state skcs = { 0 };
 	qsmp_kex_simplex_server_state skss = { 0 };
@@ -2163,4 +2163,3 @@ bool qsmp_kex_test()
 
 	return res;
 }
-

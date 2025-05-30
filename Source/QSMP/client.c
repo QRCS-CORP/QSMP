@@ -358,7 +358,7 @@ static void client_connection_dispose(client_receiver_state* prcv)
 
 static void client_receive_loop(client_receiver_state* prcv)
 {
-	assert(prcv != NULL);
+	QSMP_ASSERT(prcv != NULL);
 
 	qsmp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
@@ -531,8 +531,8 @@ static void client_receive_loop(client_receiver_state* prcv)
 
 static qsmp_errors listener_send_keep_alive(qsmp_keep_alive_state* kctx, const qsc_socket* sock)
 {
-	assert(kctx != NULL);
-	assert(sock != NULL);
+	QSMP_ASSERT(kctx != NULL);
+	QSMP_ASSERT(sock != NULL);
 
 	qsmp_errors qerr;
 
@@ -570,7 +570,7 @@ static qsmp_errors listener_send_keep_alive(qsmp_keep_alive_state* kctx, const q
 
 static void listener_keepalive_loop(qsmp_keep_alive_state* kpa)
 {
-	assert(kpa != NULL);
+	QSMP_ASSERT(kpa != NULL);
 
 	qsc_mutex mtx;
 	qsmp_errors qerr;
@@ -594,7 +594,7 @@ static void listener_keepalive_loop(qsmp_keep_alive_state* kpa)
 
 static void listener_receive_loop(listener_receiver_state* prcv)
 {
-	assert(prcv != NULL);
+	QSMP_ASSERT(prcv != NULL);
 
 	qsmp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
@@ -783,9 +783,9 @@ static qsmp_errors listener_duplex_start(const qsmp_server_signature_key* kset,
 	void (*send_func)(qsmp_connection_state*),
 	bool (*key_query)(uint8_t* rvkey, const uint8_t* pkid))
 {
-	assert(kset != NULL);
-	assert(prcv != NULL);
-	assert(send_func != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(prcv != NULL);
+	QSMP_ASSERT(send_func != NULL);
 
 	qsmp_kex_duplex_server_state* pkss;
 	qsmp_errors qerr;
@@ -835,9 +835,9 @@ static qsmp_errors listener_simplex_start(const qsmp_server_signature_key* kset,
 	listener_receiver_state* prcv, 
 	void (*send_func)(qsmp_connection_state*))
 {
-	assert(kset != NULL);
-	assert(prcv != NULL);
-	assert(send_func != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(prcv != NULL);
+	QSMP_ASSERT(send_func != NULL);
 
 	qsmp_kex_simplex_server_state* pkss;
 	qsmp_errors qerr;
@@ -903,8 +903,8 @@ static qsmp_errors listener_simplex_start(const qsmp_server_signature_key* kset,
 #if defined(QSMP_ASYMMETRIC_RATCHET)
 bool qsmp_duplex_send_asymmetric_ratchet_request(qsmp_connection_state* cns)
 {
-	assert(cns != NULL);
-	assert(cns->mode == qsmp_mode_duplex);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(cns->mode == qsmp_mode_duplex);
 
 	bool res;
 	
@@ -969,8 +969,8 @@ bool qsmp_duplex_send_asymmetric_ratchet_request(qsmp_connection_state* cns)
 
 bool qsmp_duplex_send_symmetric_ratchet_request(qsmp_connection_state* cns)
 {
-	assert(cns != NULL);
-	assert(cns->mode == qsmp_mode_duplex);
+	QSMP_ASSERT(cns != NULL);
+	QSMP_ASSERT(cns->mode == qsmp_mode_duplex);
 
 	size_t plen;
 	size_t slen;
@@ -1025,11 +1025,11 @@ qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kse
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t))
 {
-	assert(kset != NULL);
-	assert(rverkey != NULL);
-	assert(send_func != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(rverkey != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsmp_kex_duplex_client_state* kcs;
 	client_receiver_state* prcv;
@@ -1156,11 +1156,11 @@ qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_signature_key* kse
 	void (*send_func)(qsmp_connection_state*),
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t))
 {
-	assert(kset != NULL);
-	assert(rverkey != NULL);
-	assert(send_func != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(rverkey != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsmp_kex_duplex_client_state* kcs;
 	client_receiver_state* prcv;
@@ -1289,9 +1289,9 @@ qsmp_errors qsmp_client_duplex_listen_ipv4(const qsmp_server_signature_key* kset
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t), 
 	bool (*key_query)(uint8_t* rvkey, const uint8_t* pkid))
 {
-	assert(kset != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv4_address addt = { 0 };
 	listener_receiver_state* prcv;
@@ -1360,9 +1360,9 @@ qsmp_errors qsmp_client_duplex_listen_ipv6(const qsmp_server_signature_key* kset
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
 	bool (*key_query)(uint8_t* rvkey, const uint8_t* pkid))
 {
-	assert(kset != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv6_address addt = { 0 };
 	listener_receiver_state* prcv;
@@ -1431,10 +1431,10 @@ qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_verification_key*
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t))
 {
-	assert(pubk != NULL);
-	assert(send_func != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(pubk != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsmp_kex_simplex_client_state* kcs;
 	client_receiver_state* prcv;
@@ -1555,10 +1555,10 @@ qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_verification_key*
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t))
 {
-	assert(pubk != NULL);
-	assert(send_func != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(pubk != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsmp_kex_simplex_client_state* kcs;
 	client_receiver_state* prcv;
@@ -1677,9 +1677,9 @@ qsmp_errors qsmp_client_simplex_listen_ipv4(const qsmp_server_signature_key* kse
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t))
 {
-	assert(kset != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv4_address addt = { 0 };
 	listener_receiver_state* prcv;
@@ -1760,9 +1760,9 @@ qsmp_errors qsmp_client_simplex_listen_ipv6(const qsmp_server_signature_key* kse
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t))
 {
-	assert(kset != NULL);
-	assert(send_func != NULL);
-	assert(receive_callback != NULL);
+	QSMP_ASSERT(kset != NULL);
+	QSMP_ASSERT(send_func != NULL);
+	QSMP_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv6_address addt = { 0 };
 	listener_receiver_state* prcv;
