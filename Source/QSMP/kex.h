@@ -40,8 +40,7 @@
 #ifndef QSMP_KEX_H
 #define QSMP_KEX_H
 
-#include "common.h"
-#include "../QSMP/qsmp.h"
+#include "qsmp.h"
 
 /**
  * \file kex.h

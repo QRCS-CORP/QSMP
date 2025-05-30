@@ -41,8 +41,8 @@
 #define QSMP_SERVER_H
 
 #include "qsmp.h"
-#include "../../QSC/QSC/rcs.h"
-#include "../../QSC/QSC/socketserver.h"
+#include "rcs.h"
+#include "socketserver.h"
 /**
  * \file server.h
  * \brief QSMP Server functions.

@@ -40,8 +40,8 @@
 #ifndef QSMP_H
 #define QSMP_H
 
-#include "../../QSC/QSC/rcs.h"
-#include "../../QSC/QSC/sha3.h"
+#include "rcs.h"
+#include "sha3.h"
 
 /**
 * \file qsmp.h
@@ -102,18 +102,18 @@
 //*/
 //#define QSMP_CONFIG_SPHINCS_MCELIECE
 
-#include "common.h"
-#include "../../QSC/QSC/socketbase.h"
+#include "qsmpcommon.h"
+#include "socketbase.h"
 
 #if defined(QSMP_CONFIG_DILITHIUM_KYBER)
-#	include "../../QSC/QSC/dilithium.h"
-#	include "../../QSC/QSC/kyber.h"
+#	include "dilithium.h"
+#	include "kyber.h"
 #elif defined(QSMP_CONFIG_DILITHIUM_MCELIECE)
-#	include "../../QSC/QSC/dilithium.h"
-#	include "../../QSC/QSC/mceliece.h"
+#	include "dilithium.h"
+#	include "mceliece.h"
 #elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
-#	include "../../QSC/QSC/sphincsplus.h"
-#	include "../../QSC/QSC/mceliece.h"
+#	include "sphincsplus.h"
+#	include "mceliece.h"
 #else
 #	error Invalid parameter set!
 #endif
@@ -655,26 +655,31 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s
 * \brief The size of the QSMP public key header
 */
 #define QSMP_PUBKEY_HEADER_SIZE 40
+
 /*!
 * \def QSMP_PUBKEY_VERSION_SIZE
 * \brief The size of the QSMP public key version string
 */
 #define QSMP_PUBKEY_VERSION_SIZE 19
+
 /*!
 * \def QSMP_PUBKEY_CONFIG_SIZE
 * \brief The size of the QSMP public key configuration prefix
 */
 #define QSMP_PUBKEY_CONFIG_SIZE 16
+
 /*!
 * \def QSMP_PUBKEY_KEYID_SIZE
 * \brief The size of the QSMP public key identifier prefix
 */
 #define QSMP_PUBKEY_KEYID_SIZE 10
+
 /*!
 * \def QSMP_PUBKEY_EXPIRATION_SIZE
 * \brief The size of the QSMP public key expiration prefix
 */
 #define QSMP_PUBKEY_EXPIRATION_SIZE 13
+
 /*!
 * \def QSMP_PUBKEY_FOOTER_SIZE
 * \brief The size of the QSMP public key footer
@@ -724,6 +729,7 @@ static const char QSMP_PUBKEY_FOOTER[QSMP_PUBKEY_FOOTER_SIZE] = "------END QSMP 
 * \brief The depth of the QSMP error string array
 */
 #define QSMP_ERROR_STRING_DEPTH 29
+
 /*!
 * \def QSMP_ERROR_STRING_WIDTH
 * \brief The width of each QSMP error string

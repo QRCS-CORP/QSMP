@@ -2,14 +2,14 @@
 #include "connections.h"
 #include "kex.h"
 #include "logger.h"
-#include "../../QSC/QSC/acp.h"
-#include "../../QSC/QSC/async.h"
-#include "../../QSC/QSC/encoding.h"
-#include "../../QSC/QSC/intutils.h"
-#include "../../QSC/QSC/memutils.h"
-#include "../../QSC/QSC/sha3.h"
-#include "../../QSC/QSC/stringutils.h"
-#include "../../QSC/QSC/timestamp.h"
+#include "acp.h"
+#include "async.h"
+#include "encoding.h"
+#include "intutils.h"
+#include "memutils.h"
+#include "sha3.h"
+#include "stringutils.h"
+#include "timestamp.h"
 
 /** \cond */
 typedef struct server_receiver_state

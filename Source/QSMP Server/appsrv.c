@@ -17,15 +17,15 @@
  */
 
 #include "appsrv.h"
-#include "../QSMP/server.h"
-#include "../../QSC/QSC/acp.h"
-#include "../../QSC/QSC/async.h"
-#include "../../QSC/QSC/consoleutils.h"
-#include "../../QSC/QSC/fileutils.h"
-#include "../../QSC/QSC/folderutils.h"
-#include "../../QSC/QSC/ipinfo.h"
-#include "../../QSC/QSC/netutils.h"
-#include "../../QSC/QSC/stringutils.h"
+#include "server.h"
+#include "acp.h"
+#include "async.h"
+#include "consoleutils.h"
+#include "fileutils.h"
+#include "folderutils.h"
+#include "ipinfo.h"
+#include "netutils.h"
+#include "stringutils.h"
 
 static void server_print_prompt(void)
 {

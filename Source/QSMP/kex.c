@@ -1,13 +1,13 @@
 ﻿#include "kex.h"
-#include "../../QSC/QSC/acp.h"
-#include "../../QSC/QSC/encoding.h"
-#include "../../QSC/QSC/intutils.h"
-#include "../../QSC/QSC/memutils.h"
-#include "../../QSC/QSC/rcs.h"
-#include "../../QSC/QSC/sha3.h"
-#include "../../QSC/QSC/socketserver.h"
-#include "../../QSC/QSC/stringutils.h"
-#include "../../QSC/QSC/timestamp.h"
+#include "acp.h"
+#include "encoding.h"
+#include "intutils.h"
+#include "memutils.h"
+#include "rcs.h"
+#include "sha3.h"
+#include "socketserver.h"
+#include "stringutils.h"
+#include "timestamp.h"
 
 #define KEX_SIMPLEX_CONNECT_REQUEST_MESSAGE_SIZE (QSMP_KEYID_SIZE + QSMP_CONFIG_SIZE)
 #define KEX_SIMPLEX_CONNECT_REQUEST_PACKET_SIZE (QSMP_HEADER_SIZE + KEX_SIMPLEX_CONNECT_REQUEST_MESSAGE_SIZE)

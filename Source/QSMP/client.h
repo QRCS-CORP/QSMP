@@ -41,8 +41,8 @@
 #define QSMP_CLIENT_H
 
 #include "qsmp.h"
-#include "../../QSC/QSC/rcs.h"
-#include "../../QSC/QSC/socketclient.h"
+#include "rcs.h"
+#include "socketclient.h"
 
 /**
  * \file client.h

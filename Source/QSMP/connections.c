@@ -1,6 +1,5 @@
 #include "connections.h"
-#include "../../QSC/QSC/common.h"
-#include "../../QSC/QSC/memutils.h"
+#include "memutils.h"
 
 /** \cond */
 QSC_SIMD_ALIGN typedef struct qsmp_connection_set

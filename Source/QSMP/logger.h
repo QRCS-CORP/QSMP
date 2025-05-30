@@ -40,7 +40,7 @@
 #ifndef QSMP_LOGGER_H
 #define QSMP_LOGGER_H
 
-#include "common.h"
+#include "qsmpcommon.h"
 
 /**
  * \file logger.h

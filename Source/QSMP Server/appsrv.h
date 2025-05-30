@@ -40,9 +40,9 @@
 #ifndef QSMP_SERVER_APP_H
 #define QSMP_SERVER_APP_H
 
-#include "common.h"
-#include "../../QSC/QSC/socketbase.h"
-#include "../../QSC/QSC/socketserver.h"
+#include "qsmpcommon.h"
+#include "socketbase.h"
+#include "socketserver.h"
 
 /**
 * \file appsrv.h

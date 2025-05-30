@@ -40,7 +40,12 @@
 #ifndef QSMP_SENDER_APP_H
 #define QSMP_SENDER_APP_H
 
-#include "common.h"
+#include <assert.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "qsmpcommon.h"
 
 /**
 * \file appclt.h

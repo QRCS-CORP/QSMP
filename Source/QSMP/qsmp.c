@@ -1,12 +1,12 @@
 #include "qsmp.h"
-#include "../QSMP/logger.h"
-#include "../../QSC/QSC/async.h"
-#include "../../QSC/QSC/acp.h"
-#include "../../QSC/QSC/encoding.h"
-#include "../../QSC/QSC/intutils.h"
-#include "../../QSC/QSC/memutils.h"
-#include "../../QSC/QSC/stringutils.h"
-#include "../../QSC/QSC/timestamp.h"
+#include "logger.h"
+#include "async.h"
+#include "acp.h"
+#include "encoding.h"
+#include "intutils.h"
+#include "memutils.h"
+#include "stringutils.h"
+#include "timestamp.h"
 
 void qsmp_asymmetric_cipher_keypair_dispose(qsmp_asymmetric_cipher_keypair* keypair)
 {
@@ -228,7 +228,7 @@ qsmp_errors qsmp_header_validate(qsmp_connection_state* cns, const qsmp_network_
 
 	if (packetin->flag == qsmp_flag_error_condition)
 	{
-		merr = (qsmp_flags)packetin->pmessage[0];
+		merr = (qsmp_errors)packetin->pmessage[0];
 	}
 	else
 	{

@@ -40,7 +40,7 @@
 #ifndef QSMP_CONNECTIONS_H
 #define QSMP_CONNECTIONS_H
 
-#include "common.h"
+#include "qsmpcommon.h"
 #include "qsmp.h"
 
 /**
