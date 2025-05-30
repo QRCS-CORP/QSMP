@@ -41,7 +41,7 @@
 #define QSMP_MASTER_COMMON_H
 
 #include "qsccommon.h"
-#include <QSMP_ASSERT.h>
+#include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -110,7 +110,7 @@
    * \def QSMP_ASSERT
    * \brief Define the QSMP_ASSERT function and guarantee it as debug only.
    */
-#  define QSMP_ASSERT(expr) QSMP_ASSERT(expr)
+#  define QSMP_ASSERT(expr) assert(expr)
 #else
 #  define QSMP_ASSERT(expr) ((void)0)
 #endif
