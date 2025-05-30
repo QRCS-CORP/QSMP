@@ -1,5 +1,13 @@
 # Quantum Secure Messaging Protocol (QSMP)
 
+## Introduction
+
+[![Build](https://github.com/QRCS-CORP/QSMP/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/QRCS-CORP/QSMP/actions/workflows/build.yml)
+[![CodeQL](https://github.com/QRCS-CORP/QSMP/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/QRCS-CORP/QSMP/actions/workflows/codeql-analysis.yml)
+[![Platforms](https://img.shields.io/badge/platforms-Linux%20|%20macOS%20|%20Windows-blue)](#)
+[![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSMP/)
+[![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/QRCS-CORP/QSMP/security/policy)  
+
 **QSMP is a post-quantum alternative to traditional key exchange protocols (such as TLS) that integrates robust key exchange, authentication, and an encrypted tunnel into a single specification.**
 
 [QSMP Help Documentation](https://qrcs-corp.github.io/QSMP/)  

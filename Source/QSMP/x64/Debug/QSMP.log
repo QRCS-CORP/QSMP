@@ -1,0 +1,8 @@
+﻿  connections.c
+  kex.c
+  logger.c
+  qsmp.c
+  client.c
+  server.c
+  Generating Code...
+  QSMP.vcxproj -> C:\Users\stepp\Documents\Visual Studio 2022\Projects\C\QSMP\x64\Debug\QSMP.lib
