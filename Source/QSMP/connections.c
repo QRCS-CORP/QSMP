@@ -2,7 +2,7 @@
 #include "memutils.h"
 
 /** \cond */
-QSC_SIMD_ALIGN typedef struct qsmp_connection_set
+typedef struct qsmp_connection_set
 {
 	qsmp_connection_state* conset;
 	bool* active;
@@ -177,7 +177,7 @@ void qsmp_connections_initialize(size_t count, size_t maximum)
 	}
 }
 
-qsmp_connection_state* qsmp_connections_next()
+qsmp_connection_state* qsmp_connections_next(void)
 {
 	qsmp_connection_state* res;
 
@@ -228,6 +228,8 @@ void qsmp_connections_self_test(void)
 	size_t cnt;
 	bool full;
 
+	(void)full;
+	(void)cnt;
 	qsmp_connections_initialize(1, 10); /* init with 1 */
 
 	for (size_t i = 1; i < 10; ++i)
