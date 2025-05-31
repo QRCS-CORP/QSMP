@@ -25,6 +25,8 @@
 #include "folderutils.h"
 #include "ipinfo.h"
 #include "netutils.h"
+#include "socketbase.h"
+#include "socketserver.h"
 #include "stringutils.h"
 
 static void server_print_prompt(void)

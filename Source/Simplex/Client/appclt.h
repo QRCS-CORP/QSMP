@@ -40,11 +40,6 @@
 #ifndef QSMP_CLIENT_APP_H
 #define QSMP_CLIENT_APP_H
 
-#include <QSMP_ASSERT.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
 #include "qsmpcommon.h"
 
 /**

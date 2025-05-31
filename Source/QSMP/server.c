@@ -19,6 +19,11 @@ typedef struct server_receiver_state
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t);
 	void (*disconnect_callback)(qsmp_connection_state*);
 } server_receiver_state;
+
+typedef struct server_receive_loop_args
+{
+	server_receiver_state* prcv;
+} server_receive_loop_args;
 /** \endcond */
 
 /** \cond */
@@ -221,6 +226,16 @@ static void server_receive_loop(server_receiver_state* prcv)
 	}
 }
 
+static void server_receive_loop_wrapper(void* state)
+{
+	server_receive_loop_args* args = (server_receive_loop_args*)state;
+
+	if (args != NULL)
+	{
+		server_receive_loop(args->prcv);
+	}
+}
+
 static qsmp_errors server_start(const qsmp_server_signature_key* kset, 
 	const qsc_socket* source, 
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
@@ -230,6 +245,7 @@ static qsmp_errors server_start(const qsmp_server_signature_key* kset,
 	QSMP_ASSERT(source != NULL);
 	QSMP_ASSERT(receive_callback != NULL);
 
+	server_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions res;
 	qsmp_errors qerr;
 
@@ -260,7 +276,9 @@ static qsmp_errors server_start(const qsmp_server_signature_key* kset,
 					prcv->receive_callback = receive_callback;
 
 					qsmp_log_write(qsmp_messages_connect_success, (const char*)cns->target.address);
-					qsc_async_thread_create((void*)&server_receive_loop, prcv);
+					/* start the receive loop on a new thread */
+					rargs.prcv = prcv;
+					qsc_async_thread_create(&server_receive_loop_wrapper, &rargs);
 					server_poll_sockets();
 				}
 				else

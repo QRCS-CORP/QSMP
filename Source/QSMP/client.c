@@ -16,12 +16,27 @@ typedef struct client_receiver_state
 	void (*callback)(qsmp_connection_state*, const uint8_t*, size_t);
 } client_receiver_state;
 
+typedef struct client_receive_loop_args
+{
+	client_receiver_state* prcv;
+} client_receive_loop_args;
+
 typedef struct listener_receiver_state
 {
 	qsmp_connection_state* pcns;
-	qsmp_keep_alive_state* pkpa;
+	qsmp_keepalive_state* pkpa;
 	void (*callback)(qsmp_connection_state*, const uint8_t*, size_t);
 } listener_receiver_state;
+
+typedef struct listener_keepalive_loop_args
+{
+	qsmp_keepalive_state* pkpa;
+} listener_keepalive_loop_args;
+
+typedef struct listener_receive_loop_args
+{
+	listener_receiver_state* prcv;
+} listener_receive_loop_args;
 /** \endcond */
 
 #if defined(QSMP_ASYMMETRIC_RATCHET)
@@ -118,7 +133,7 @@ static void symmetric_ratchet(qsmp_connection_state* cns, const uint8_t* secret,
 	uint8_t prnd[(QSC_KECCAK_512_RATE * 3)] = { 0 };
 
 	/* re-key the ciphers using the token, ratchet key, and configuration name */
-	qsc_cshake_initialize(&kstate, qsc_keccak_rate_512, secret, seclen, QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE, cns->rtcs, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
+	qsc_cshake_initialize(&kstate, qsc_keccak_rate_512, secret, seclen, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE, cns->rtcs, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 	/* re-key the ciphers using the symmetric ratchet key */
 	qsc_cshake_squeezeblocks(&kstate, qsc_keccak_rate_512, prnd, 3);
 
@@ -529,7 +544,7 @@ static void client_receive_loop(client_receiver_state* prcv)
 	}
 }
 
-static qsmp_errors listener_send_keep_alive(qsmp_keep_alive_state* kctx, const qsc_socket* sock)
+static qsmp_errors listener_send_keep_alive(qsmp_keepalive_state* kctx, const qsc_socket* sock)
 {
 	QSMP_ASSERT(kctx != NULL);
 	QSMP_ASSERT(sock != NULL);
@@ -568,7 +583,7 @@ static qsmp_errors listener_send_keep_alive(qsmp_keep_alive_state* kctx, const q
 	return qerr;
 }
 
-static void listener_keepalive_loop(qsmp_keep_alive_state* kpa)
+static void listener_keepalive_loop(qsmp_keepalive_state* kpa)
 {
 	QSMP_ASSERT(kpa != NULL);
 
@@ -778,6 +793,26 @@ static void listener_receive_loop(listener_receiver_state* prcv)
 	}
 }
 
+static void listener_keepalive_loop_wrapper(void* state)
+{
+	listener_keepalive_loop_args* args = (listener_keepalive_loop_args*)state;
+
+	if (args != NULL)
+	{
+		listener_keepalive_loop(args->pkpa);
+	}
+}
+
+static void listener_receive_loop_wrapper(void* state)
+{
+	listener_receive_loop_args* args = (listener_receive_loop_args*)state;
+
+	if (args != NULL)
+	{
+		listener_receive_loop(args->prcv);
+	}
+}
+
 static qsmp_errors listener_duplex_start(const qsmp_server_signature_key* kset, 
 	listener_receiver_state* prcv, 
 	void (*send_func)(qsmp_connection_state*),
@@ -787,6 +822,8 @@ static qsmp_errors listener_duplex_start(const qsmp_server_signature_key* kset,
 	QSMP_ASSERT(prcv != NULL);
 	QSMP_ASSERT(send_func != NULL);
 
+	listener_receive_loop_args largs = { 0 };
+	listener_keepalive_loop_args kargs = { 0 };
 	qsmp_kex_duplex_server_state* pkss;
 	qsmp_errors qerr;
 
@@ -812,9 +849,11 @@ static qsmp_errors listener_duplex_start(const qsmp_server_signature_key* kset,
 			qsc_memutils_copy(m_skeyset->verkey, pkss->rverkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 #endif
 			/* start the keep-alive mechanism on a new thread */
-			qsc_async_thread_create((void*)&listener_keepalive_loop, prcv->pkpa);
+			kargs.pkpa = prcv->pkpa;
+			qsc_async_thread_create(&listener_keepalive_loop_wrapper, &kargs);
 			/* initialize the receiver loop on a new thread */
-			qsc_async_thread_create((void*)&listener_receive_loop, prcv);
+			largs.prcv = prcv;
+			qsc_async_thread_create(&listener_receive_loop_wrapper, &largs);
 
 			/* start the send loop on the *main* thread */
 			send_func(prcv->pcns);
@@ -839,6 +878,8 @@ static qsmp_errors listener_simplex_start(const qsmp_server_signature_key* kset,
 	QSMP_ASSERT(prcv != NULL);
 	QSMP_ASSERT(send_func != NULL);
 
+	listener_receive_loop_args largs = { 0 };
+	listener_keepalive_loop_args kargs = { 0 };
 	qsmp_kex_simplex_server_state* pkss;
 	qsmp_errors qerr;
 
@@ -860,9 +901,11 @@ static qsmp_errors listener_simplex_start(const qsmp_server_signature_key* kset,
 		if (qerr == qsmp_error_none)
 		{
 			/* start the keep-alive mechanism on a new thread */
-			qsc_async_thread_create((void*)&listener_keepalive_loop, prcv->pkpa);
+			kargs.pkpa = prcv->pkpa;
+			qsc_async_thread_create(&listener_keepalive_loop_wrapper, &kargs);
 			/* initialize the receiver loop on a new thread */
-			qsc_async_thread_create((void*)&listener_receive_loop, prcv);
+			largs.prcv = prcv;
+			qsc_async_thread_create(&listener_receive_loop_wrapper, &largs);
 
 			/* start the send loop on the *main* thread */
 			send_func(prcv->pcns);
@@ -1019,6 +1062,16 @@ bool qsmp_duplex_send_symmetric_ratchet_request(qsmp_connection_state* cns)
 	return res;
 }
 
+static void client_receive_loop_wrapper(void* state)
+{
+	client_receive_loop_args* args = (client_receive_loop_args*)state;
+
+	if (args != NULL)
+	{
+		client_receive_loop(args->prcv);
+	}
+}
+
 qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kset, 
 	const qsmp_client_verification_key* rverkey, 
 	const qsc_ipinfo_ipv4_address* address, uint16_t port,
@@ -1033,6 +1086,7 @@ qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kse
 
 	qsmp_kex_duplex_client_state* kcs;
 	client_receiver_state* prcv;
+	client_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
@@ -1080,7 +1134,8 @@ qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kse
 							qsc_memutils_copy(m_skeyset->verkey, rverkey->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 #endif
 							/* start the receive loop on a new thread */
-							qsc_async_thread_create((void*)&client_receive_loop, prcv);
+							rargs.prcv = prcv;
+							qsc_async_thread_create(&client_receive_loop_wrapper, &rargs);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);
@@ -1164,6 +1219,7 @@ qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_signature_key* kse
 
 	qsmp_kex_duplex_client_state* kcs;
 	client_receiver_state* prcv;
+	client_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
@@ -1212,7 +1268,8 @@ qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_signature_key* kse
 #endif
 
 							/* start the receive loop on a new thread */
-							qsc_async_thread_create((void*)&client_receive_loop, prcv);
+							rargs.prcv = prcv;
+							qsc_async_thread_create(&client_receive_loop, &rargs);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);
@@ -1309,13 +1366,13 @@ qsmp_errors qsmp_client_duplex_listen_ipv4(const qsmp_server_signature_key* kset
 		if (prcv != NULL)
 		{
 			prcv->pcns = (qsmp_connection_state*)qsc_memutils_malloc(sizeof(qsmp_connection_state));
-			prcv->pkpa = (qsmp_keep_alive_state*)qsc_memutils_malloc(sizeof(qsmp_keep_alive_state));
+			prcv->pkpa = (qsmp_keepalive_state*)qsc_memutils_malloc(sizeof(qsmp_keepalive_state));
 
 			if (prcv->pcns != NULL && prcv->pkpa != NULL)
 			{
 				prcv->callback = receive_callback;
 				qsc_memutils_clear((uint8_t*)prcv->pcns, sizeof(qsmp_connection_state));
-				qsc_memutils_clear((uint8_t*)prcv->pkpa, sizeof(qsmp_keep_alive_state));
+				qsc_memutils_clear((uint8_t*)prcv->pkpa, sizeof(qsmp_keepalive_state));
 
 				addt = qsc_ipinfo_ipv4_address_any();
 				qsc_socket_server_initialize(&prcv->pcns->target);
@@ -1380,13 +1437,13 @@ qsmp_errors qsmp_client_duplex_listen_ipv6(const qsmp_server_signature_key* kset
 		if (prcv != NULL)
 		{
 			prcv->pcns = (qsmp_connection_state*)qsc_memutils_malloc(sizeof(qsmp_connection_state));
-			prcv->pkpa = (qsmp_keep_alive_state*)qsc_memutils_malloc(sizeof(qsmp_keep_alive_state));
+			prcv->pkpa = (qsmp_keepalive_state*)qsc_memutils_malloc(sizeof(qsmp_keepalive_state));
 
 			if (prcv->pcns != NULL && prcv->pkpa != NULL)
 			{
 				prcv->callback = receive_callback;
 				qsc_memutils_clear((uint8_t*)prcv->pcns, sizeof(qsmp_connection_state));
-				qsc_memutils_clear((uint8_t*)prcv->pkpa, sizeof(qsmp_keep_alive_state));
+				qsc_memutils_clear((uint8_t*)prcv->pkpa, sizeof(qsmp_keepalive_state));
 
 				addt = qsc_ipinfo_ipv6_address_any();
 				qsc_socket_server_initialize(&prcv->pcns->target);
@@ -1438,6 +1495,7 @@ qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_verification_key*
 
 	qsmp_kex_simplex_client_state* kcs;
 	client_receiver_state* prcv;
+	client_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
@@ -1479,7 +1537,8 @@ qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_verification_key*
 						if (qerr == qsmp_error_none)
 						{
 							/* start the receive loop on a new thread */
-							qsc_async_thread_create((void*)&client_receive_loop, prcv);
+							rargs.prcv = prcv;
+							qsc_async_thread_create(&client_receive_loop_wrapper, &rargs);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);
@@ -1562,6 +1621,7 @@ qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_verification_key*
 
 	qsmp_kex_simplex_client_state* kcs;
 	client_receiver_state* prcv;
+	client_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
@@ -1602,7 +1662,8 @@ qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_verification_key*
 						if (qerr == qsmp_error_none)
 						{
 							/* start the receive loop on a new thread */
-							qsc_async_thread_create((void*)&client_receive_loop, prcv);
+							rargs.prcv = prcv;
+							qsc_async_thread_create(&client_receive_loop_wrapper, &rargs);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);
@@ -1697,13 +1758,13 @@ qsmp_errors qsmp_client_simplex_listen_ipv4(const qsmp_server_signature_key* kse
 		if (prcv != NULL)
 		{
 			prcv->pcns = (qsmp_connection_state*)qsc_memutils_malloc(sizeof(qsmp_connection_state));
-			prcv->pkpa = (qsmp_keep_alive_state*)qsc_memutils_malloc(sizeof(qsmp_keep_alive_state));
+			prcv->pkpa = (qsmp_keepalive_state*)qsc_memutils_malloc(sizeof(qsmp_keepalive_state));
 
 			if (prcv->pcns != NULL && prcv->pkpa != NULL)
 			{
 				prcv->callback = receive_callback;
 				qsc_memutils_clear((uint8_t*)prcv->pcns, sizeof(qsmp_connection_state));
-				qsc_memutils_clear((uint8_t*)prcv->pkpa, sizeof(qsmp_keep_alive_state));
+				qsc_memutils_clear((uint8_t*)prcv->pkpa, sizeof(qsmp_keepalive_state));
 
 				addt = qsc_ipinfo_ipv4_address_any();
 				qsc_socket_server_initialize(&prcv->pcns->target);
@@ -1779,13 +1840,13 @@ qsmp_errors qsmp_client_simplex_listen_ipv6(const qsmp_server_signature_key* kse
 		if (prcv != NULL)
 		{
 			prcv->pcns = (qsmp_connection_state*)qsc_memutils_malloc(sizeof(qsmp_connection_state));
-			prcv->pkpa = (qsmp_keep_alive_state*)qsc_memutils_malloc(sizeof(qsmp_keep_alive_state));
+			prcv->pkpa = (qsmp_keepalive_state*)qsc_memutils_malloc(sizeof(qsmp_keepalive_state));
 
 			if (prcv->pcns != NULL && prcv->pkpa != NULL)
 			{
 				prcv->callback = receive_callback;
 				qsc_memutils_clear((uint8_t*)prcv->pcns, sizeof(qsmp_connection_state));
-				qsc_memutils_clear((uint8_t*)prcv->pkpa, sizeof(qsmp_keep_alive_state));
+				qsc_memutils_clear((uint8_t*)prcv->pkpa, sizeof(qsmp_keepalive_state));
 
 				addt = qsc_ipinfo_ipv6_address_any();
 				qsc_socket_server_initialize(&prcv->pcns->target);

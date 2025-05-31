@@ -41,8 +41,6 @@
 #define QSMP_SERVER_APP_H
 
 #include "qsmpcommon.h"
-#include "socketbase.h"
-#include "socketserver.h"
 
 /**
 * \file appsrv.h

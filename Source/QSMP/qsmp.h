@@ -989,16 +989,16 @@ QSMP_EXPORT_API typedef struct qsmp_server_signature_key
 } qsmp_server_signature_key;
 
 /*!
-* \struct qsmp_keep_alive_state
+* \struct qsmp_keepalive_state
 * \brief The QSMP keep alive state structure
 */
-QSMP_EXPORT_API typedef struct qsmp_keep_alive_state
+QSMP_EXPORT_API typedef struct qsmp_keepalive_state
 {
 	qsc_socket target;								/*!< The target socket structure */
 	uint64_t etime;									/*!< The keep alive epoch time  */
 	uint64_t seqctr;								/*!< The keep alive packet sequence counter  */
 	bool recd;										/*!< The keep alive response received status  */
-} qsmp_keep_alive_state;
+} qsmp_keepalive_state;
 
 /*!
 * \struct qsmp_connection_state
