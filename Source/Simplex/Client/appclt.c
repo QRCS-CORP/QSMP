@@ -162,7 +162,7 @@ static bool client_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_client_v
 	return res;
 }
 
-static void client_receive_callback(const qsmp_connection_state* cns, const uint8_t* pmsg, size_t msglen)
+static void client_receive_callback(qsmp_connection_state* cns, const uint8_t* pmsg, size_t msglen)
 {
 	char* cmsg;
 	
