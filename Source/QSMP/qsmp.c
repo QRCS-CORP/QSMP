@@ -822,6 +822,7 @@ size_t qsmp_packet_to_stream(const qsmp_network_packet* packet, uint8_t* pstream
 	return res;
 }
 
+#if defined (QSMP_DEBUG_MODE)
 bool qsmp_certificate_encoding_test(void)
 {
 	qsmp_client_verification_key pcpy = { 0 };
@@ -852,3 +853,4 @@ bool qsmp_certificate_encoding_test(void)
 
 	return res;
 }
+#endif

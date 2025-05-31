@@ -1030,7 +1030,7 @@ QSMP_EXPORT_API void qsmp_asymmetric_cipher_keypair_dispose(qsmp_asymmetric_ciph
 *
 * \return Returns a pointer to an asymmetric cipher keypair
 */
-QSMP_EXPORT_API qsmp_asymmetric_cipher_keypair* qsmp_asymmetric_cipher_keypair_initialize();
+QSMP_EXPORT_API qsmp_asymmetric_cipher_keypair* qsmp_asymmetric_cipher_keypair_initialize(void);
 
 /*!
 * \brief Dispose of an asymmetric signature keypair
@@ -1044,7 +1044,7 @@ QSMP_EXPORT_API void qsmp_asymmetric_signature_keypair_dispose(qsmp_asymmetric_s
 *
 * \return Returns a pointer to an asymmetric signature keypair
 */
-QSMP_EXPORT_API qsmp_asymmetric_signature_keypair* qsmp_asymmetric_signature_keypair_initialize();
+QSMP_EXPORT_API qsmp_asymmetric_signature_keypair* qsmp_asymmetric_signature_keypair_initialize(void);
 
 /*!
 * \brief Close the network connection between hosts
@@ -1254,7 +1254,7 @@ QSMP_EXPORT_API size_t qsmp_public_key_encode(char* enck, size_t enclen, const q
 *
 * \return Returns the size of the encoded string
 */
-QSMP_EXPORT_API size_t qsmp_public_key_encoding_size();
+QSMP_EXPORT_API size_t qsmp_public_key_encoding_size(void);
 
 /*!
 * \brief Decode a secret signature key structure and copy to an array
@@ -1280,11 +1280,13 @@ QSMP_EXPORT_API void qsmp_signature_key_serialize(uint8_t serk[QSMP_SIGKEY_ENCOD
 */
 QSMP_EXPORT_API void qsmp_stream_to_packet(const uint8_t* pstream, qsmp_network_packet* packet);
 
+#if defined (QSMP_DEBUG_MODE)
 /*!
 * \brief Test the certificate encoding and decoding functions
 *
 * \return Returns true if the encoding tests succeed
 */
-QSMP_EXPORT_API bool qsmp_certificate_encoding_test();
+QSMP_EXPORT_API bool qsmp_certificate_encoding_test(void);
+#endif
 
 #endif

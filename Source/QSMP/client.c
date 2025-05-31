@@ -1269,7 +1269,7 @@ qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_signature_key* kse
 
 							/* start the receive loop on a new thread */
 							rargs.prcv = prcv;
-							qsc_async_thread_create(&client_receive_loop, &rargs);
+							qsc_async_thread_create(&client_receive_loop_wrapper, &rargs);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);
