@@ -306,7 +306,7 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 	return res;
 }
 
-static void sender_receive_callback(const qsmp_connection_state* cns, const uint8_t* pmsg, size_t msglen)
+static void sender_receive_callback(qsmp_connection_state* cns, const uint8_t* pmsg, size_t msglen)
 {
 	char* cmsg;
 
