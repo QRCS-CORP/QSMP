@@ -170,6 +170,7 @@ bool qsmp_logger_write(const char* message)
 	return res;
 }
 
+#if defined(QSMP_DEBUG_MODE)
 bool qsmp_logger_test(void)
 {
 	char buf[4 * QSMP_LOGGING_MESSAGE_MAX] = { 0 };
@@ -181,6 +182,7 @@ bool qsmp_logger_test(void)
 	size_t mlen;
 	bool res;
 
+	(void)mlen;
 	mlen = qsc_stringutils_string_size(msg1);
 	qsmp_logger_initialize(NULL);
 	res = qsmp_logger_exists();
@@ -205,3 +207,4 @@ bool qsmp_logger_test(void)
 
 	return res;
 }
+#endif
