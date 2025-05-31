@@ -30,19 +30,6 @@ static void client_print_prompt(void)
 	qsc_consoleutils_print_safe("client> ");
 }
 
-static void client_print_error(qsmp_errors error)
-{
-	const char* msg;
-
-	msg = qsmp_error_to_string(error);
-
-	if (msg != NULL)
-	{
-		client_print_prompt();
-		qsc_consoleutils_print_line(msg);
-	}
-}
-
 static void client_print_message(const char* message)
 {
 	size_t slen;
