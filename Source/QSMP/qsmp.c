@@ -29,7 +29,7 @@ void qsmp_asymmetric_cipher_keypair_dispose(qsmp_asymmetric_cipher_keypair* keyp
 	}
 }
 
-qsmp_asymmetric_cipher_keypair* qsmp_asymmetric_cipher_keypair_initialize()
+qsmp_asymmetric_cipher_keypair* qsmp_asymmetric_cipher_keypair_initialize(void)
 {
 	qsmp_asymmetric_cipher_keypair* pkp;
 
