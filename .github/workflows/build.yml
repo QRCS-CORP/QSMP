@@ -22,10 +22,10 @@ jobs:
     - name: Set up CMake
       uses: lukka/get-cmake@v3.27.0
 
-    - name: Configure PQS (CMake)
+    - name: Configure QSMP (CMake)
       run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build PQS (CMake)
+    - name: Build QSMP (CMake)
       run: cmake --build build --config Release
 
     - name: Run Tests (if available)
