@@ -76,7 +76,7 @@ void qsmp_asymmetric_signature_keypair_dispose(qsmp_asymmetric_signature_keypair
 	}
 }
 
-qsmp_asymmetric_signature_keypair* qsmp_asymmetric_signature_keypair_initialize()
+qsmp_asymmetric_signature_keypair* qsmp_asymmetric_signature_keypair_initialize(void)
 {
 	qsmp_asymmetric_signature_keypair* pkp;
 
