@@ -315,7 +315,9 @@ int main(void)
 	uint8_t kid[QSMP_KEYID_SIZE] = { 0 };
 	qsmp_errors qerr;
 
+#if defined(QSMP_DEBUG_MODE)
 	qsmp_certificate_encoding_test();
+#endif
 
 	server_print_banner();
 
