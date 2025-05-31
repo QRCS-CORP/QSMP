@@ -34,12 +34,6 @@
 #define KEX_DUPLEX_ESTABLISH_RESPONSE_MESSAGE_SIZE (QSMP_DUPLEX_SCHASH_SIZE + QSMP_DUPLEX_MACTAG_SIZE)
 #define KEX_DUPLEX_ESTABLISH_RESPONSE_PACKET_SIZE (QSMP_HEADER_SIZE + KEX_DUPLEX_ESTABLISH_RESPONSE_MESSAGE_SIZE)
 
-static void kex_subheader_serialize(uint8_t* pstream, const qsmp_network_packet* packetin)
-{
-	qsc_intutils_le64to8(pstream, packetin->sequence);
-	qsc_intutils_le64to8(pstream + sizeof(uint64_t), packetin->utctime);
-}
-
 static void kex_send_network_error(const qsc_socket* sock, qsmp_errors error)
 {
 	QSMP_ASSERT(sock != NULL);
