@@ -295,7 +295,7 @@ static void server_disconnect_callback(qsmp_connection_state* cns)
 	mtx = qsc_async_mutex_lock_ex();
 	server_print_prompt();
 	qsc_consoleutils_print_safe("The server has disconnected from host: ");
-	qsc_consoleutils_print_line(cns->target.address);
+	qsc_consoleutils_print_line((const char*)cns->target.address);
 	qsc_async_mutex_unlock_ex(mtx);
 }
 
