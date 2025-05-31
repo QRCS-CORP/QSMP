@@ -222,12 +222,14 @@ size_t qsmp_connections_size(void)
 	return m_connection_set.length;
 }
 
+#if defined(QSMP_DEBUG_MODE)
 void qsmp_connections_self_test(void)
 {
 	qsmp_connection_state* xn[20] = { 0 };
 	size_t cnt;
 	bool full;
 
+	(void)xn;
 	(void)full;
 	(void)cnt;
 	qsmp_connections_initialize(1, 10); /* init with 1 */
@@ -263,3 +265,4 @@ void qsmp_connections_self_test(void)
 	qsmp_connections_clear();
 	qsmp_connections_dispose();
 }
+#endif

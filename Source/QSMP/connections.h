@@ -201,6 +201,7 @@ void qsmp_connections_reset(uint32_t instance);
  */
 size_t qsmp_connections_size(void);
 
+#if defined(QSMP_DEBUG_MODE)
 /**
  * \brief Run the self-test routine for the connections collection.
  *
@@ -217,5 +218,6 @@ size_t qsmp_connections_size(void);
  * The self-test is used to validate the robustness and reliability of the connection management subsystem.
  */
 void qsmp_connections_self_test(void);
+#endif
 
 #endif

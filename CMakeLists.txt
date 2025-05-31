@@ -56,11 +56,11 @@ add_executable(qsmp_sender ${QSMP_SENDER_SOURCES})
 target_include_directories(qsmp_sender PRIVATE "Source/Duplex/Sender")
 target_link_libraries(qsmp_sender PRIVATE qsmp)
 
-# Warnings -Werror
+# Warnings
 foreach(target qsmp qsmp_client qsmp_server qsmp_listener qsmp_sender)
   if (MSVC)
     target_compile_options(${target} PRIVATE /W4 /WX)
   else()
-    target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
   endif()
 endforeach()
