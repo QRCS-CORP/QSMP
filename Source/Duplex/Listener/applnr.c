@@ -169,6 +169,7 @@ static bool listener_key_query(uint8_t* rvkey, const uint8_t* pkid)
 	size_t elen;
 	bool res;
 
+	(void)pkid;
 	res = false;
 
 	/* Note: This is where you would check a set of public key files,
@@ -294,6 +295,7 @@ static void listener_receive_callback(qsmp_connection_state* cns, const uint8_t*
 {
 	char* cmsg;
 
+	(void)cns;
 	cmsg = qsc_memutils_malloc(msglen + sizeof(char));
 
 	if (cmsg != NULL)
