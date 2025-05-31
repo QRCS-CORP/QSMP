@@ -134,7 +134,7 @@ static void server_receive_loop(server_receiver_state* prcv)
 
 										if (qerr == qsmp_error_none)
 										{
-											prcv->receive_callback(prcv->pcns, (char*)mstr, mlen);
+											prcv->receive_callback(prcv->pcns, mstr, mlen);
 										}
 										else
 										{
