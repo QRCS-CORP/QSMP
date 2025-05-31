@@ -111,50 +111,50 @@ static bool server_prikey_exists(void)
 	return res;
 }
 
-static bool server_pubkey_exists(char fpath[QSC_SYSTEM_MAX_PATH], size_t pathlen)
-{
-	bool res;
-
-	qsc_folderutils_get_directory(qsc_folderutils_directories_user_documents, fpath);
-	qsc_folderutils_append_delimiter(fpath);
-	qsc_stringutils_concat_strings(fpath, pathlen, QSMP_APP_PATH);
-	res = qsc_folderutils_directory_exists(fpath);
-
-	if (res == true)
-	{
-		qsc_folderutils_append_delimiter(fpath);
-		qsc_stringutils_concat_strings(fpath, pathlen, QSMP_PUBKEY_NAME);
-
-		res = qsc_fileutils_exists(fpath);
-	}
-
-	return res;
-}
-
-static void server_certificate_print(const qsmp_client_verification_key* pubk)
-{
-	assert(pubk != NULL);
-
-	char* penk;
-	size_t elen;
-	size_t slen;
-
-	elen = qsmp_public_key_encoding_size();
-	penk = qsc_memutils_malloc(elen);
-
-	if (penk != NULL)
-	{
-		slen = qsmp_public_key_encode(penk, elen, pubk);
-
-		if (slen == elen)
-		{
-			qsc_consoleutils_print_safe(penk);
-			qsc_consoleutils_print_line("");
-		}
-
-		qsc_memutils_alloc_free(penk);
-	}
-}
+//static bool server_pubkey_exists(char fpath[QSC_SYSTEM_MAX_PATH], size_t pathlen)
+//{
+//	bool res;
+//
+//	qsc_folderutils_get_directory(qsc_folderutils_directories_user_documents, fpath);
+//	qsc_folderutils_append_delimiter(fpath);
+//	qsc_stringutils_concat_strings(fpath, pathlen, QSMP_APP_PATH);
+//	res = qsc_folderutils_directory_exists(fpath);
+//
+//	if (res == true)
+//	{
+//		qsc_folderutils_append_delimiter(fpath);
+//		qsc_stringutils_concat_strings(fpath, pathlen, QSMP_PUBKEY_NAME);
+//
+//		res = qsc_fileutils_exists(fpath);
+//	}
+//
+//	return res;
+//}
+//
+//static void server_certificate_print(const qsmp_client_verification_key* pubk)
+//{
+//	assert(pubk != NULL);
+//
+//	char* penk;
+//	size_t elen;
+//	size_t slen;
+//
+//	elen = qsmp_public_key_encoding_size();
+//	penk = qsc_memutils_malloc(elen);
+//
+//	if (penk != NULL)
+//	{
+//		slen = qsmp_public_key_encode(penk, elen, pubk);
+//
+//		if (slen == elen)
+//		{
+//			qsc_consoleutils_print_safe(penk);
+//			qsc_consoleutils_print_line("");
+//		}
+//
+//		qsc_memutils_alloc_free(penk);
+//	}
+//}
 
 static bool server_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_verification_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
 {
