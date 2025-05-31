@@ -166,6 +166,7 @@ static void client_receive_callback(const qsmp_connection_state* cns, const uint
 {
 	char* cmsg;
 	
+	(void)cns;
 	cmsg = qsc_memutils_malloc(msglen + sizeof(char));
 
 	if (cmsg != NULL)

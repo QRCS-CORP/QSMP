@@ -283,8 +283,8 @@ static void server_send_echo(qsmp_connection_state* cns, const char* message, si
 		mlen = qsc_stringutils_concat_strings(mstr, sizeof(mstr), message);
 		pkt.pmessage = pmsg;
 		qsmp_packet_encrypt(cns, &pkt, (uint8_t*)mstr, mlen);
-		mlen = qsmp_packet_to_stream(&pkt, mstr);
-		qsc_socket_send(&cns->target, mstr, mlen, qsc_socket_send_flag_none);
+		mlen = qsmp_packet_to_stream(&pkt, (uint8_t*)mstr);
+		qsc_socket_send(&cns->target, (const uint8_t*)mstr, mlen, qsc_socket_send_flag_none);
 	}
 }
 
@@ -304,7 +304,7 @@ static void server_receive_callback(qsmp_connection_state* cns, const uint8_t* m
 	/* Envelope data in an application header, in a request->response model.
 	   Parse that header here, process requests from the client, and transmit the response. */
 
-	server_send_echo(cns, message, msglen);
+	server_send_echo(cns, (const char*)message, msglen);
 }
 
 int main(void)
