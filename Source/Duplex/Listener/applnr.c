@@ -319,6 +319,7 @@ static void listener_send_loop(qsmp_connection_state* cns)
 	size_t mlen;
 	size_t slen;
 
+	(void)slen;
 	mlen = 0;
 	pkt.pmessage = pmsg;
 
