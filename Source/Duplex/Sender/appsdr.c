@@ -34,7 +34,7 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #include "appsdr.h"
@@ -73,7 +73,7 @@ static void sender_print_message(const char* message)
 	{
 		slen = qsc_stringutils_string_size(message);
 
-		if (slen != 0)
+		if (slen != 0U)
 		{
 			sender_print_prompt();
 			qsc_consoleutils_print_line(message);
@@ -100,9 +100,9 @@ static void sender_print_banner(void)
 	qsc_consoleutils_print_line("Enter the IP address and the server public key to connect.");
 	qsc_consoleutils_print_line("Type 'qsmp quit' to close the connection and exit the application.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0a (A3)");
-	qsc_consoleutils_print_line("Date:      December 08, 2024");
-	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0b (A3)");
+	qsc_consoleutils_print_line("Date:      May 30, 2024");
+	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
 
@@ -184,10 +184,10 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 	{
 		sender_print_message("Enter the path of the listener's public key:");
 		sender_print_message("");
-		slen = qsc_consoleutils_get_line(fpath, sizeof(fpath)) - 1;
+		slen = qsc_consoleutils_get_line(fpath, sizeof(fpath)) - 1U;
 		res = false;
 
-		if (slen > 0)
+		if (slen > 0U)
 		{
 			if (qsc_fileutils_exists(fpath) == true && 
 				qsc_stringutils_string_contains(fpath, QSMP_PUBKEY_EXTENSION) == true)
@@ -244,7 +244,7 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 
 			if (res == true)
 			{
-				uint8_t keyid[QSMP_KEYID_SIZE] = { 0 };
+				uint8_t keyid[QSMP_KEYID_SIZE] = { 0U };
 
 				qsc_stringutils_copy_string(fpath, sizeof(fpath), dir);
 				qsc_folderutils_append_delimiter(fpath);
@@ -328,12 +328,12 @@ static void sender_send_loop(qsmp_connection_state* cns)
 {
 	qsmp_network_packet pkt = { 0 };
 	/* Note: the buffer can be sized to the expected message maximum */
-	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0 };
-	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0 };
-	char sin[QSMP_CONNECTION_MTU + 1] = { 0 };
+	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0U };
+	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0U };
+	char sin[QSMP_CONNECTION_MTU + 1U] = { 0 };
 	size_t mlen;
 
-	mlen = 0;
+	mlen = 0U;
 	pkt.pmessage = pmsg;
 
 	/* start the sender loop */
@@ -359,7 +359,7 @@ static void sender_send_loop(qsmp_connection_state* cns)
 		}
 		else
 		{
-			if (mlen > 0)
+			if (mlen > 0U)
 			{
 				/* convert the packet to bytes */
 				qsmp_packet_encrypt(cns, &pkt, (const uint8_t*)sin, mlen);
@@ -369,12 +369,12 @@ static void sender_send_loop(qsmp_connection_state* cns)
 			}
 		}
 
-		mlen = qsc_consoleutils_get_line(sin, sizeof(sin)) - 1;
+		mlen = qsc_consoleutils_get_line(sin, sizeof(sin)) - 1U;
 
-		if (mlen > 0 && (sin[0] == '\n' || sin[0] == '\r'))
+		if (mlen > 0U && (sin[0U] == '\n' || sin[0U] == '\r'))
 		{
 			sender_print_message("");
-			mlen = 0;
+			mlen = 0U;
 		}
 	}
 
@@ -390,10 +390,10 @@ int main(void)
 	bool res;
 
 	res = false;
-	ectr = 0;
+	ectr = 0U;
 	sender_print_banner();
 
-	while (ectr < 3)
+	while (ectr < 3U)
 	{
 		res = sender_ipv4_dialogue(&addv4t, &sigk, &verk);
 

@@ -34,7 +34,7 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #include "applnr.h"
@@ -75,7 +75,7 @@ static void listener_print_message(const char* message)
 	{
 		slen = qsc_stringutils_string_size(message);
 
-		if (slen != 0)
+		if (slen != 0U)
 		{
 			listener_print_prompt();
 			qsc_consoleutils_print_line(message);
@@ -90,7 +90,7 @@ static void listener_print_message(const char* message)
 
 static void listener_print_string(const char* message, size_t msglen)
 {
-	if (message != NULL && msglen != 0)
+	if (message != NULL && msglen != 0U)
 	{
 		qsc_consoleutils_print_line(message);
 	}
@@ -101,9 +101,9 @@ static void listener_print_banner(void)
 	qsc_consoleutils_print_line("QSMP: Listener Example Project");
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol duplex-mode listener.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0a (A3)");
-	qsc_consoleutils_print_line("Date:      December 08, 2024");
-	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0a=b (A3)");
+	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
 
@@ -202,7 +202,7 @@ static bool listener_key_query(uint8_t* rvkey, const uint8_t* pkid)
 static bool listener_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_verification_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
 {
 	char* spub;
-	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0 };
+	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0U };
 	char dir[QSC_SYSTEM_MAX_PATH] = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	size_t elen;
@@ -312,15 +312,15 @@ static void listener_receive_callback(qsmp_connection_state* cns, const uint8_t*
 static void listener_send_loop(qsmp_connection_state* cns)
 {
 	qsmp_network_packet pkt = { 0 };
-	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0 };
+	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0U };
 	/* Note: the buffer can be sized to the expected message maximum */
-	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0 };
-	char sin[QSMP_CONNECTION_MTU + 1] = { 0 };
+	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0U };
+	char sin[QSMP_CONNECTION_MTU + 1U] = { 0 };
 	size_t mlen;
 	size_t slen;
 
 	(void)slen;
-	mlen = 0;
+	mlen = 0U;
 	pkt.pmessage = pmsg;
 
 	/* start the sender loop */
@@ -346,7 +346,7 @@ static void listener_send_loop(qsmp_connection_state* cns)
 		}
 		else
 		{
-			if (mlen > 0)
+			if (mlen > 0U)
 			{
 				/* convert the packet to bytes */
 				qsmp_packet_encrypt(cns, &pkt, (const uint8_t*)sin, mlen);
@@ -356,12 +356,12 @@ static void listener_send_loop(qsmp_connection_state* cns)
 			}
 		}
 
-		mlen = qsc_consoleutils_get_line(sin, sizeof(sin)) - 1;
+		mlen = qsc_consoleutils_get_line(sin, sizeof(sin)) - 1U;
 
-		if (mlen > 0 && (sin[0] == '\n' || sin[0] == '\r'))
+		if (mlen > 0U && (sin[0U] == '\n' || sin[0U] == '\r'))
 		{
 			listener_print_message("");
-			mlen = 0;
+			mlen = 0U;
 		}
 	}
 
@@ -372,7 +372,7 @@ int main(void)
 {
 	qsmp_server_signature_key prik = { 0 };
 	qsmp_client_verification_key pubk = { 0 };
-	uint8_t kid[QSMP_KEYID_SIZE] = { 0 };
+	uint8_t kid[QSMP_KEYID_SIZE] = { 0U };
 	qsmp_errors qerr;
 
 	listener_print_banner();

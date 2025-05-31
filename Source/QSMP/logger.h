@@ -34,7 +34,7 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #ifndef QSMP_LOGGER_H
@@ -68,7 +68,7 @@
  *
  * This macro defines the maximum number of characters that a single log message may contain.
  */
-#define QSMP_LOGGING_MESSAGE_MAX 256
+#define QSMP_LOGGING_MESSAGE_MAX 256U
 
 /**
  * \var QSMP_LOGGER_PATH

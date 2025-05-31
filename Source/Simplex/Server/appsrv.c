@@ -42,7 +42,7 @@ static void server_print_message(const char* message)
 	{
 		slen = qsc_stringutils_string_size(message);
 
-		if (slen != 0)
+		if (slen != 0U)
 		{
 			server_print_prompt();
 			qsc_consoleutils_print_line(message);
@@ -71,9 +71,9 @@ static void server_print_banner(void)
 {
 	qsc_consoleutils_print_line("QSMP: Server Example Project");
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol simplex-mode server.");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0a (A3)");
-	qsc_consoleutils_print_line("Date:      December 08, 2024");
-	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0b (A3)");
+	qsc_consoleutils_print_line("Date:      May 30, 2025");
+	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
 
@@ -160,7 +160,7 @@ static void server_certificate_print(const qsmp_client_verification_key* pubk)
 
 static bool server_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_verification_key* pubk, uint8_t keyid[QSMP_KEYID_SIZE])
 {
-	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0 };
+	uint8_t spri[QSMP_SIGKEY_ENCODED_SIZE] = { 0U };
 	char dir[QSC_SYSTEM_MAX_PATH] = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	bool res;
@@ -266,7 +266,7 @@ static void server_send_echo(qsmp_connection_state* cns, const char* message, si
 
 	char mstr[QSMP_CONNECTION_MTU] = "ECHO: ";
 	char rstr[QSMP_CONNECTION_MTU] = "RCVD #";
-	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0 };
+	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0U };
 	qsmp_network_packet pkt = { 0 };
 	qsc_mutex mtx;
 	size_t mlen;
@@ -314,7 +314,7 @@ int main(void)
 	qsmp_server_signature_key prik = { 0 };
 	qsmp_client_verification_key verk = { 0 };
 	qsc_socket source = { 0 };
-	uint8_t kid[QSMP_KEYID_SIZE] = { 0 };
+	uint8_t kid[QSMP_KEYID_SIZE] = { 0U };
 	qsmp_errors qerr;
 
 #if defined(QSMP_DEBUG_MODE)

@@ -38,7 +38,7 @@ static void client_print_message(const char* message)
 	{
 		slen = qsc_stringutils_string_size(message);
 
-		if (slen != 0)
+		if (slen != 0U)
 		{
 			client_print_prompt();
 			qsc_consoleutils_print_line(message);
@@ -52,7 +52,7 @@ static void client_print_message(const char* message)
 
 static void client_print_string(const char* message, size_t msglen)
 {
-	if (message != NULL && msglen != 0)
+	if (message != NULL && msglen != 0U)
 	{
 		qsc_consoleutils_print_line(message);
 	}
@@ -65,9 +65,9 @@ static void client_print_banner(void)
 	qsc_consoleutils_print_line("Enter the IP address and the server public key to connect.");
 	qsc_consoleutils_print_line("Type 'qsmp quit' to close the connection and exit the application.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0a (A3)");
-	qsc_consoleutils_print_line("Date:      December 08, 2024");
-	qsc_consoleutils_print_line("Contact:   john.underhill@protonmail.com");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0b (A3)");
+	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }
 
@@ -169,12 +169,12 @@ static void client_receive_callback(qsmp_connection_state* cns, const uint8_t* p
 static void client_send_loop(qsmp_connection_state* cns)
 {
 	qsmp_network_packet pkt = { 0 };
-	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0 };
-	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0 };
-	char sin[QSMP_CONNECTION_MTU + 1] = { 0 };
+	uint8_t pmsg[QSMP_CONNECTION_MTU] = { 0U };
+	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0U };
+	char sin[QSMP_CONNECTION_MTU + 1U] = { 0 };
 	size_t mlen;
 
-	mlen = 0;
+	mlen = 0U;
 
 	/* start the sender loop */
 	while (true)
@@ -188,7 +188,7 @@ static void client_send_loop(qsmp_connection_state* cns)
 		}
 		else
 		{
-			if (mlen > 0)
+			if (mlen > 0U)
 			{
 				/* convert the packet to bytes */
 				pkt.pmessage = pmsg;
@@ -199,12 +199,12 @@ static void client_send_loop(qsmp_connection_state* cns)
 			}
 		}
 
-		mlen = qsc_consoleutils_get_line(sin, sizeof(sin)) - 1;
+		mlen = qsc_consoleutils_get_line(sin, sizeof(sin)) - 1U;
 
-		if (mlen > 0 && (sin[0] == '\n' || sin[0] == '\r'))
+		if (mlen > 0U && (sin[0] == '\n' || sin[0U] == '\r'))
 		{
 			client_print_message("");
-			mlen = 0;
+			mlen = 0U;
 		}
 	}
 }
@@ -217,10 +217,10 @@ int main(void)
 	bool res;
 
 	res = false;
-	ectr = 0;
+	ectr = 0U;
 	client_print_banner();
 
-	while (ectr < 3)
+	while (ectr < 3U)
 	{
 		res = client_ipv4_dialogue(&addv4t, &ckey);
 

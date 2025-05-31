@@ -33,10 +33,10 @@ qsmp_connection_state* qsmp_connections_add(void)
 
 	cns = NULL;
 
-	if ((m_connection_set.length + 1) <= m_connection_set.maximum)
+	if ((m_connection_set.length + 1U) <= m_connection_set.maximum)
 	{
-		m_connection_set.conset = qsc_memutils_realloc(m_connection_set.conset, (m_connection_set.length + 1) * sizeof(qsmp_connection_state));
-		m_connection_set.active = qsc_memutils_realloc(m_connection_set.active, (m_connection_set.length + 1) * sizeof(bool));
+		m_connection_set.conset = qsc_memutils_realloc(m_connection_set.conset, (m_connection_set.length + 1U) * sizeof(qsmp_connection_state));
+		m_connection_set.active = qsc_memutils_realloc(m_connection_set.active, (m_connection_set.length + 1U) * sizeof(bool));
 
 		if (m_connection_set.conset != NULL && m_connection_set.active != NULL)
 		{
@@ -55,9 +55,9 @@ size_t qsmp_connections_available(void)
 {
 	size_t count;
 
-	count = 0;
+	count = 0U;
 
-	for (size_t i = 0; i < m_connection_set.length; ++i)
+	for (size_t i = 0U; i < m_connection_set.length; ++i)
 	{
 		if (m_connection_set.active[i] == false)
 		{
@@ -72,7 +72,7 @@ void qsmp_connections_clear(void)
 {
 	qsc_memutils_clear(m_connection_set.conset, sizeof(qsmp_connection_state) * m_connection_set.length);
 
-	for (size_t i = 0; i < m_connection_set.length; ++i)
+	for (size_t i = 0U; i < m_connection_set.length; ++i)
 	{
 		m_connection_set.active[i] = false;
 		m_connection_set.conset[i].cid = (uint32_t)i;
@@ -98,8 +98,8 @@ void qsmp_connections_dispose(void)
 		m_connection_set.active = NULL;
 	}
 
-	m_connection_set.length = 0;
-	m_connection_set.maximum = 0;
+	m_connection_set.length = 0U;
+	m_connection_set.maximum = 0U;
 }
 
 qsmp_connection_state* qsmp_connections_index(size_t index)
@@ -122,7 +122,7 @@ bool qsmp_connections_full(void)
 
 	res = true;
 
-	for (size_t i = 0; i < m_connection_set.length; ++i)
+	for (size_t i = 0U; i < m_connection_set.length; ++i)
 	{
 		if (m_connection_set.active[i] == false)
 		{
@@ -153,11 +153,11 @@ qsmp_connection_state* qsmp_connections_get(uint32_t cid)
 
 void qsmp_connections_initialize(size_t count, size_t maximum)
 {
-	QSMP_ASSERT(count != 0);
-	QSMP_ASSERT(maximum != 0);
+	QSMP_ASSERT(count != 0U);
+	QSMP_ASSERT(maximum != 0U);
 	QSMP_ASSERT(count <= maximum);
 	
-	if (count != 0 && maximum != 0 && count <= maximum)
+	if (count != 0U && maximum != 0U && count <= maximum)
 	{
 		m_connection_set.length = count;
 		m_connection_set.maximum = maximum;
@@ -185,7 +185,7 @@ qsmp_connection_state* qsmp_connections_next(void)
 
 	if (qsmp_connections_full() == false)
 	{
-		for (size_t i = 0; i < m_connection_set.length; ++i)
+		for (size_t i = 0U; i < m_connection_set.length; ++i)
 		{
 			if (m_connection_set.active[i] == false)
 			{
@@ -205,7 +205,7 @@ qsmp_connection_state* qsmp_connections_next(void)
 
 void qsmp_connections_reset(uint32_t cid)
 {
-	for (size_t i = 0; i < m_connection_set.length; ++i)
+	for (size_t i = 0U; i < m_connection_set.length; ++i)
 	{
 		if (m_connection_set.conset[i].cid == cid)
 		{
@@ -225,16 +225,16 @@ size_t qsmp_connections_size(void)
 #if defined(QSMP_DEBUG_MODE)
 void qsmp_connections_self_test(void)
 {
-	qsmp_connection_state* xn[20] = { 0 };
+	qsmp_connection_state* xn[20U] = { 0 };
 	size_t cnt;
 	bool full;
 
 	(void)xn;
 	(void)full;
 	(void)cnt;
-	qsmp_connections_initialize(1, 10); /* init with 1 */
+	qsmp_connections_initialize(1U, 10U); /* init with 1 */
 
-	for (size_t i = 1; i < 10; ++i)
+	for (size_t i = 1U; i < 10U; ++i)
 	{
 		xn[i] = qsmp_connections_next(); /* init next 9 */
 	}
@@ -242,11 +242,11 @@ void qsmp_connections_self_test(void)
 	cnt = qsmp_connections_available(); /* expected 0 */
 	full = qsmp_connections_full(); /* expected true */
 
-	qsmp_connections_reset(1); /* release 5 */
-	qsmp_connections_reset(3);
-	qsmp_connections_reset(5);
-	qsmp_connections_reset(7);
-	qsmp_connections_reset(9);
+	qsmp_connections_reset(1U); /* release 5 */
+	qsmp_connections_reset(3U);
+	qsmp_connections_reset(5U);
+	qsmp_connections_reset(7U);
+	qsmp_connections_reset(9U);
 
 	full = qsmp_connections_full(); /* expected false */
 

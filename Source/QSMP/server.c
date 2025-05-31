@@ -46,7 +46,7 @@ static void server_poll_sockets(void)
 
 	clen = qsmp_connections_size();
 
-	for (size_t i = 0; i < clen; ++i)
+	for (size_t i = 0U; i < clen; ++i)
 	{
 		const qsmp_connection_state* cns = qsmp_connections_index(i);
 
@@ -95,8 +95,8 @@ static void server_receive_loop(server_receiver_state* prcv)
 			{
 				while (prcv->pcns->target.connection_status == qsc_socket_state_connected)
 				{
-					mlen = 0;
-					slen = 0;
+					mlen = 0U;
+					slen = 0U;
 
 					plen = qsc_socket_peek(&prcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
 
@@ -104,7 +104,7 @@ static void server_receive_loop(server_receiver_state* prcv)
 					{
 						qsmp_packet_header_deserialize(rbuf, &pkt);
 
-						if (pkt.msglen > 0 && pkt.msglen <= QSMP_MESSAGE_MAX)
+						if (pkt.msglen > 0U && pkt.msglen <= QSMP_MESSAGE_MAX)
 						{
 							plen = pkt.msglen + QSMP_HEADER_SIZE;
 							rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
@@ -115,7 +115,7 @@ static void server_receive_loop(server_receiver_state* prcv)
 							qsc_memutils_clear(rbuf, plen);
 							mlen = qsc_socket_receive(&prcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 							
-							if (mlen != 0)
+							if (mlen != 0U)
 							{
 								pkt.pmessage = rbuf + QSMP_HEADER_SIZE;
 
@@ -320,11 +320,11 @@ void qsmp_server_broadcast(const uint8_t* message, size_t msglen)
 	size_t mlen;
 	qsc_mutex mtx;
 	qsmp_network_packet pkt = { 0 };
-	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0 };
+	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0U };
 
 	clen = qsmp_connections_size();
 
-	for (size_t i = 0; i < clen; ++i)
+	for (size_t i = 0U; i < clen; ++i)
 	{
 		qsmp_connection_state* cns = qsmp_connections_index(i);
 
@@ -356,7 +356,7 @@ void qsmp_server_quit(void)
 
 	clen = qsmp_connections_size();
 
-	for (size_t i = 0; i < clen; ++i)
+	for (size_t i = 0U; i < clen; ++i)
 	{
 		qsmp_connection_state* cns = qsmp_connections_index(i);
 

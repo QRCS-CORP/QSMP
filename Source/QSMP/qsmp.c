@@ -115,13 +115,13 @@ void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool not
 				if (err == qsmp_error_none)
 				{
 					qsmp_network_packet resp = { 0 };
-					uint8_t spct[QSMP_HEADER_SIZE] = { 0 };
+					uint8_t spct[QSMP_HEADER_SIZE] = { 0U };
 
 					/* send a disconnect message */
 					resp.pmessage = spct + QSMP_HEADER_SIZE;
 					resp.flag = qsmp_flag_connection_terminate;
 					resp.sequence = QSMP_SEQUENCE_TERMINATOR;
-					resp.msglen = 0;
+					resp.msglen = 0U;
 					resp.pmessage = NULL;
 
 					qsmp_packet_header_serialize(&resp, spct);
@@ -132,7 +132,7 @@ void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool not
 					/* send an error message */
 					qsmp_network_packet resp = { 0 };
 
-					uint8_t perr[QSMP_ERROR_MESSAGE_SIZE] = { 0 };
+					uint8_t perr[QSMP_ERROR_MESSAGE_SIZE] = { 0U };
 					uint8_t* spct;
 					size_t mlen;
 					qsmp_errors qerr;
@@ -159,7 +159,7 @@ void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool not
 						resp.sequence = QSMP_SEQUENCE_TERMINATOR;
 						resp.msglen = QSMP_ERROR_MESSAGE_SIZE;
 						resp.pmessage = spct + QSMP_HEADER_SIZE;
-						perr[0] = err;
+						perr[0U] = err;
 
 						qerr = qsmp_packet_encrypt(cns, &resp, perr, QSMP_ERROR_MESSAGE_SIZE);
 
@@ -190,9 +190,9 @@ void qsmp_connection_state_dispose(qsmp_connection_state* cns)
 		qsc_rcs_dispose(&cns->txcpr);
 		qsc_memutils_clear((uint8_t*)&cns->target, sizeof(qsc_socket));
 		qsc_memutils_clear(&cns->rtcs, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
-		cns->rxseq = 0;
-		cns->txseq = 0;
-		cns->cid = 0;
+		cns->rxseq = 0U;
+		cns->txseq = 0U;
+		cns->cid = 0U;
 		cns->exflag = qsmp_flag_none;
 		cns->receiver = false;
 		cns->mode = qsmp_mode_simplex;
@@ -228,7 +228,7 @@ qsmp_errors qsmp_header_validate(qsmp_connection_state* cns, const qsmp_network_
 
 	if (packetin->flag == qsmp_flag_error_condition)
 	{
-		merr = (qsmp_errors)packetin->pmessage[0];
+		merr = (qsmp_errors)packetin->pmessage[0U];
 	}
 	else
 	{
@@ -242,7 +242,7 @@ qsmp_errors qsmp_header_validate(qsmp_connection_state* cns, const qsmp_network_
 					{
 						if (cns->exflag == kexflag)
 						{
-							cns->rxseq += 1;
+							cns->rxseq += 1U;
 							merr = qsmp_error_none;
 						}
 						else
@@ -386,15 +386,15 @@ void qsmp_log_write(qsmp_messages emsg, const char* msg)
 
 void qsmp_packet_clear(qsmp_network_packet* packet)
 {
-	if (packet->msglen != 0)
+	if (packet->msglen != 0U)
 	{
 		qsc_memutils_clear(packet->pmessage, packet->msglen);
 	}
 
 	packet->flag = (uint8_t)qsmp_flag_none;
-	packet->msglen = 0;
-	packet->sequence = 0;
-	packet->utctime = 0;
+	packet->msglen = 0U;
+	packet->sequence = 0U;
+	packet->utctime = 0U;
 }
 
 qsmp_errors qsmp_packet_decrypt(qsmp_connection_state* cns, uint8_t* message, size_t* msglen, const qsmp_network_packet* packetin)
@@ -404,15 +404,15 @@ qsmp_errors qsmp_packet_decrypt(qsmp_connection_state* cns, uint8_t* message, si
 	QSMP_ASSERT(message != NULL);
 	QSMP_ASSERT(msglen != NULL);
 
-	uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
+	uint8_t hdr[QSMP_HEADER_SIZE] = { 0U };
 	qsmp_errors qerr;
 
 	qerr = qsmp_error_invalid_input;
-	*msglen = 0;
+	*msglen = 0U;
 
 	if (cns != NULL && message != NULL && msglen != NULL && packetin != NULL)
 	{
-		cns->rxseq += 1;
+		cns->rxseq += 1U;
 
 		if (packetin->sequence == cns->rxseq)
 		{
@@ -435,7 +435,7 @@ qsmp_errors qsmp_packet_decrypt(qsmp_connection_state* cns, uint8_t* message, si
 					}
 					else
 					{
-						*msglen = 0;
+						*msglen = 0U;
 						qerr = qsmp_error_authentication_failure;
 					}
 				}
@@ -472,11 +472,11 @@ qsmp_errors qsmp_packet_encrypt(qsmp_connection_state* cns, qsmp_network_packet*
 	{
 		if (cns->exflag == qsmp_flag_session_established && msglen != 0)
 		{
-			uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
+			uint8_t hdr[QSMP_HEADER_SIZE] = { 0U };
 			const uint32_t MACLEN = (cns->txcpr.ctype == RCS256) ? QSMP_SIMPLEX_MACTAG_SIZE : QSMP_DUPLEX_MACTAG_SIZE;
 
 			/* assemble the encryption packet */
-			cns->txseq += 1;
+			cns->txseq += 1U;
 			qsmp_header_create(packetout, qsmp_flag_encrypted_message, cns->txseq, (uint32_t)msglen + MACLEN);
 
 			/* serialize the header and add it to the ciphers associated data */
@@ -505,7 +505,7 @@ void qsmp_packet_error_message(qsmp_network_packet* packet, qsmp_errors error)
 		packet->flag = qsmp_flag_error_condition;
 		packet->msglen = QSMP_ERROR_MESSAGE_SIZE;
 		packet->sequence = QSMP_ERROR_SEQUENCE;
-		packet->pmessage[0] = (uint8_t)error;
+		packet->pmessage[0U] = (uint8_t)error;
 		qsmp_packet_set_utc_time(packet);
 	}
 }
@@ -519,7 +519,7 @@ void qsmp_packet_header_deserialize(const uint8_t* header, qsmp_network_packet* 
 	{
 		size_t pos;
 
-		packet->flag = header[0];
+		packet->flag = header[0U];
 		pos = QSMP_FLAG_SIZE;
 		packet->msglen = qsc_intutils_le8to32(header + pos);
 		pos += QSMP_MSGLEN_SIZE;
@@ -538,7 +538,7 @@ void qsmp_packet_header_serialize(const qsmp_network_packet* packet, uint8_t* he
 	{
 		size_t pos;
 
-		header[0] = packet->flag;
+		header[0U] = packet->flag;
 		pos = QSMP_FLAG_SIZE;
 		qsc_intutils_le32to8(header + pos, packet->msglen);
 		pos += QSMP_MSGLEN_SIZE;
@@ -597,26 +597,26 @@ bool qsmp_public_key_decode(qsmp_client_verification_key* pubk, const char* enck
 
 	if (pubk != NULL)
 	{
-		spos = sizeof(QSMP_PUBKEY_HEADER) - 1;
+		spos = sizeof(QSMP_PUBKEY_HEADER) - 1U;
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_VERSION) - 1;
+		slen = sizeof(QSMP_PUBKEY_VERSION) - 1U;
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1;
+		spos += sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1U;
 		slen = qsc_stringutils_find_char(enck + spos, '\n');
 		qsc_memutils_copy(pubk->config, enck + spos, slen);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1;
+		spos += sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1U;
 		qsc_intutils_hex_to_bin(enck + spos, pubk->keyid, QSMP_KEYID_SIZE);
-		spos += (QSMP_KEYID_SIZE * 2);
+		spos += (QSMP_KEYID_SIZE * 2U);
 		++spos;
 
-		spos += sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1;
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		spos += sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1U;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(dtm, enck + spos, slen);
 		spos += QSC_TIMESTAMP_STRING_SIZE;
 		pubk->expiration = qsc_timestamp_datetime_to_seconds(dtm);
@@ -641,29 +641,29 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 	QSMP_ASSERT(pubk != NULL);
 
 	char dtm[QSMP_TIMESTAMP_STRING_SIZE] = { 0 };
-	char hexid[(QSMP_KEYID_SIZE * 2)] = { 0 };
+	char hexid[(QSMP_KEYID_SIZE * 2U)] = { 0 };
 	char* prvs;
 	size_t elen;
 	size_t slen;
 	size_t spos;
 
-	spos = 0;
+	spos = 0U;
 
 	if (pubk != NULL)
 	{
-		slen = sizeof(QSMP_PUBKEY_HEADER) - 1;
+		slen = sizeof(QSMP_PUBKEY_HEADER) - 1U;
 		qsc_memutils_copy(enck, QSMP_PUBKEY_HEADER, slen);
 		spos = slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_VERSION) - 1;
+		slen = sizeof(QSMP_PUBKEY_VERSION) - 1U;
 		qsc_memutils_copy(enck + spos, QSMP_PUBKEY_VERSION, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1;
+		slen = sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSMP_PUBKEY_CONFIG_PREFIX, slen);
 		spos += slen;
 		slen = qsc_stringutils_string_size(QSMP_CONFIG_STRING);
@@ -672,7 +672,7 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1;
+		slen = sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSMP_PUBKEY_KEYID_PREFIX, slen);
 		spos += slen;
 		qsc_intutils_bin_to_hex(pubk->keyid, hexid, QSMP_KEYID_SIZE);
@@ -682,11 +682,11 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1;
+		slen = sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1U;
 		qsc_memutils_copy(enck + spos, QSMP_PUBKEY_EXPIRATION_PREFIX, slen);
 		spos += slen;
 		qsc_timestamp_seconds_to_datetime(pubk->expiration, dtm);
-		slen = QSC_TIMESTAMP_STRING_SIZE - 1;
+		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(enck + spos, dtm, slen);
 		spos += slen;
 		enck[spos] = '\n';
@@ -704,7 +704,7 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 			qsc_memutils_alloc_free(prvs);
 		}
 
-		slen = sizeof(QSMP_PUBKEY_FOOTER) - 1;
+		slen = sizeof(QSMP_PUBKEY_FOOTER) - 1U;
 		qsc_memutils_copy((enck + spos), QSMP_PUBKEY_FOOTER, slen);
 		spos += slen;
 		enck[spos] = '\n';
@@ -718,23 +718,23 @@ size_t qsmp_public_key_encoding_size(void)
 	size_t elen;
 	size_t klen;
 
-	elen = sizeof(QSMP_PUBKEY_HEADER) - 1;
+	elen = sizeof(QSMP_PUBKEY_HEADER) - 1U;
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_VERSION) - 1;
+	elen += sizeof(QSMP_PUBKEY_VERSION) - 1U;
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1;
-	elen += sizeof(QSMP_CONFIG_STRING) - 1;
+	elen += sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1U;
+	elen += sizeof(QSMP_CONFIG_STRING) - 1U;
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1;
+	elen += sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1U;
 	elen += (QSMP_KEYID_SIZE * 2);
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1;
-	elen += QSC_TIMESTAMP_STRING_SIZE - 1;
+	elen += sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1U;
+	elen += QSC_TIMESTAMP_STRING_SIZE - 1U;
 	++elen;
 	klen = qsc_encoding_base64_encoded_size(QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
-	elen += klen + (klen / QSMP_PUBKEY_LINE_LENGTH) + 1;
+	elen += klen + (klen / QSMP_PUBKEY_LINE_LENGTH) + 1U;
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_FOOTER) - 1;
+	elen += sizeof(QSMP_PUBKEY_FOOTER) - 1U;
 	++elen;
 
 	return elen;
@@ -783,7 +783,7 @@ void qsmp_stream_to_packet(const uint8_t* pstream, qsmp_network_packet* packet)
 
 	if (packet != NULL && pstream != NULL)
 	{
-		packet->flag = pstream[0];
+		packet->flag = pstream[0U];
 		pos = QSMP_FLAG_SIZE;
 		packet->msglen = qsc_intutils_le8to32(pstream + pos);
 		pos += QSMP_MSGLEN_SIZE;
@@ -803,11 +803,11 @@ size_t qsmp_packet_to_stream(const qsmp_network_packet* packet, uint8_t* pstream
 	size_t pos;
 	size_t res;
 
-	res = 0;
+	res = 0U;
 
 	if (packet != NULL && pstream != NULL)
 	{
-		pstream[0] = packet->flag;
+		pstream[0U] = packet->flag;
 		pos = QSMP_FLAG_SIZE;
 		qsc_intutils_le32to8(pstream + pos, packet->msglen);
 		pos += QSMP_MSGLEN_SIZE;
@@ -828,7 +828,7 @@ bool qsmp_certificate_encoding_test(void)
 	qsmp_client_verification_key pcpy = { 0 };
 	qsmp_client_verification_key pkey = { 0 };
 	qsmp_server_signature_key skey = { 0 };
-	uint8_t keyid[QSMP_KEYID_SIZE] = { 0 };
+	uint8_t keyid[QSMP_KEYID_SIZE] = { 0U };
 	char* enck;
 	size_t elen;
 	bool res;

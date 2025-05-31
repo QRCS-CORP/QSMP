@@ -34,7 +34,7 @@
  * in the LICENSE.txt file distributed with this software.
  *
  * Written by: John G. Underhill
- * Contact: john.underhill@protonmail.com
+ * Contact: contact@qrcscorp.ca
  */
 
 #ifndef QSMP_SERVER_H
@@ -70,7 +70,7 @@
  * This macro defines the time interval (in milliseconds) that the server will pause before resuming
  * operations or processing new connection requests.
  */
-#define QSMP_SERVER_PAUSE_INTERVAL 100
+#define QSMP_SERVER_PAUSE_INTERVAL 100U
 
 /**
  * \brief Broadcast a message to all connected hosts.

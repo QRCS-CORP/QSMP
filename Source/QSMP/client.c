@@ -31,6 +31,7 @@ typedef struct listener_receiver_state
 typedef struct listener_keepalive_loop_args
 {
 	qsmp_keepalive_state* pkpa;
+	volatile qsmp_errors result;
 } listener_keepalive_loop_args;
 
 typedef struct listener_receive_loop_args
@@ -66,10 +67,10 @@ static void client_duplex_state_initialize(qsmp_kex_duplex_client_state* kcs, qs
 	qsc_rcs_dispose(&cns->rxcpr);
 	qsc_rcs_dispose(&cns->txcpr);
 	cns->exflag = qsmp_flag_none;
-	cns->cid = 0;
+	cns->cid = 0U;
 	cns->mode = qsmp_mode_duplex;
-	cns->rxseq = 0;
-	cns->txseq = 0;
+	cns->rxseq = 0U;
+	cns->txseq = 0U;
 	cns->receiver = false;
 }
 
@@ -88,9 +89,9 @@ static void listener_duplex_state_initialize(qsmp_kex_duplex_server_state* kss, 
 	qsc_memutils_clear(&rcv->pcns->rtcs, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 	rcv->pcns->exflag = qsmp_flag_none;
 	rcv->pcns->mode = qsmp_mode_duplex;
-	rcv->pcns->cid = 0;
-	rcv->pcns->rxseq = 0;
-	rcv->pcns->txseq = 0;
+	rcv->pcns->cid = 0U;
+	rcv->pcns->rxseq = 0U;
+	rcv->pcns->txseq = 0U;
 	rcv->pcns->receiver = true;
 }
 
@@ -105,9 +106,9 @@ static void client_simplex_state_initialize(qsmp_kex_simplex_client_state* kcs, 
 	qsc_rcs_dispose(&cns->txcpr);
 	cns->exflag = qsmp_flag_none;
 	cns->mode = qsmp_mode_simplex;
-	cns->cid = 0;
-	cns->rxseq = 0;
-	cns->txseq = 0;
+	cns->cid = 0U;
+	cns->rxseq = 0U;
+	cns->txseq = 0U;
 }
 
 static void listener_simplex_state_initialize(qsmp_kex_simplex_server_state* kss, listener_receiver_state* rcv, const qsmp_server_signature_key* kset)
@@ -122,15 +123,15 @@ static void listener_simplex_state_initialize(qsmp_kex_simplex_server_state* kss
 	qsc_memutils_clear(&rcv->pcns->rtcs, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 	rcv->pcns->exflag = qsmp_flag_none;
 	rcv->pcns->mode = qsmp_mode_simplex;
-	rcv->pcns->cid = 0;
-	rcv->pcns->rxseq = 0;
-	rcv->pcns->txseq = 0;
+	rcv->pcns->cid = 0U;
+	rcv->pcns->rxseq = 0U;
+	rcv->pcns->txseq = 0U;
 }
 
 static void symmetric_ratchet(qsmp_connection_state* cns, const uint8_t* secret, size_t seclen)
 {
 	qsc_keccak_state kstate = { 0 };
-	uint8_t prnd[(QSC_KECCAK_512_RATE * 3)] = { 0 };
+	uint8_t prnd[(QSC_KECCAK_512_RATE * 3)] = { 0U };
 
 	/* re-key the ciphers using the token, ratchet key, and configuration name */
 	qsc_cshake_initialize(&kstate, qsc_keccak_rate_512, secret, seclen, (const uint8_t*)QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE, cns->rtcs, QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
@@ -145,7 +146,7 @@ static void symmetric_ratchet(qsmp_connection_state* cns, const uint8_t* secret,
 		kp1.keylen = QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
 		kp1.nonce = ((uint8_t*)prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 		kp1.info = NULL;
-		kp1.infolen = 0;
+		kp1.infolen = 0U;
 		qsc_rcs_initialize(&cns->rxcpr, &kp1, false);
 
 		/* initialize for encryption, and raise client channel tx */
@@ -154,7 +155,7 @@ static void symmetric_ratchet(qsmp_connection_state* cns, const uint8_t* secret,
 		kp2.keylen = QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
 		kp2.nonce = ((uint8_t*)prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 		kp2.info = NULL;
-		kp2.infolen = 0;
+		kp2.infolen = 0U;
 		qsc_rcs_initialize(&cns->txcpr, &kp2, true);
 	}
 	else
@@ -165,7 +166,7 @@ static void symmetric_ratchet(qsmp_connection_state* cns, const uint8_t* secret,
 		kp1.keylen = QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
 		kp1.nonce = ((uint8_t*)prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 		kp1.info = NULL;
-		kp1.infolen = 0;
+		kp1.infolen = 0U;
 		qsc_rcs_initialize(&cns->txcpr, &kp1, true);
 
 		/* initialize decryption, and raise rx */
@@ -174,7 +175,7 @@ static void symmetric_ratchet(qsmp_connection_state* cns, const uint8_t* secret,
 		kp2.keylen = QSMP_DUPLEX_SYMMETRIC_KEY_SIZE;
 		kp2.nonce = ((uint8_t*)prnd + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE + QSMP_NONCE_SIZE + QSMP_DUPLEX_SYMMETRIC_KEY_SIZE);
 		kp2.info = NULL;
-		kp2.infolen = 0;
+		kp2.infolen = 0U;
 		qsc_rcs_initialize(&cns->rxcpr, &kp2, false);
 	}
 
@@ -187,13 +188,13 @@ static void symmetric_ratchet(qsmp_connection_state* cns, const uint8_t* secret,
 
 static bool symmetric_ratchet_response(qsmp_connection_state* cns, const qsmp_network_packet* packetin)
 {
-	uint8_t rkey[QSMP_RTOK_SIZE] = { 0 };
-	uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
+	uint8_t rkey[QSMP_RTOK_SIZE] = { 0U };
+	uint8_t hdr[QSMP_HEADER_SIZE] = { 0U };
 	size_t mlen;
 	bool res;
 
 	res = false;
-	cns->rxseq += 1;
+	cns->rxseq += 1U;
 
 	if (packetin->sequence == cns->rxseq)
 	{
@@ -221,12 +222,12 @@ static bool asymmetric_ratchet_response(qsmp_connection_state* cns, const qsmp_n
 	bool res;
 
 	res = false;
-	cns->rxseq += 1;
+	cns->rxseq += 1U;
 
 	if (packetin->sequence == cns->rxseq && packetin->msglen == QSMP_ASYMMETRIC_RATCHET_REQUEST_MESSAGE_SIZE)
 	{
-		uint8_t imsg[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE + QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE] = { 0 };
-		uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
+		uint8_t imsg[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE + QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE] = { 0U };
+		uint8_t hdr[QSMP_HEADER_SIZE] = { 0U };
 
 		/* serialize the header and add it to the ciphers associated data */
 		qsmp_packet_header_serialize(packetin, hdr);
@@ -236,13 +237,13 @@ static bool asymmetric_ratchet_response(qsmp_connection_state* cns, const qsmp_n
 		/* authenticate then decrypt the data */
 		if (qsc_rcs_transform(&cns->rxcpr, imsg, packetin->pmessage, mlen) == true)
 		{
-			uint8_t rhash[QSMP_SIMPLEX_HASH_SIZE] = { 0 };
+			uint8_t rhash[QSMP_SIMPLEX_HASH_SIZE] = { 0U };
 			const uint8_t* rpub = imsg + QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE;
 
 			/* verify the signature */
 			if (qsmp_signature_verify(rhash, &mlen, imsg, QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE, m_skeyset->verkey) == true)
 			{
-				uint8_t lhash[QSMP_SIMPLEX_HASH_SIZE] = { 0 };
+				uint8_t lhash[QSMP_SIMPLEX_HASH_SIZE] = { 0U };
 
 				/* hash the public key */
 				qsc_sha3_compute256(lhash, rpub, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
@@ -251,10 +252,10 @@ static bool asymmetric_ratchet_response(qsmp_connection_state* cns, const qsmp_n
 				if (qsc_intutils_verify(rhash, lhash, QSMP_SIMPLEX_HASH_SIZE) == 0)
 				{
 					qsmp_network_packet pkt = { 0 };
-					uint8_t omsg[QSMP_ASYMMETRIC_RATCHET_RESPONSE_PACKET_SIZE] = { 0 };
+					uint8_t omsg[QSMP_ASYMMETRIC_RATCHET_RESPONSE_PACKET_SIZE] = { 0U };
 					uint8_t mtmp[QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE + QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE] = { 0 };					
-					uint8_t khash[QSMP_SIMPLEX_HASH_SIZE] = { 0 };
-					uint8_t secret[QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE] = { 0 };
+					uint8_t khash[QSMP_SIMPLEX_HASH_SIZE] = { 0U };
+					uint8_t secret[QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE] = { 0U };
 					size_t slen;
 
 					mlen = QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE;
@@ -266,11 +267,11 @@ static bool asymmetric_ratchet_response(qsmp_connection_state* cns, const qsmp_n
 					qsc_sha3_compute256(khash, mtmp + mlen, QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE);
 
 					/* sign the hash */
-					mlen = 0;
+					mlen = 0U;
 					qsmp_signature_sign(mtmp, &mlen, khash, sizeof(khash), m_skeyset->sigkey, qsc_acp_generate);
 
 					/* create the outbound packet */
-					cns->txseq += 1;
+					cns->txseq += 1U;
 					pkt.flag = qsmp_flag_asymmetric_ratchet_response;
 					pkt.msglen = QSMP_ASYMMETRIC_RATCHET_RESPONSE_MESSAGE_SIZE;
 					pkt.sequence = cns->txseq;
@@ -311,10 +312,10 @@ static bool asymmetric_ratchet_finalize(qsmp_connection_state* cns, const qsmp_n
 	size_t mpos;
 	bool res;
 
-	cns->rxseq += 1;
+	cns->rxseq += 1U;
 
 	res = false;
-	mlen = 0;
+	mlen = 0U;
 	mpos = QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE;
 
 	if (packetin->sequence == cns->rxseq && packetin->msglen == QSMP_ASYMMETRIC_RATCHET_RESPONSE_MESSAGE_SIZE)
@@ -330,7 +331,7 @@ static bool asymmetric_ratchet_finalize(qsmp_connection_state* cns, const qsmp_n
 			/* verify the signature using the senders public key */
 			if (qsmp_signature_verify(rhash, &mlen, imsg, mpos, m_skeyset->verkey) == true)
 			{
-				uint8_t lhash[QSMP_SIMPLEX_HASH_SIZE] = { 0 };
+				uint8_t lhash[QSMP_SIMPLEX_HASH_SIZE] = { 0U };
 
 				/* compute a hash of cipher-text */
 				qsc_sha3_compute256(lhash, imsg + mpos, QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE);
@@ -391,8 +392,8 @@ static void client_receive_loop(client_receiver_state* prcv)
 	{
 		while (prcv->pcns->target.connection_status == qsc_socket_state_connected)
 		{
-			mlen = 0;
-			slen = 0;
+			mlen = 0U;
+			slen = 0U;
 			qsc_memutils_clear(rbuf, QSMP_HEADER_SIZE);
 
 			plen = qsc_socket_peek(&prcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
@@ -401,7 +402,7 @@ static void client_receive_loop(client_receiver_state* prcv)
 			{
 				qsmp_packet_header_deserialize(rbuf, &pkt);
 
-				if (pkt.msglen > 0 && pkt.msglen <= QSMP_MESSAGE_MAX)
+				if (pkt.msglen > 0U && pkt.msglen <= QSMP_MESSAGE_MAX)
 				{
 					plen = pkt.msglen + QSMP_HEADER_SIZE;
 					rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
@@ -411,7 +412,7 @@ static void client_receive_loop(client_receiver_state* prcv)
 						qsc_memutils_clear(rbuf, plen);
 						mlen = qsc_socket_receive(&prcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 
-						if (mlen > 0)
+						if (mlen > 0U)
 						{
 							pkt.pmessage = rbuf + QSMP_HEADER_SIZE;
 
@@ -555,7 +556,7 @@ static qsmp_errors listener_send_keep_alive(qsmp_keepalive_state* kctx, const qs
 
 	if (qsc_socket_is_connected(sock) == true)
 	{
-		uint8_t spct[QSMP_HEADER_SIZE + QSMP_TIMESTAMP_SIZE] = { 0 };
+		uint8_t spct[QSMP_HEADER_SIZE + QSMP_TIMESTAMP_SIZE] = { 0U };
 		qsmp_network_packet resp = { 0 };
 		uint64_t etime;
 		size_t slen;
@@ -583,7 +584,7 @@ static qsmp_errors listener_send_keep_alive(qsmp_keepalive_state* kctx, const qs
 	return qerr;
 }
 
-static void listener_keepalive_loop(qsmp_keepalive_state* kpa)
+static qsmp_errors listener_keepalive_loop(qsmp_keepalive_state* kpa)
 {
 	QSMP_ASSERT(kpa != NULL);
 
@@ -605,6 +606,8 @@ static void listener_keepalive_loop(qsmp_keepalive_state* kpa)
 		qsc_async_thread_sleep(QSMP_KEEPALIVE_TIMEOUT);
 	} 
 	while (qerr == qsmp_error_none);
+
+	return qerr;
 }
 
 static void listener_receive_loop(listener_receiver_state* prcv)
@@ -627,8 +630,8 @@ static void listener_receive_loop(listener_receiver_state* prcv)
 	{
 		while (prcv->pcns->target.connection_status == qsc_socket_state_connected)
 		{
-			mlen = 0;
-			slen = 0;
+			mlen = 0U;
+			slen = 0U;
 			qsc_memutils_clear(rbuf, QSMP_HEADER_SIZE);
 
 			plen = qsc_socket_peek(&prcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
@@ -637,7 +640,7 @@ static void listener_receive_loop(listener_receiver_state* prcv)
 			{
 				qsmp_packet_header_deserialize(rbuf, &pkt);
 
-				if (pkt.msglen > 0 && pkt.msglen <= QSMP_MESSAGE_MAX)
+				if (pkt.msglen > 0U && pkt.msglen <= QSMP_MESSAGE_MAX)
 				{
 					plen = pkt.msglen + QSMP_HEADER_SIZE;
 					rbuf = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
@@ -647,7 +650,7 @@ static void listener_receive_loop(listener_receiver_state* prcv)
 						qsc_memutils_clear(rbuf, plen);
 						mlen = qsc_socket_receive(&prcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 
-						if (mlen > 0)
+						if (mlen > 0U)
 						{
 							pkt.pmessage = rbuf + QSMP_HEADER_SIZE;
 
@@ -701,7 +704,7 @@ static void listener_receive_loop(listener_receiver_state* prcv)
 
 									if (prcv->pkpa->etime == tme)
 									{
-										prcv->pkpa->seqctr += 1;
+										prcv->pkpa->seqctr += 1U;
 										prcv->pkpa->recd = true;
 									}
 									else
@@ -799,7 +802,7 @@ static void listener_keepalive_loop_wrapper(void* state)
 
 	if (args != NULL)
 	{
-		listener_keepalive_loop(args->pkpa);
+		args->result = listener_keepalive_loop(args->pkpa);
 	}
 }
 
@@ -956,14 +959,14 @@ bool qsmp_duplex_send_asymmetric_ratchet_request(qsmp_connection_state* cns)
 	if (cns != NULL && cns->mode == qsmp_mode_duplex)
 	{
 		qsmp_network_packet pkt = { 0 };
-		uint8_t khash[QSMP_SIMPLEX_HASH_SIZE] = { 0 };
-		uint8_t pmsg[QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE] = { 0 };
-		uint8_t spct[QSMP_ASYMMETRIC_RATCHET_REQUEST_PACKET_SIZE] = { 0 };
+		uint8_t khash[QSMP_SIMPLEX_HASH_SIZE] = { 0U };
+		uint8_t pmsg[QSMP_ASYMMETRIC_SIGNATURE_SIZE + QSMP_SIMPLEX_HASH_SIZE + QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE] = { 0U };
+		uint8_t spct[QSMP_ASYMMETRIC_RATCHET_REQUEST_PACKET_SIZE] = { 0U };
 		size_t mlen;
 		size_t smlen;
 		size_t slen;
 
-		cns->txseq += 1;
+		cns->txseq += 1U;
 		pkt.pmessage = spct + QSMP_HEADER_SIZE;
 		pkt.flag = qsmp_flag_asymmetric_ratchet_request;
 		pkt.msglen = QSMP_ASYMMETRIC_RATCHET_REQUEST_MESSAGE_SIZE;
@@ -983,7 +986,7 @@ bool qsmp_duplex_send_asymmetric_ratchet_request(qsmp_connection_state* cns)
 			qsc_sha3_compute256(khash, m_ckeyset->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 
 			/* sign the hash */
-			smlen = 0;
+			smlen = 0U;
 			qsmp_signature_sign(pmsg, &smlen, khash, sizeof(khash), m_skeyset->sigkey, qsc_acp_generate);
 			mlen += smlen;
 
@@ -1024,16 +1027,16 @@ bool qsmp_duplex_send_symmetric_ratchet_request(qsmp_connection_state* cns)
 	if (cns != NULL && cns->mode == qsmp_mode_duplex)
 	{
 		qsmp_network_packet pkt = { 0 };
-		uint8_t pmsg[QSMP_RTOK_SIZE + QSMP_DUPLEX_MACTAG_SIZE] = { 0 };
-		uint8_t rkey[QSMP_RTOK_SIZE] = { 0 };
+		uint8_t pmsg[QSMP_RTOK_SIZE + QSMP_DUPLEX_MACTAG_SIZE] = { 0U };
+		uint8_t rkey[QSMP_RTOK_SIZE] = { 0U };
 
 		/* generate the token key */
 		if (qsc_acp_generate(rkey, sizeof(rkey)) == true)
 		{
-			uint8_t hdr[QSMP_HEADER_SIZE] = { 0 };
-			uint8_t spct[QSMP_HEADER_SIZE + QSMP_RTOK_SIZE + QSMP_DUPLEX_MACTAG_SIZE] = { 0 };
+			uint8_t hdr[QSMP_HEADER_SIZE] = { 0U };
+			uint8_t spct[QSMP_HEADER_SIZE + QSMP_RTOK_SIZE + QSMP_DUPLEX_MACTAG_SIZE] = { 0U };
 
-			cns->txseq += 1;
+			cns->txseq += 1U;
 			pkt.pmessage = pmsg;
 			pkt.flag = qsmp_flag_symmetric_ratchet_request;
 			pkt.msglen = QSMP_RTOK_SIZE + QSMP_DUPLEX_MACTAG_SIZE;
