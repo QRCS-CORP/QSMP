@@ -389,6 +389,7 @@ int main(void)
 	size_t ectr;
 	bool res;
 
+	res = false;
 	ectr = 0;
 	sender_print_banner();
 
