@@ -73,7 +73,7 @@ static void server_receive_loop(void* prcv)
 	size_t slen;
 	qsmp_errors qerr;
 
-	pprcv = (qsmp_kex_simplex_server_state*)prcv;
+	pprcv = (server_receiver_state*)prcv;
 	qsc_memutils_copy(cadd, (const char*)pprcv->pcns->target.address, sizeof(cadd));
 	pkss = (qsmp_kex_simplex_server_state*)qsc_memutils_malloc(sizeof(qsmp_kex_simplex_server_state));
 
