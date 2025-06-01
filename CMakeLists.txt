@@ -25,7 +25,7 @@ file(GLOB_RECURSE QSMP_SOURCES "Source/QSMP/*.c")
 file(GLOB_RECURSE QSMP_HEADERS "Source/QSMP/include/*.h")
 
 add_library(qsmp STATIC ${QSMP_SOURCES} ${QSMP_HEADERS})
-target_include_directories(qsmp PUBLIC Source/QSMP)
+target_include_directories(qsmp PUBLIC "Source/QSMP")
 target_link_libraries(qsmp PUBLIC qsc)
 
 # QSMP SIMPLEX Client
@@ -39,14 +39,14 @@ target_link_libraries(qsmp_client PRIVATE qsmp)
 file(GLOB_RECURSE QSMP_SERVER_SOURCES "Source/Simplex/Server/*.c")
 
 add_executable(qsmp_server ${QSMP_SERVER_SOURCES})
-target_include_directories(qsmp_server PRIVATE Source/Simplex/Server)
+target_include_directories(qsmp_server PRIVATE "Source/Simplex/Server")
 target_link_libraries(qsmp_server PRIVATE qsmp)
 
 # QSMP Duplex Listener
 file(GLOB_RECURSE QSMP_LISTENER_SOURCES "Source/Duplex/Listener/*.c")
 
 add_executable(qsmp_listener ${QSMP_LISTENER_SOURCES})
-target_include_directories(qsmp_listener PRIVATE Source/Duplex/Listener)
+target_include_directories(qsmp_listener PRIVATE "Source/Duplex/Listener")
 target_link_libraries(qsmp_listener PRIVATE qsmp)
 
 # QSMP DUPLEX Sender
