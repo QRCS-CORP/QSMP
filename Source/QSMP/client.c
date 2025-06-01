@@ -16,11 +16,6 @@ typedef struct client_receiver_state
 	void (*callback)(qsmp_connection_state*, const uint8_t*, size_t);
 } client_receiver_state;
 
-typedef struct client_receive_loop_args
-{
-	client_receiver_state* prcv;
-} client_receive_loop_args;
-
 typedef struct listener_receiver_state
 {
 	qsmp_connection_state* pcns;
@@ -372,31 +367,33 @@ static void client_connection_dispose(client_receiver_state* prcv)
 	qsmp_connection_state_dispose(prcv->pcns);
 }
 
-static void client_receive_loop(client_receiver_state* prcv)
+static void client_receive_loop(void* prcv)
 {
 	QSMP_ASSERT(prcv != NULL);
 
 	qsmp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
+	client_receiver_state* pprcv;
 	uint8_t* rbuf;
 	size_t mlen;
 	size_t plen;
 	size_t slen;
 	qsmp_errors qerr;
 
-	qsc_memutils_copy(cadd, (const char*)prcv->pcns->target.address, sizeof(cadd));
+	pprcv = (client_receiver_state*)prcv;
+	qsc_memutils_copy(cadd, (const char*)pprcv->pcns->target.address, sizeof(cadd));
 
 	rbuf = (uint8_t*)qsc_memutils_malloc(QSMP_HEADER_SIZE);
 
 	if (rbuf != NULL)
 	{
-		while (prcv->pcns->target.connection_status == qsc_socket_state_connected)
+		while (pprcv->pcns->target.connection_status == qsc_socket_state_connected)
 		{
 			mlen = 0U;
 			slen = 0U;
 			qsc_memutils_clear(rbuf, QSMP_HEADER_SIZE);
 
-			plen = qsc_socket_peek(&prcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
+			plen = qsc_socket_peek(&pprcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
 
 			if (plen == QSMP_HEADER_SIZE)
 			{
@@ -410,7 +407,7 @@ static void client_receive_loop(client_receiver_state* prcv)
 					if (rbuf != NULL)
 					{
 						qsc_memutils_clear(rbuf, plen);
-						mlen = qsc_socket_receive(&prcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
+						mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 
 						if (mlen > 0U)
 						{
@@ -421,17 +418,17 @@ static void client_receive_loop(client_receiver_state* prcv)
 								uint8_t* rmsg;
 
 								slen = pkt.msglen;
-								slen -= prcv->pcns->mode == qsmp_mode_duplex ? QSMP_DUPLEX_MACTAG_SIZE : QSMP_SIMPLEX_MACTAG_SIZE;
+								slen -= pprcv->pcns->mode == qsmp_mode_duplex ? QSMP_DUPLEX_MACTAG_SIZE : QSMP_SIMPLEX_MACTAG_SIZE;
 								rmsg = (uint8_t*)qsc_memutils_malloc(slen);
 
 								if (rmsg != NULL)
 								{
 									qsc_memutils_clear(rmsg, slen);
-									qerr = qsmp_packet_decrypt(prcv->pcns, rmsg, &mlen, &pkt);
+									qerr = qsmp_packet_decrypt(pprcv->pcns, rmsg, &mlen, &pkt);
 
 									if (qerr == qsmp_error_none)
 									{
-										prcv->callback(prcv->pcns, rmsg, mlen);
+										pprcv->callback(pprcv->pcns, rmsg, mlen);
 									}
 									else
 									{
@@ -460,35 +457,35 @@ static void client_receive_loop(client_receiver_state* prcv)
 								/* copy the keep-alive packet and send it back */
 								pkt.flag = qsmp_flag_keep_alive_response;
 								qsmp_packet_header_serialize(&pkt, rbuf);
-								qsc_socket_send(&prcv->pcns->target, rbuf, klen, qsc_socket_send_flag_none);
+								qsc_socket_send(&pprcv->pcns->target, rbuf, klen, qsc_socket_send_flag_none);
 							}
 							else if (pkt.flag == qsmp_flag_symmetric_ratchet_request)
 							{
-								if (symmetric_ratchet_response(prcv->pcns, &pkt) == false)
+								if (symmetric_ratchet_response(pprcv->pcns, &pkt) == false)
 								{
-									qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)prcv->pcns->target.address);
+									qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)pprcv->pcns->target.address);
 									break;
 								}
 							}
 #if defined(QSMP_ASYMMETRIC_RATCHET)
 							else if (pkt.flag == qsmp_flag_asymmetric_ratchet_request)
 							{
-								if (prcv->pcns->mode == qsmp_mode_duplex)
+								if (pprcv->pcns->mode == qsmp_mode_duplex)
 								{
-									if (asymmetric_ratchet_response(prcv->pcns, &pkt) == false)
+									if (asymmetric_ratchet_response(pprcv->pcns, &pkt) == false)
 									{
-										qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)prcv->pcns->target.address);
+										qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)pprcv->pcns->target.address);
 										break;
 									}
 								}
 							}
 							else if (pkt.flag == qsmp_flag_asymmetric_ratchet_response)
 							{
-								if (prcv->pcns->mode == qsmp_mode_duplex)
+								if (pprcv->pcns->mode == qsmp_mode_duplex)
 								{
-									if (asymmetric_ratchet_finalize(prcv->pcns, &pkt) == false)
+									if (asymmetric_ratchet_finalize(pprcv->pcns, &pkt) == false)
 									{
-										qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)prcv->pcns->target.address);
+										qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)pprcv->pcns->target.address);
 										break;
 									}
 								}
@@ -1065,16 +1062,6 @@ bool qsmp_duplex_send_symmetric_ratchet_request(qsmp_connection_state* cns)
 	return res;
 }
 
-static void client_receive_loop_wrapper(void* state)
-{
-	client_receive_loop_args* args = (client_receive_loop_args*)state;
-
-	if (args != NULL)
-	{
-		client_receive_loop(args->prcv);
-	}
-}
-
 qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kset, 
 	const qsmp_client_verification_key* rverkey, 
 	const qsc_ipinfo_ipv4_address* address, uint16_t port,
@@ -1089,7 +1076,6 @@ qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kse
 
 	qsmp_kex_duplex_client_state* kcs;
 	client_receiver_state* prcv;
-	client_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
@@ -1137,8 +1123,7 @@ qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kse
 							qsc_memutils_copy(m_skeyset->verkey, rverkey->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 #endif
 							/* start the receive loop on a new thread */
-							rargs.prcv = prcv;
-							qsc_async_thread_create(&client_receive_loop_wrapper, &rargs);
+							qsc_async_thread_create(&client_receive_loop, prcv);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);
@@ -1222,7 +1207,6 @@ qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_signature_key* kse
 
 	qsmp_kex_duplex_client_state* kcs;
 	client_receiver_state* prcv;
-	client_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
@@ -1271,8 +1255,7 @@ qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_signature_key* kse
 #endif
 
 							/* start the receive loop on a new thread */
-							rargs.prcv = prcv;
-							qsc_async_thread_create(&client_receive_loop_wrapper, &rargs);
+							qsc_async_thread_create(&client_receive_loop, prcv);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);
@@ -1498,7 +1481,6 @@ qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_verification_key*
 
 	qsmp_kex_simplex_client_state* kcs;
 	client_receiver_state* prcv;
-	client_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
@@ -1540,8 +1522,7 @@ qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_verification_key*
 						if (qerr == qsmp_error_none)
 						{
 							/* start the receive loop on a new thread */
-							rargs.prcv = prcv;
-							qsc_async_thread_create(&client_receive_loop_wrapper, &rargs);
+							qsc_async_thread_create(&client_receive_loop, prcv);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);
@@ -1624,7 +1605,6 @@ qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_verification_key*
 
 	qsmp_kex_simplex_client_state* kcs;
 	client_receiver_state* prcv;
-	client_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions serr;
 	qsmp_errors qerr;
 
@@ -1665,8 +1645,7 @@ qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_verification_key*
 						if (qerr == qsmp_error_none)
 						{
 							/* start the receive loop on a new thread */
-							rargs.prcv = prcv;
-							qsc_async_thread_create(&client_receive_loop_wrapper, &rargs);
+							qsc_async_thread_create(&client_receive_loop, prcv);
 
 							/* start the send loop on the main thread */
 							send_func(prcv->pcns);

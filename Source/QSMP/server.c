@@ -19,11 +19,6 @@ typedef struct server_receiver_state
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t);
 	void (*disconnect_callback)(qsmp_connection_state*);
 } server_receiver_state;
-
-typedef struct server_receive_loop_args
-{
-	server_receiver_state* prcv;
-} server_receive_loop_args;
 /** \endcond */
 
 /** \cond */
@@ -64,26 +59,28 @@ static void server_poll_sockets(void)
 	}
 }
 
-static void server_receive_loop(server_receiver_state* prcv)
+static void server_receive_loop(void* prcv)
 {
 	QSMP_ASSERT(prcv != NULL);
 
 	qsmp_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
 	qsmp_kex_simplex_server_state* pkss;
+	server_receiver_state* pprcv;
 	uint8_t* rbuf;
 	size_t mlen;
 	size_t plen;
 	size_t slen;
 	qsmp_errors qerr;
 
-	qsc_memutils_copy(cadd, (const char*)prcv->pcns->target.address, sizeof(cadd));
+	pprcv = (qsmp_kex_simplex_server_state*)prcv;
+	qsc_memutils_copy(cadd, (const char*)pprcv->pcns->target.address, sizeof(cadd));
 	pkss = (qsmp_kex_simplex_server_state*)qsc_memutils_malloc(sizeof(qsmp_kex_simplex_server_state));
 
 	if (pkss != NULL)
 	{
-		server_state_initialize(pkss, prcv);
-		qerr = qsmp_kex_simplex_server_key_exchange(pkss, prcv->pcns);
+		server_state_initialize(pkss, pprcv);
+		qerr = qsmp_kex_simplex_server_key_exchange(pkss, pprcv->pcns);
 		qsc_memutils_alloc_free(pkss);
 		pkss = NULL;
 
@@ -93,12 +90,12 @@ static void server_receive_loop(server_receiver_state* prcv)
 
 			if (rbuf != NULL)
 			{
-				while (prcv->pcns->target.connection_status == qsc_socket_state_connected)
+				while (pprcv->pcns->target.connection_status == qsc_socket_state_connected)
 				{
 					mlen = 0U;
 					slen = 0U;
 
-					plen = qsc_socket_peek(&prcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
+					plen = qsc_socket_peek(&pprcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
 
 					if (plen == QSMP_HEADER_SIZE)
 					{
@@ -113,7 +110,7 @@ static void server_receive_loop(server_receiver_state* prcv)
 						if (rbuf != NULL)
 						{
 							qsc_memutils_clear(rbuf, plen);
-							mlen = qsc_socket_receive(&prcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
+							mlen = qsc_socket_receive(&pprcv->pcns->target, rbuf, plen, qsc_socket_receive_flag_wait_all);
 							
 							if (mlen != 0U)
 							{
@@ -130,11 +127,11 @@ static void server_receive_loop(server_receiver_state* prcv)
 									{
 										qsc_memutils_clear(mstr, slen);
 
-										qerr = qsmp_packet_decrypt(prcv->pcns, mstr, &mlen, &pkt);
+										qerr = qsmp_packet_decrypt(pprcv->pcns, mstr, &mlen, &pkt);
 
 										if (qerr == qsmp_error_none)
 										{
-											prcv->receive_callback(prcv->pcns, mstr, mlen);
+											pprcv->receive_callback(pprcv->pcns, mstr, mlen);
 										}
 										else
 										{
@@ -203,9 +200,9 @@ static void server_receive_loop(server_receiver_state* prcv)
 				qsmp_log_write(qsmp_messages_allocate_fail, cadd);
 			}
 
-			if (prcv->disconnect_callback != NULL)
+			if (pprcv->disconnect_callback != NULL)
 			{
-				prcv->disconnect_callback(prcv->pcns);
+				pprcv->disconnect_callback(pprcv->pcns);
 			}
 		}
 		else
@@ -213,26 +210,16 @@ static void server_receive_loop(server_receiver_state* prcv)
 			qsmp_log_message(qsmp_messages_kex_fail);
 		}
 
-		if (prcv != NULL)
+		if (pprcv != NULL)
 		{
-			qsmp_connections_reset(prcv->pcns->cid);
-			qsc_memutils_alloc_free(prcv);
-			prcv = NULL;
+			qsmp_connections_reset(pprcv->pcns->cid);
+			qsc_memutils_alloc_free(pprcv);
+			pprcv = NULL;
 		}
 	}
 	else
 	{
 		qsmp_log_message(qsmp_messages_allocate_fail);
-	}
-}
-
-static void server_receive_loop_wrapper(void* state)
-{
-	server_receive_loop_args* args = (server_receive_loop_args*)state;
-
-	if (args != NULL)
-	{
-		server_receive_loop(args->prcv);
 	}
 }
 
@@ -245,7 +232,6 @@ static qsmp_errors server_start(const qsmp_server_signature_key* kset,
 	QSMP_ASSERT(source != NULL);
 	QSMP_ASSERT(receive_callback != NULL);
 
-	server_receive_loop_args rargs = { 0 };
 	qsc_socket_exceptions res;
 	qsmp_errors qerr;
 
@@ -277,8 +263,7 @@ static qsmp_errors server_start(const qsmp_server_signature_key* kset,
 
 					qsmp_log_write(qsmp_messages_connect_success, (const char*)cns->target.address);
 					/* start the receive loop on a new thread */
-					rargs.prcv = prcv;
-					qsc_async_thread_create(&server_receive_loop_wrapper, &rargs);
+					qsc_async_thread_create(&server_receive_loop, prcv);
 					server_poll_sockets();
 				}
 				else
