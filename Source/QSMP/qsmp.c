@@ -205,7 +205,7 @@ const char* qsmp_error_to_string(qsmp_errors error)
 
 	dsc = NULL;
 
-	if ((int)error < QSMP_ERROR_STRING_DEPTH && (int)error >= 0)
+	if (error < QSMP_ERROR_STRING_DEPTH && error >= 0)
 	{
 		dsc = QSMP_ERROR_STRINGS[(size_t)error];
 	}
@@ -305,7 +305,7 @@ const char* qsmp_get_error_description(qsmp_messages message)
 
 	dsc = NULL;
 
-	if ((int)message < QSMP_MESSAGE_STRING_DEPTH && (int)message >= 0)
+	if (message < QSMP_MESSAGE_STRING_DEPTH && message >= 0)
 	{
 		dsc = QSMP_MESSAGE_STRINGS[(size_t)message];
 
