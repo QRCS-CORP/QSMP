@@ -371,11 +371,15 @@ void qsmp_log_write(qsmp_messages emsg, const char* msg)
 	{
 		if (msg != NULL)
 		{
-			char mtmp[QSMP_ERROR_STRING_WIDTH] = { 0 };
+			char mtmp[QSMP_ERROR_STRING_WIDTH + 1U] = { 0 };
 
 			qsc_stringutils_copy_string(mtmp, sizeof(mtmp), pmsg);
-			qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), msg);
-			qsmp_logger_write(mtmp);
+
+			if ((qsc_stringutils_string_size(msg) + qsc_stringutils_string_size(mtmp)) < sizeof(mtmp))
+			{
+				qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), msg);
+				qsmp_logger_write(mtmp);
+			}
 		}
 		else
 		{

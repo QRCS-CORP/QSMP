@@ -5,4 +5,5 @@
   client.c
   server.c
   Generating Code...
+C:\Users\stepp\Documents\Visual Studio 2022\Projects\C\QSMP\QSMP\server.c(76,8): warning C4133: '=': incompatible types - from 'qsmp_kex_simplex_server_state *' to 'server_receiver_state *'
   QSMP.vcxproj -> C:\Users\stepp\Documents\Visual Studio 2022\Projects\C\QSMP\x64\Debug\QSMP.lib

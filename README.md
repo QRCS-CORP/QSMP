@@ -118,6 +118,69 @@ QSMP defines two complete protocol specifications:
 
 - For further details on cryptographic primitives and implementations, please refer to the [QSC Library Documentation](https://qrcs-corp.github.io/QSC/).
 
+## Compilation
+
+QSMP uses the QSC cryptographic library. QSC is a standalone, portable, and MISRA-aligned cryptographic library written in C. It supports platform-optimized builds across **Windows**, **macOS**, and **Linux** via [CMake](https://cmake.org/), and includes support for modern hardware acceleration such as AES-NI, AVX2/AVX-512, and RDRAND.
+
+### Prerequisites
+
+- **CMake**: 3.15 or newer
+- **Windows**: Visual Studio 2022 or newer
+- **macOS**: Clang via Xcode or Homebrew
+- **Ubuntu**: GCC or Clang  
+
+### Building the QSMP library and the Client/Server projects
+
+#### Windows (MSVC)
+
+Use the Visual Studio solution to create the library and the server and client projects: PQS, Server, and Client.
+Extract the files, and open the Server or Client project. The PQS library has a default location in a folder parallel to the Server and Client project folders.  
+The server and client projects additional files folder are set to: **$(SolutionDir)..\PQS\PQS** and **$(SolutionDir)..\QSC\QSC**, if this is not the location of the library files, change it by going to server/client project properties **Configuration Properties->C/C++->General->Additional Include Directories** and set the library files location.  
+Ensure that the **[server/client]->References** property contains a reference to the PQS library, and that the PQS library contains a valid reference to the QSC library.  
+QSC and PQS support every AVX instruction family (AVX/AVX2/AVX-512).  
+Set the QSC and PQS libries and every server/client project to the same AVX family setting in **Configuration Properties->C/C++->All Options->Enable Enhanced Instruction Set**.  
+Set both QSC and PQS to the same instruction set in Debug and Release Solution Configurations.  
+Compile the QSC library (right-click and choose build), build the PQS library, then build the Server and Client project.
+
+#### MacOS / Ubuntu (Eclipse)
+
+The QSC and the PQS library projects, along with the Server and Client projects have been tested using the Eclipse IDE on Ubuntu and MacOS.  
+In the Eclipse folder there are subfolders for Ubuntu and MacOS that contain the **.project**, **.cproject**, and **.settings** Eclipse files.  Copy those files directly into the folders containing the code files, ex. in the **Eclipse\Ubuntu\QSC** folder, and do the same for the PQS and the Server and Client projects.  
+Create a new project for QSC, select C/C++ project, and then **Create an empty project** with the same name as the folder with the files, 'QSC'.  
+Eclipse should load the project with all of the settings into the project view window. The same proceedure is true for **MacOS and Ubuntu**, but some settings are different (GCC/Clang), so choose the project files that correspond to the operating system.  
+The default projects use minimal flags, but are set to use AVX2, AES-NI, and RDRand by default.
+
+Sample flag sets and their meanings:  
+-**AVX Support**: -msse2 -mavx -maes -mpclmul -mrdrnd -mbmi2  
+-**msse2**        # baseline for x86_64  
+-**mavx**         # 256-bit FP/SIMD  
+-**maes**         # AES-NI (128-bit AES rounds)  
+-**mpclmul**      # PCLMUL (carry-less multiply)  
+-**mrdrnd**       # RDRAND (hardware RNG)  
+-**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
+
+-**AVX2 Support**: -msse2 -mavx -mavx2 -mpclmul -maes -mrdrnd -mbmi2  
+-**msse2**        # baseline for x86_64  
+-**mavx**         # AVX baseline  
+-**mavx2**        # 256-bit integer + FP SIMD  
+-**mpclmul**      # PCLMUL (carry-less multiply for AES-GCM, GHASH, etc.)  
+-**maes**         # AES-NI (128-bit AES rounds)  
+-**mrdrnd**       # RDRAND (hardware RNG)  
+-**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
+
+-**AVX-512 Support**: -msse2 -mavx -mavx2 -mavx512f -mavx512bw -mvaes -mpclmul -mrdrnd -mbmi2 -maes  
+-**msse2**        # baseline for x86_64  
+-**mavx**         # AVX baseline  
+-**mavx2**        # AVX2 baseline (implied by AVX-512 but explicit is safer)  
+-**mavx512f**     # 512-bit Foundation instructions  
+-**mavx512bw**    # 512-bit Byte/Word integer instructions  
+-**mvaes**        # Vector-AES (VAES) in 512-bit registers  
+-**mpclmul**      # PCLMUL (carry-less multiply for GF(2ⁿ))  
+-**mrdrnd**       # RDRAND (hardware RNG)  
+-**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
+-**maes**         # AES-NI (128-bit AES rounds; optional if VAES covers your AES use)  
+
+
 ## Keywords
 
 Cryptography, Post-Quantum, Asymmetric Cryptography, Symmetric Cryptography, Digital Signature, Key Encapsulation, Key Exchange, Hash Function, MAC, Pseudo-Random Number Generator, DRBG, Entropy, SIMD, AVX, AVX2, AVX512, Secure Memory, Asynchronous, MISRA, QSMP.
