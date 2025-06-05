@@ -6,7 +6,14 @@
 [![CodeQL](https://github.com/QRCS-CORP/QSMP/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/QRCS-CORP/QSMP/actions/workflows/codeql-analysis.yml)
 [![Platforms](https://img.shields.io/badge/platforms-Linux%20|%20macOS%20|%20Windows-blue)](#)
 [![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSMP/)
-[![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/QRCS-CORP/QSMP/security/policy)  
+[![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/QRCS-CORP/QSMP/security/policy)
+[![License: QRCS License](https://img.shields.io/badge/License-QRCS%20License-blue.svg)](https://github.com/QRCS-CORP/QSMP/blob/main/QRCS-PL%20License.txt)
+[![Language](https://img.shields.io/static/v1?label=Language&message=C%2023&color=blue)](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3220.pdf)
+[![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSMP/)
+[![GitHub release](https://img.shields.io/github/v/release/QRCS-CORP/QSMP)](https://github.com/QRCS-CORP/QSMP/releases/tag/2025-06-04)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/QRCS-CORP/QSMP.svg)](https://github.com/QRCS-CORP/QSMP/commits/main)
+[![Custom: Standard](https://img.shields.io/static/v1?label=Security%20Standard&message=MISRA&color=blue)](https://misra.org.uk/)
+[![Custom: Target](https://img.shields.io/static/v1?label=Target%20Industry&message=Communications/Defense&color=brightgreen)](#)
 
 **QSMP is a post-quantum alternative to traditional key exchange protocols (such as TLS) that integrates robust key exchange, authentication, and an encrypted tunnel into a single specification.**
 
