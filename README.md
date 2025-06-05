@@ -14,7 +14,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/QRCS-CORP/QSMP)](https://github.com/QRCS-CORP/QSMP/releases/tag/2025-06-04)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/QRCS-CORP/QSMP.svg)](https://github.com/QRCS-CORP/QSMP/commits/main)
 [![Custom: Standard](https://img.shields.io/static/v1?label=Security%20Standard&message=MISRA&color=blue)](https://misra.org.uk/)
-[![Custom: Target](https://img.shields.io/static/v1?label=Target%20Industry&message=Communications&color=brightgreen)](#)
+[![Custom: Target](https://img.shields.io/static/v1?label=Target%20Industry&message=Financial/Communications&color=brightgreen)](#)
 
 **QSMP is a post-quantum alternative to traditional key exchange protocols (such as TLS) that integrates robust key exchange, authentication, and an encrypted tunnel into a single specification.**
 
