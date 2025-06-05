@@ -4,6 +4,7 @@
 
 [![Build](https://github.com/QRCS-CORP/QSMP/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/QRCS-CORP/QSMP/actions/workflows/build.yml)
 [![CodeQL](https://github.com/QRCS-CORP/QSMP/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/QRCS-CORP/QSMP/actions/workflows/codeql-analysis.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/qrcs-corp/qsmp/badge)](https://www.codefactor.io/repository/github/qrcs-corp/qsmp)
 [![Platforms](https://img.shields.io/badge/platforms-Linux%20|%20macOS%20|%20Windows-blue)](#)
 [![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSMP/)
 [![Security Policy](https://img.shields.io/badge/security-policy-blue)](https://github.com/QRCS-CORP/QSMP/security/policy)
