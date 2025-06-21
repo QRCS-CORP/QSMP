@@ -155,7 +155,7 @@ The QSC and the QSMP library projects, along with the server and client projects
 In the Eclipse folder there are subfolders for Ubuntu and MacOS that contain the **.project**, **.cproject**, and **.settings** Eclipse project files.  Copy those files directly into the folders containing the code files; move the files in the **Eclipse\Ubuntu\project-name** or **Eclipse\MacOS\project-name** folder to the folder containing the project's header and implementation files for QSMP and each of the Server and Client projects.  
 Create a new project for QSC, select C/C++ project, and then **Create an empty project** with the same name as the folder with the files, 'QSC'. Repeat for each additional project.  
 Eclipse should load the project with all of the settings into the project view window. The same proceedure is true for **MacOS and Ubuntu**, but some settings are different (GCC/Clang), so choose the project files that correspond to the operating system.  
-The default projects use minimal flags, but are set to use AVX2, AES-NI, and RDRand by default.
+The default projects use minimal flags, and is set to No Enhanced Instructions by default..
 
 Sample flag sets and their meanings:  
 -**AVX Support**: -msse2 -mavx -maes -mpclmul -mrdrnd -mbmi2  
