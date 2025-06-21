@@ -410,13 +410,13 @@
 #	define qsmp_signature_verify qsc_dilithium_verify
 
 /** \cond */
-#	if defined(QSC_DILITHIUM_S1P2544) && defined(QSC_KYBER_S1P1632)
+#	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_KYBER_S1K2P512)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s1_kyber-s1_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S3P4016) && defined(QSC_KYBER_S3P2400)
+#	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_KYBER_S3K3P768)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_kyber-s3_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_KYBER_S5P3168)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S5K4P1024)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s5_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_KYBER_S6P3936)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S6K5P1280)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s6_sha3_rcs";
 #	else
 #		error Invalid parameter set!
@@ -492,15 +492,15 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s6_
 #	define qsmp_signature_verify qsc_dilithium_verify
 
 /** \cond */
-#	if defined(QSC_DILITHIUM_S1P2544) && defined(QSC_MCELIECE_S1N3488T64)
+#	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_MCELIECE_S1N3488T64)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s1_mceliece-s1_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S3P4016) && defined(QSC_MCELIECE_S3N4608T96)
+#	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_MCELIECE_S3N4608T96)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s3_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_MCELIECE_S5N6688T128)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S5N6688T128)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s5_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_MCELIECE_S6N6960T119)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S6N6960T119)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s6_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P4880) && defined(QSC_MCELIECE_S7N8192T128)
+#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S7N8192T128)
 static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s7_sha3_rcs";
 #	else
 #		error Invalid parameter set!
