@@ -112,7 +112,7 @@ QSMP defines two complete protocol specifications:
 ### Windows Visual Studio Self-Test
 
 **Simplex Mode:**
-- Set the server project as the startup project and run it.
+- Set the server project as the startup project and run it. 
 - In the project pane, right-click the client project and choose **Debug → New Instance**.
 - Enter the loopback IP address `127.0.0.1` and specify the path to the public key created during server initialization.
 
