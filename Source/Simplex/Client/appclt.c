@@ -214,6 +214,7 @@ int main(void)
 	qsmp_client_verification_key ckey = { 0 };
 	qsc_ipinfo_ipv4_address addv4t = { 0 };
 	size_t ectr;
+	qsmp_errors qerr;
 	bool res;
 
 	res = false;
@@ -238,7 +239,13 @@ int main(void)
 
 	if (res == true)
 	{
-		qsmp_client_simplex_connect_ipv4(&ckey, &addv4t, QSMP_SERVER_PORT, &client_send_loop, &client_receive_callback);
+		qerr = qsmp_client_simplex_connect_ipv4(&ckey, &addv4t, QSMP_SERVER_PORT, &client_send_loop, &client_receive_callback);
+
+		if (qerr != qsmp_error_none)
+		{
+			char* serr = qsmp_error_to_string(qerr);
+			qsc_consoleutils_print_line(serr);
+		}
 	}
 	else
 	{

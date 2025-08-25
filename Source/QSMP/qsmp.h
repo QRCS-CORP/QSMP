@@ -118,11 +118,11 @@
 #	error Invalid parameter set!
 #endif
 
-///*!
-//* \def QSMP_ASYMMETRIC_RATCHET
-//* \brief Enable the asymmetric ratchet option
-//*/
-//#define QSMP_ASYMMETRIC_RATCHET
+/*!
+* \def QSMP_ASYMMETRIC_RATCHET
+* \brief Enable the asymmetric ratchet option
+*/
+#define QSMP_ASYMMETRIC_RATCHET
 
 /*!
 * \def QSMP_CONFIG_SIZE

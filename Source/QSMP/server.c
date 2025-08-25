@@ -140,6 +140,7 @@ static void server_receive_loop(void* prcv)
 											break;
 										}
 
+										qsc_memutils_clear(mstr, slen);
 										qsc_memutils_alloc_free(mstr);
 									}
 									else
@@ -192,6 +193,7 @@ static void server_receive_loop(void* prcv)
 					}
 				}
 
+				qsc_memutils_clear(rbuf, plen);
 				qsc_memutils_alloc_free(rbuf);
 			}
 			else
@@ -305,7 +307,7 @@ void qsmp_server_broadcast(const uint8_t* message, size_t msglen)
 	size_t mlen;
 	qsc_mutex mtx;
 	qsmp_network_packet pkt = { 0 };
-	uint8_t msgstr[QSMP_CONNECTION_MTU] = { 0U };
+	uint8_t smsg[QSMP_CONNECTION_MTU] = { 0U };
 
 	clen = qsmp_connections_size();
 
@@ -320,8 +322,8 @@ void qsmp_server_broadcast(const uint8_t* message, size_t msglen)
 			if (qsc_socket_is_connected(&cns->target) == true)
 			{
 				qsmp_packet_encrypt(cns, &pkt, message, msglen);
-				mlen = qsmp_packet_to_stream(&pkt, msgstr);
-				qsc_socket_send(&cns->target, msgstr, mlen, qsc_socket_send_flag_none);
+				mlen = qsmp_packet_to_stream(&pkt, smsg);
+				qsc_socket_send(&cns->target, smsg, mlen, qsc_socket_send_flag_none);
 			}
 
 			qsc_async_mutex_unlock_ex(mtx);

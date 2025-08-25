@@ -231,11 +231,11 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 			if (res == true)
 			{
 				qsmp_signature_key_deserialize(sigk, spri);
-				qsc_consoleutils_print_line("sender> The private-key has been loaded.");
+				sender_print_message("The private-key has been loaded.");
 			}
 			else
 			{
-				qsc_consoleutils_print_line("sender> Could not load the key-pair, aborting startup.");
+				sender_print_message("Could not load the key-pair, aborting startup.");
 			}
 		}
 		else
@@ -250,7 +250,7 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 				qsc_folderutils_append_delimiter(fpath);
 				qsc_stringutils_concat_strings(fpath, sizeof(fpath), QSMP_PUBKEY_NAME);
 
-				qsc_consoleutils_print_line("sender> The private-key was not detected, generating a new private/public keypair...");
+				sender_print_message("The private-key was not detected, generating a new private/public keypair...");
 				res = qsc_acp_generate(keyid, QSMP_KEYID_SIZE);
 
 				if (res == true)
@@ -274,8 +274,8 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 						{
 							qsc_consoleutils_print_safe("sender> The publickey has been saved to ");
 							qsc_consoleutils_print_line(fpath);
-							qsc_consoleutils_print_line("sender> Distribute the public-key to intended clients.");
-							qsc_consoleutils_print_line("sender> ");
+							sender_print_message("Distribute the public-key to intended clients.");
+							sender_print_prompt();
 
 							/* store the private key */
 							qsc_stringutils_clear_string(fpath);
@@ -287,17 +287,17 @@ static bool sender_ipv4_dialogue(qsc_ipinfo_ipv4_address* address, qsmp_server_s
 						}
 						else
 						{
-							qsc_consoleutils_print_line("sender> Could not load the key-pair, aborting startup.");
+							sender_print_message("Could not load the key-pair, aborting startup.");
 						}
 					}
 					else
 					{
-						qsc_consoleutils_print_line("sender> Public key could not be allocated.");
+						sender_print_message("Public key could not be allocated.");
 					}
 				}
 				else
 				{
-					qsc_consoleutils_print_line("sender> Could not create the key-pair, aborting startup.");
+					sender_print_message("Could not create the key-pair, aborting startup.");
 				}
 			}
 		}
@@ -403,7 +403,7 @@ int main(void)
 		}
 		else
 		{
-			qsc_consoleutils_print_line("");
+			sender_print_prompt();
 		}
 
 		++ectr;
@@ -411,13 +411,13 @@ int main(void)
 
 	if (res == true)
 	{
-		qsmp_errors err;
+		qsmp_errors qerr;
 
-		err = qsmp_client_duplex_connect_ipv4(&sigk, &verk, &addv4t, QSMP_CLIENT_PORT, &sender_send_loop, &sender_receive_callback);
+		qerr = qsmp_client_duplex_connect_ipv4(&sigk, &verk, &addv4t, QSMP_CLIENT_PORT, &sender_send_loop, &sender_receive_callback);
 
-		if (err != qsmp_error_none)
+		if (qerr != qsmp_error_none)
 		{
-			sender_print_error(err);
+			sender_print_error(qerr);
 		}
 	}
 	else

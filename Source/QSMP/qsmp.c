@@ -14,12 +14,14 @@ void qsmp_asymmetric_cipher_keypair_dispose(qsmp_asymmetric_cipher_keypair* keyp
 	{
 		if (keypair->prikey != NULL)
 		{
+			qsc_memutils_clear(keypair->prikey, QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
 			qsc_memutils_alloc_free(keypair->prikey);
 			keypair->prikey = NULL;
 		}
 
 		if (keypair->pubkey != NULL)
 		{
+			qsc_memutils_clear(keypair->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
 			qsc_memutils_alloc_free(keypair->pubkey);
 			keypair->pubkey = NULL;
 		}
@@ -61,12 +63,14 @@ void qsmp_asymmetric_signature_keypair_dispose(qsmp_asymmetric_signature_keypair
 	{
 		if (keypair->sigkey != NULL)
 		{
+			qsc_memutils_clear(keypair->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
 			qsc_memutils_alloc_free(keypair->sigkey);
 			keypair->sigkey = NULL;
 		}
 
 		if (keypair->verkey != NULL)
 		{
+			qsc_memutils_clear(keypair->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 			qsc_memutils_alloc_free(keypair->verkey);
 			keypair->verkey = NULL;
 		}

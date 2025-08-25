@@ -101,7 +101,7 @@ static void listener_print_banner(void)
 	qsc_consoleutils_print_line("QSMP: Listener Example Project");
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol duplex-mode listener.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0a=b (A3)");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0b (A3)");
 	qsc_consoleutils_print_line("Date:      May 31, 2025");
 	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
@@ -222,11 +222,11 @@ static bool listener_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_v
 			qsc_memutils_copy(pubk->keyid, prik->keyid, QSMP_KEYID_SIZE);
 			qsc_memutils_copy(pubk->verkey, prik->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
 			pubk->expiration = prik->expiration;
-			qsc_consoleutils_print_line("listener> The private-key has been loaded.");
+			listener_print_message("The private-key has been loaded.");
 		}
 		else
 		{
-			qsc_consoleutils_print_line("listener> Could not load the key-pair, aborting startup.");
+			listener_print_message("Could not load the key-pair, aborting startup.");
 		}
 	}
 	else
@@ -239,7 +239,8 @@ static bool listener_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_v
 			qsc_folderutils_append_delimiter(fpath);
 			qsc_stringutils_concat_strings(fpath, sizeof(fpath), QSMP_PUBKEY_NAME);
 
-			qsc_consoleutils_print_line("listener> The private-key was not detected, generating a new private/public keypair...");
+			listener_print_message("The private-key was not detected, generating a new private/public keypair...");
+
 			res = qsc_acp_generate(keyid, QSMP_KEYID_SIZE);
 
 			if (res == true)
@@ -259,8 +260,8 @@ static bool listener_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_v
 					{
 						qsc_consoleutils_print_safe("listener> The publickey has been saved to ");
 						qsc_consoleutils_print_line(fpath);
-						qsc_consoleutils_print_line("listener> Distribute the public-key to intended clients.");
-						qsc_consoleutils_print_line("listener> ");
+						listener_print_message("Distribute the public-key to intended clients.");
+						listener_print_prompt();
 
 						qsc_stringutils_clear_string(fpath);
 						qsc_stringutils_copy_string(fpath, sizeof(fpath), dir);
@@ -271,19 +272,19 @@ static bool listener_key_dialogue(qsmp_server_signature_key* prik, qsmp_client_v
 					}
 					else
 					{
-						qsc_consoleutils_print_line("listener> Could not load the key-pair, aborting startup.");
+						listener_print_message("Could not load the key-pair, aborting startup.");
 					}
 
 					qsc_memutils_alloc_free(spub);
 				}
 				else
 				{
-					qsc_consoleutils_print_line("listener> Could not encode the public key, aborting startup.");
+					listener_print_message("Could not encode the public key, aborting startup.");
 				}
 			}
 			else
 			{
-				qsc_consoleutils_print_line("listener> Could not create the key-pair, aborting startup.");
+				listener_print_message("Could not create the key-pair, aborting startup.");
 			}
 		}
 	}
@@ -379,23 +380,21 @@ int main(void)
 
 	if (listener_key_dialogue(&prik, &pubk, kid) == true)
 	{
-		listener_print_message("Waiting for a connection...");
+		qsc_consoleutils_print_line("Waiting for a connection...");
 		qerr = qsmp_client_duplex_listen_ipv4(&prik, &listener_send_loop, &listener_receive_callback, &listener_key_query);
 
 		if (qerr != qsmp_error_none)
 		{
-			qsc_consoleutils_print_line("");
 			listener_print_error(qerr);
-			listener_print_message("The network key-exchange failed, the application will exit.");
+			qsc_consoleutils_print_line("The network key-exchange failed, the application will exit.");
 		}
 	}
 	else
 	{
-		listener_print_message("The signature key-pair could not be created, the application will exit.");
+		qsc_consoleutils_print_line("The signature key-pair could not be created, the application will exit.");
 	}
 
-	qsc_consoleutils_print_line("");
-	listener_print_message("Press any key to close...");
+	qsc_consoleutils_print_line("Press any key to close...");
 	qsc_consoleutils_get_wait();
 
 	return 0;
