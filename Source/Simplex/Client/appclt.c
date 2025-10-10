@@ -243,7 +243,7 @@ int main(void)
 
 		if (qerr != qsmp_error_none)
 		{
-			char* serr = qsmp_error_to_string(qerr);
+			const char* serr = qsmp_error_to_string(qerr);
 			qsc_consoleutils_print_line(serr);
 		}
 	}
