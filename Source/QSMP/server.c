@@ -90,6 +90,8 @@ static void server_receive_loop(void* prcv)
 
 			if (rbuf != NULL)
 			{
+				plen = 0U;
+
 				while (pprcv->pcns->target.connection_status == qsc_socket_state_connected)
 				{
 					mlen = 0U;
