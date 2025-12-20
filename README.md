@@ -31,7 +31,7 @@ QSMP is designed to provide strong post-quantum security using modern asymmetric
 - **DUPLEX Protocol:**  
   A two-way trust model where both hosts authenticate each other. Each host contributes a secret that is combined to key 512-bit secure symmetric cipher instances (using the RCS cipher). This mode is well suited for peer-to-peer and high-security communications, delivering a fully 512-bit secure end-to-end crypto system when configured with the appropriate parameter sets.
 
-QSMP breaks new ground by designing these mechanisms from the ground up, eschewing backward compatibility concerns—to deliver streamlined, modern, and quantum-safe cryptographic solutions.
+QSMP breaks new ground by designing these mechanisms from the ground up, eschewing backward compatibility concerns, to deliver streamlined, modern, and quantum-safe cryptographic solutions.
 
 
 ## Introduction
