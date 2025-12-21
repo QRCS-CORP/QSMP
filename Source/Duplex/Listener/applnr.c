@@ -101,8 +101,8 @@ static void listener_print_banner(void)
 	qsc_consoleutils_print_line("QSMP: Listener Example Project");
 	qsc_consoleutils_print_line("Quantum Secure Messaging Protocol duplex-mode listener.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0b (A3)");
-	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0c (A3)");
+	qsc_consoleutils_print_line("Date:      December 19, 2025");
 	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }

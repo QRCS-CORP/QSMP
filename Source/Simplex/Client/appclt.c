@@ -65,8 +65,8 @@ static void client_print_banner(void)
 	qsc_consoleutils_print_line("Enter the IP address and the server public key to connect.");
 	qsc_consoleutils_print_line("Type 'qsmp quit' to close the connection and exit the application.");
 	qsc_consoleutils_print_line("");
-	qsc_consoleutils_print_line("Release:   v1.3.0.0b (A3)");
-	qsc_consoleutils_print_line("Date:      May 31, 2025");
+	qsc_consoleutils_print_line("Release:   v1.3.0.0c (A3)");
+	qsc_consoleutils_print_line("Date:      December 19, 2025");
 	qsc_consoleutils_print_line("Contact:   contact@qrcscorp.ca");
 	qsc_consoleutils_print_line("");
 }

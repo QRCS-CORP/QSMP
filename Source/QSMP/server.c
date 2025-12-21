@@ -152,16 +152,20 @@ static void server_receive_loop(void* prcv)
 										break;
 									}
 								}
-								else if (pkt.flag == qsmp_flag_connection_terminate)
+								else if (pkt.flag == qsmp_flag_error_condition)
 								{
-									qsmp_log_write(qsmp_messages_disconnect, cadd);
-									break;
+									/* anti-dos: break on error message is conditional
+									   on succesful authentication/decryption */
+									if (qsmp_decrypt_error_message(&qerr, pprcv->pcns, rbuf) == true)
+									{
+										qsmp_log_system_error(qerr);
+										break;
+									}
 								}
 								else
 								{
-									/* unknown message type, we fail out of caution but could ignore */
+									/* ignore unknown message type */
 									qsmp_log_write(qsmp_messages_receive_fail, cadd);
-									break;
 								}
 							}
 							else

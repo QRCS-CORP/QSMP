@@ -468,10 +468,15 @@ static void client_receive_loop(void* prcv)
 									break;
 								}
 							}
-							else if (pkt.flag == qsmp_flag_connection_terminate)
+							else if (pkt.flag == qsmp_flag_error_condition)
 							{
-								qsmp_log_write(qsmp_messages_disconnect, cadd);
-								break;
+								/* anti-dos: break on error message is conditional
+								   on succesful authentication/decryption */
+								if (qsmp_decrypt_error_message(&qerr, pprcv->pcns, rbuf) == true)
+								{
+									qsmp_log_system_error(qerr);
+									break;
+								}
 							}
 							else if (pkt.flag == qsmp_flag_keep_alive_request)
 							{
@@ -485,7 +490,7 @@ static void client_receive_loop(void* prcv)
 							{
 								if (symmetric_ratchet_response(pprcv->pcns, &pkt) == false)
 								{
-									qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)pprcv->pcns->target.address);
+									qsmp_log_write(qsmp_messages_symmetric_ratchet, (const char*)pprcv->pcns->target.address);
 									break;
 								}
 							}
@@ -496,7 +501,7 @@ static void client_receive_loop(void* prcv)
 								{
 									if (asymmetric_ratchet_response(pprcv->pcns, &pkt) == false)
 									{
-										qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)pprcv->pcns->target.address);
+										qsmp_log_write(qsmp_messages_asymmetric_ratchet, (const char*)pprcv->pcns->target.address);
 										break;
 									}
 								}
@@ -534,6 +539,10 @@ static void client_receive_loop(void* prcv)
 									}
 								}
 							}
+
+
+
+
 						}
 						else
 						{

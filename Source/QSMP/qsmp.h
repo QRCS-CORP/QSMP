@@ -728,7 +728,7 @@ static const char QSMP_PUBKEY_FOOTER[QSMP_PUBKEY_FOOTER_SIZE] = "------END QSMP 
 * \def QSMP_ERROR_STRING_DEPTH
 * \brief The depth of the QSMP error string array
 */
-#define QSMP_ERROR_STRING_DEPTH 29U
+#define QSMP_ERROR_STRING_DEPTH 30U
 
 /*!
 * \def QSMP_ERROR_STRING_WIDTH
@@ -768,6 +768,7 @@ static const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_
 	"The transmitter failed at the network layer",
 	"The protocol string was not recognized",
 	"The expected data could not be verified",
+	"The remote host sent an error or disconnect message",
 };
 /** \endcond */
 
@@ -805,6 +806,8 @@ static const char QSMP_MESSAGE_STRINGS[QSMP_MESSAGE_STRING_DEPTH][QSMP_MESSAGE_S
 	"The keepalive period has been exceeded",
 	"The connection failed or was interrupted",
 	"The function received an invalid request",
+	"The host received an asymmetric ratchet request",
+	"The host received a symmetric ratchet request"
 };
 /** \endcond */
 
@@ -850,6 +853,8 @@ QSMP_EXPORT_API typedef enum qsmp_messages
 	qsmp_messages_keepalive_timeout = 0x11U,		/*!< The keepalive period has been exceeded */
 	qsmp_messages_connection_fail = 0x12U,			/*!< The connection failed or was interrupted */
 	qsmp_messages_invalid_request = 0x13U,			/*!< The function received an invalid request */
+	qsmp_messages_asymmetric_ratchet = 0x14U,		/*!< The host received an asymmetric ratchet request */
+	qsmp_messages_symmetric_ratchet = 0x15U,		/*!< The host received a symmetric ratchet request */
 } qsmp_messages;
 
 /*!
@@ -887,6 +892,7 @@ QSMP_EXPORT_API typedef enum qsmp_errors
 	qsmp_error_transmit_failure = 0x1AU,			/*!< The transmitter failed at the network layer */
 	qsmp_error_unknown_protocol = 0x1BU,			/*!< The protocol string was not recognized */
 	qsmp_error_verify_failure = 0x1CU,				/*!< The expected data could not be verified */
+	qsmp_messages_system_message = 0x1DU,			/*!< The remote host sent an error or disconnect message */
 } qsmp_errors;
 
 /*!
@@ -1056,6 +1062,17 @@ QSMP_EXPORT_API qsmp_asymmetric_signature_keypair* qsmp_asymmetric_signature_key
 QSMP_EXPORT_API void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool notify);
 
 /*!
+ * \brief Decrypt an error message.
+ *
+ * \param cns A pointer to the QSMP connection state structure.
+ * \param message [const] The serialized error packet.
+ * \param merr A pointer to an \c qsmp_errors error value.
+ *
+ * \return Returns true if the message was decrypted successfully, false on failure.
+ */
+QSMP_EXPORT_API bool qsmp_decrypt_error_message(qsmp_errors* merr, qsmp_connection_state* cns, const uint8_t* message);
+
+/*!
 * \brief Reset the connection state
 *
 * \param cns: A pointer to the connection state structure
@@ -1128,6 +1145,13 @@ QSMP_EXPORT_API void qsmp_log_error(qsmp_messages emsg, qsc_socket_exceptions er
 * \param emsg: The message enumeration
 */
 QSMP_EXPORT_API void qsmp_log_message(qsmp_messages emsg);
+
+/*!
+* \brief Log a system error message
+*
+* \param err: The system error enumerator
+*/
+QSMP_EXPORT_API void qsmp_log_system_error(qsmp_errors err);
 
 /*!
 * \brief Log a message and description
