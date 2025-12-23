@@ -18,8 +18,11 @@
 **QSMP is a post-quantum alternative to traditional key exchange protocols (such as TLS) that integrates robust key exchange, authentication, and an encrypted tunnel into a single specification.**
 
 [QSMP Help Documentation](https://qrcs-corp.github.io/QSMP/)  
-[QSMP Protocol Specification](https://qrcs-corp.github.io/QSMP/pdf/QSMP_Specification.pdf)  
-[QSMP Summary Document](https://qrcs-corp.github.io/QSMP/pdf/QSMP_Summary.pdf)  
+[QSMP Summary Document](https://qrcs-corp.github.io/QSMP/pdf/qsmp_summary.pdf)  
+[QSMP Protocol Specification](https://qrcs-corp.github.io/QSMP/pdf/qsmp_specification.pdf)  
+[QSMP Formal Analysis](https://qrcs-corp.github.io/QSMP/pdf/qsmp_formal.pdf)  
+[QSMP Implementation Analysis](https://qrcs-corp.github.io/QSMP/pdf/qsmp_analysis.pdf)  
+[QSMP Integration Guide](https://qrcs-corp.github.io/QSMP/pdf/qsmp_integration.pdf)  
 
 ## Overview
 
@@ -194,9 +197,10 @@ Cryptography, Post-Quantum, Asymmetric Cryptography, Symmetric Cryptography, Dig
 
 ## License
 
-ACQUISITION INQUIRIES:
-QRCS is currently seeking a corporate acquirer for this technology.
-Parties interested in exclusive licensing or acquisition should contact: contact@qrcscorp.ca
+INVESTMENT INQUIRIES:
+QRCS is currently seeking a corporate investor for this technology.
+Parties interested in licensing or investment should connect to us at: contact@qrcscorp.ca  
+Visit https://www.qrcscorp.ca for a full inventory of our products and services.  
 
 PATENT NOTICE:
 One or more patent applications (provisional and/or non-provisional) covering aspects of this software have been filed with the United States Patent and 
