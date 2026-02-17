@@ -22,7 +22,7 @@ FetchContent_MakeAvailable(QSC)
 
 # QSMP Static Library
 file(GLOB_RECURSE QSMP_SOURCES "Source/QSMP/*.c")
-file(GLOB_RECURSE QSMP_HEADERS "Source/QSMP/include/*.h")
+file(GLOB_RECURSE QSMP_HEADERS "Source/QSMP/*.h")
 
 add_library(qsmp STATIC ${QSMP_SOURCES} ${QSMP_HEADERS})
 target_include_directories(qsmp PUBLIC "Source/QSMP")
