@@ -512,7 +512,7 @@ static void client_receive_loop(void* prcv)
 								{
 									if (asymmetric_ratchet_finalize(pprcv->pcns, &pkt) == false)
 									{
-										qsmp_log_write(qsmp_messages_keepalive_timeout, (const char*)pprcv->pcns->target.address);
+										qsmp_log_write(qsmp_messages_asymmetric_ratchet, (const char*)pprcv->pcns->target.address);
 										break;
 									}
 								}
@@ -539,10 +539,6 @@ static void client_receive_loop(void* prcv)
 									}
 								}
 							}
-
-
-
-
 						}
 						else
 						{
