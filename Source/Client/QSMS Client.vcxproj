@@ -21,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{f055b7de-1573-4e54-8116-2e92159f5b33}</ProjectGuid>
-    <RootNamespace>QSMPServer</RootNamespace>
+    <ProjectGuid>{801febfc-5748-4331-92ed-79a1c18511d7}</ProjectGuid>
+    <RootNamespace>QSMPClient</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>QSMP Listener</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -93,7 +92,7 @@
       <CompileAs>CompileAsC</CompileAs>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\QSC\QSC;$(SolutionDir)QSMP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\QSC\QSC;$(SolutionDir)QSMS;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,7 +132,7 @@
       <CompileAs>CompileAsC</CompileAs>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\QSC\QSC;$(SolutionDir)QSMP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\QSC\QSC;$(SolutionDir)QSMS;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -164,16 +163,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="applnr.c" />
+    <ClCompile Include="appclt.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="applnr.h" />
+    <ClInclude Include="appclt.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\QSC\QSC\QSC.vcxproj">
+    <ProjectReference Include="..\..\QSC\QSC\QSC.vcxproj">
       <Project>{7b7f8e47-0f7c-4273-a229-a7ab2a452ea9}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSMP\QSMP.vcxproj">
+    <ProjectReference Include="..\QSMS\QSMS.vcxproj">
       <Project>{9ae666d7-5058-4f72-ac1d-b685e1bcefd6}</Project>
     </ProjectReference>
   </ItemGroup>

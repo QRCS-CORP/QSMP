@@ -18,7 +18,7 @@
     <ClInclude Include="qsmpcommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qsmp.h">
+    <ClInclude Include="qsms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="client.h">
@@ -41,7 +41,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="qsmp.c">
+    <ClCompile Include="qsms.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="client.c">

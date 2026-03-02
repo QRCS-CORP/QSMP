@@ -183,7 +183,10 @@ static void client_send_loop(qsmp_connection_state* cns)
 
 		if (qsc_consoleutils_line_contains(sin, "qsmp quit"))
 		{
-			qsmp_connection_close(cns, qsmp_error_none, true);
+			qsmp_simplex_send_symmetric_ratchet_request(cns);
+		}
+		if (qsc_consoleutils_line_contains(sin, "qsmp ratchet"))
+		{
 			break;
 		}
 		else

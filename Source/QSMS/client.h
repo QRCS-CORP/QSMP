@@ -52,7 +52,7 @@
 #ifndef QSMP_CLIENT_H
 #define QSMP_CLIENT_H
 
-#include "qsmp.h"
+#include "qsms.h"
 #include "rcs.h"
 #include "socketclient.h"
 
@@ -95,89 +95,19 @@
  * \note This header file does not include any internal test functions.
  */
 
-/**
- * \def QSMP_EXPORT_API
- * \brief Macro for exporting QSMP API functions.
- *
- * This macro ensures proper symbol visibility when building or linking the QSMP library. It is used to
- * control the export and import of functions in shared library builds.
- */
-
-#if defined(QSMP_ASYMMETRIC_RATCHET)
-/**
- * \brief Send an asymmetric key-ratchet request to the remote host.
- *
- * \details
- * This function sends a request to initiate an asymmetric key ratchet in an active QSMP session.
- * The asymmetric ratchet mechanism employs asymmetric cryptographic operations to update the session keys,
- * thereby providing enhanced forward secrecy. This function is only available when the QSMP_ASYMMETRIC_RATCHET
- * macro is defined.
- *
- * \param cns A pointer to the current QSMP connection state structure.
- *
- * \return Returns true if the ratchet request was successfully sent to the remote host, otherwise false.
- */
-QSMP_EXPORT_API bool qsmp_duplex_send_asymmetric_ratchet_request(qsmp_connection_state* cns);
-#endif
-
-/**
- * \brief Send a symmetric key-ratchet request to the remote host.
- *
- * \details
- * This function initiates a symmetric key ratchet process in an ongoing QSMP session. By periodically
- * updating the symmetric session keys, it maintains forward secrecy and ensures that any compromise
- * of past keys does not affect the security of future communications.
- *
- * \param cns A pointer to the current QSMP connection state structure.
- *
- * \return Returns true if the symmetric ratchet request was successfully sent, otherwise false.
- */
-QSMP_EXPORT_API bool qsmp_duplex_send_symmetric_ratchet_request(qsmp_connection_state* cns);
-
-/**
- * \brief Connect to a remote host over IPv4 and perform the Duplex key exchange.
- *
- * \details
- * This function establishes a connection to a remote host using its IPv4 address and initiates the Duplex
- * key exchange protocol. The Duplex protocol enables mutual authentication and a bidirectional key exchange,
- * setting up a secure two-way communication channel. Upon successful connection, the provided callback functions
- * handle message transmission and reception.
- *
- * \param kset [const] A pointer to the client's private signature key used for signing messages.
- * \param rverkey [const] A pointer to the remote client's public signature verification key used for validating signatures.
- * \param address [const] A pointer to the IPv4 address information structure of the remote server.
- * \param port The QSMP application port number (typically defined by QSMP_CLIENT_PORT).
- * \param send_func A pointer to the send callback function responsible for transmitting messages.
- * \param receive_callback A pointer to the receive callback function used to process incoming data.
- *
- * \return Returns a value of type \c qsmp_errors indicating the success or failure of the connection and key exchange.
- */
-QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv4(const qsmp_server_signature_key* kset, const qsmp_client_verification_key* rverkey, 
-	const qsc_ipinfo_ipv4_address* address, uint16_t port, 
-	void (*send_func)(qsmp_connection_state*), 
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t));
-
-/**
- * \brief Connect to a remote host over IPv6 and perform the Duplex key exchange.
- *
- * \details
- * This function establishes a connection to a remote host using its IPv6 address and initiates the Duplex
- * key exchange protocol. The Duplex protocol provides mutual authentication and secure bidirectional communication.
- * Upon connection, the designated callback functions are invoked to manage the data transmission and reception.
- *
- * \param kset [const] A pointer to the client's private signature key used for signing messages.
- * \param rverkey [const] A pointer to the remote client's public signature verification key.
- * \param address [const] A pointer to the IPv6 address information structure of the remote server.
- * \param port The QSMP application port number (typically defined by QSMP_CLIENT_PORT).
- * \param send_func A pointer to the send callback function responsible for message transmission.
- * \param receive_callback A pointer to the receive callback function used to process incoming data.
- *
- * \return Returns a value of type \c qsmp_errors indicating the result of the connection and key exchange operation.
- */
-QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_connect_ipv6(const qsmp_server_signature_key* kset, const qsmp_client_verification_key* rverkey,
-	const qsc_ipinfo_ipv6_address* address, uint16_t port,
-	void (*send_func)(qsmp_connection_state*),
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t));
+ /**
+  * \brief Send a symmetric key-ratchet request to the remote host.
+  *
+  * \details
+  * This function initiates a symmetric key ratchet process in an ongoing QSMP session. By periodically
+  * updating the symmetric session keys, it maintains forward secrecy and ensures that any compromise
+  * of past keys does not affect the security of future communications.
+  *
+  * \param cns A pointer to the current QSMP connection state structure.
+  *
+  * \return Returns true if the symmetric ratchet request was successfully sent, otherwise false.
+  */
+QSMP_EXPORT_API bool qsmp_simplex_send_symmetric_ratchet_request(qsmp_connection_state* cns);
 
 /**
  * \brief Connect to a remote server over IPv4 and perform the Simplex key exchange.
@@ -258,48 +188,5 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv4(const qsmp_server_si
 QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv6(const qsmp_server_signature_key* kset, 
 	void (*send_func)(qsmp_connection_state*), 
 	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t));
-
-/**
- * \brief Start the server in Duplex mode over IPv4 and listen for a single host-to-host connection.
- *
- * \details
- * This function initiates a network listener on the IPv4 interface to accept an incoming connection for
- * the Duplex key exchange. The Duplex protocol facilitates mutual authentication and a bidirectional key exchange,
- * thereby establishing a secure communication channel. An additional key query callback is provided to identify
- * and retrieve the correct public key based on a received key identifier.
- *
- * \param kset [const] A pointer to the QSMP server signature key used for signing messages.
- * \param send_func A pointer to the send callback function responsible for transmitting messages.
- * \param receive_callback A pointer to the receive callback function used to process incoming client data.
- * \param key_query A pointer to a key-query function that, given a public key identifier, returns the corresponding public key.
- *
- * \return Returns a value of type \c qsmp_errors representing the outcome of the listener initialization and key exchange.
- */
-QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_listen_ipv4(const qsmp_server_signature_key* kset, 
-	void (*send_func)(qsmp_connection_state*),
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
-	bool (*key_query)(uint8_t* rvkey, const uint8_t* pkid));
-
-/**
- * \brief Start the server in Duplex mode over IPv6 and listen for a single host-to-host connection.
- *
- * \details
- * This function sets up a network listener on the IPv6 interface to accept an incoming connection for
- * the Duplex key exchange protocol. The Duplex protocol enables secure bidirectional communication through mutual
- * authentication and key exchange. A key query callback is provided to determine and return the correct public key
- * based on a given key identifier during the connection process.
- *
- * \param kset [const] A pointer to the QSMP server signature key used for signing messages.
- * \param send_func A pointer to the send callback function that handles outgoing message transmission.
- * \param receive_callback A pointer to the receive callback function used to process incoming data from the connected host.
- * \param key_query A pointer to a key-query function that identifies and returns the appropriate public key for a provided key identifier.
- *
- * \return Returns a value of type \c qsmp_errors indicating the status of the listener setup and key exchange operation.
- */
-QSMP_EXPORT_API qsmp_errors qsmp_client_duplex_listen_ipv6(const qsmp_server_signature_key* kset, 
-	void (*send_func)(qsmp_connection_state*),
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
-	bool (*key_query)(uint8_t* rvkey, const uint8_t* pkid));
-
 
 #endif

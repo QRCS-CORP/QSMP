@@ -1,6 +1,6 @@
-# Quantum Secure Messaging Protocol (QSMP)
+# Quantum Secure Messaging Protocol — SIMPLEX
 
-## Introduction 
+## Introduction
 
 [![Build](https://github.com/QRCS-CORP/QSMP/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/QRCS-CORP/QSMP/actions/workflows/build.yml)
 [![CodeQL](https://github.com/QRCS-CORP/QSMP/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/QRCS-CORP/QSMP/actions/workflows/codeql-analysis.yml)
@@ -12,206 +12,308 @@
 [![docs](https://img.shields.io/badge/docs-online-brightgreen)](https://qrcs-corp.github.io/QSMP/)
 [![GitHub release](https://img.shields.io/github/v/release/QRCS-CORP/QSMP)](https://github.com/QRCS-CORP/QSMP/releases/tag/2025-06-04)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/QRCS-CORP/QSMP.svg)](https://github.com/QRCS-CORP/QSMP/commits/main)
-[![Custom: Standard](https://img.shields.io/static/v1?label=Security%20Standard&message=MISRA&color=blue)](https://misra.org.uk/)
-[![Custom: Target](https://img.shields.io/static/v1?label=Target%20Industry&message=Communications&color=brightgreen)](#)
+[![Security Standard](https://img.shields.io/static/v1?label=Security%20Standard&message=MISRA&color=blue)](https://misra.org.uk/)
+[![Target Industry](https://img.shields.io/static/v1?label=Target%20Industry&message=Communications&color=brightgreen)](#)
 
-**QSMP is a post-quantum alternative to traditional key exchange protocols (such as TLS) that integrates robust key exchange, authentication, and an encrypted tunnel into a single specification.**
+**QSMP SIMPLEX** is a post-quantum secure messaging protocol that integrates key exchange, server authentication, and encrypted tunnel establishment into a single, self-contained specification. Engineered from the ground up to address the cryptographic challenges posed by quantum computing, QSMP avoids the design compromises and legacy constraints of protocols such as TLS, SSH, and PGP. There is no algorithm negotiation, no versioning attack surface, and no backward compatibility with classical-only primitives.
 
-[QSMP Help Documentation](https://qrcs-corp.github.io/QSMP/)  
-[QSMP Summary Document](https://qrcs-corp.github.io/QSMP/pdf/qsmp_summary.pdf)  
-[QSMP Protocol Specification](https://qrcs-corp.github.io/QSMP/pdf/qsmp_specification.pdf)  
-[QSMP Formal Analysis](https://qrcs-corp.github.io/QSMP/pdf/qsmp_formal.pdf)  
-[QSMP Implementation Analysis](https://qrcs-corp.github.io/QSMP/pdf/qsmp_analysis.pdf)  
-[QSMP Integration Guide](https://qrcs-corp.github.io/QSMP/pdf/qsmp_integration.pdf)  
+> This repository contains the **SIMPLEX** variant of QSMP — a one-way trust model optimised for high-performance client-server deployments.  
+> The **DUPLEX** (mutual authentication, peer-to-peer) variant is maintained in a [separate repository](https://github.com/QRCS-CORP/QSMP-Duplex).
+
+---
+
+## Documentation
+
+| Resource | Description |
+|---|---|
+| [Help Documentation](https://qrcs-corp.github.io/QSMP/) | Full API and usage reference |
+| [Summary Document](https://qrcs-corp.github.io/QSMP/pdf/qsmp_summary.pdf) | Protocol overview and design rationale |
+| [Protocol Specification](https://qrcs-corp.github.io/QSMP/pdf/qsmp_specification.pdf) | Complete formal protocol definition |
+| [Formal Analysis](https://qrcs-corp.github.io/QSMP/pdf/qsmp_formal.pdf) | Security proofs and formal verification |
+| [Implementation Analysis](https://qrcs-corp.github.io/QSMP/pdf/qsmp_analysis.pdf) | Implementation security considerations |
+| [Integration Guide](https://qrcs-corp.github.io/QSMP/pdf/qsmp_integration.pdf) | Deployment and integration instructions |
+
+---
 
 ## Overview
 
-QSMP is designed to provide strong post-quantum security using modern asymmetric and symmetric cryptographic primitives. It supports two distinct operational models:
+QSMP SIMPLEX establishes a 256-bit secure, bidirectional, authenticated encryption tunnel between a client and server using a **one-way trust model**: the client authenticates the server using a pre-distributed public verification key, and both parties derive shared session keys from a post-quantum KEM exchange. The complete handshake completes in **two round trips** with no session tickets, no certificate chains, and no runtime cipher negotiation.
 
-- **SIMPLEX Protocol:**  
-  A one-way trust model where the client trusts the server. This mode establishes a 256-bit secure bidirectional encrypted tunnel with only two round trips. It is ideal for scenarios requiring efficient, high-performance communications where the server is trusted.
+The protocol is complete and self-contained. All cryptographic parameters are fixed at compile time for a given configuration, eliminating downgrade attacks and cipher-suite confusion by construction.
 
-- **DUPLEX Protocol:**  
-  A two-way trust model where both hosts authenticate each other. Each host contributes a secret that is combined to key 512-bit secure symmetric cipher instances (using the RCS cipher). This mode is well suited for peer-to-peer and high-security communications, delivering a fully 512-bit secure end-to-end crypto system when configured with the appropriate parameter sets.
+### Key Properties
 
-QSMP breaks new ground by designing these mechanisms from the ground up, eschewing backward compatibility concerns, to deliver streamlined, modern, and quantum-safe cryptographic solutions.
+- **Post-quantum security** — all asymmetric operations use NIST-standardised post-quantum algorithms
+- **Two-round-trip handshake** — session establishment with minimal latency overhead
+- **Transcript binding** — session keys are derived from a rolling SHA3-256 hash of every exchanged message, cryptographically committing them to the complete handshake
+- **Explicit key confirmation** — the server's final transcript hash is encrypted and sent to the client; the session is not established unless both parties hold an identical transcript
+- **Forward secrecy** — symmetric ratchet via cSHAKE-256 refreshes session keys on demand without a new asymmetric exchange
+- **Anti-replay protection** — per-packet sequence counters and UTC timestamp validation on every received message
+- **Minimal attack surface** — no algorithm negotiation, no fallback cipher paths, no protocol versioning surface
+- **MISRA-C aligned** — structured for deployment in safety-critical and high-assurance environments
 
-
-## Introduction
-
-In today's digital landscape, many key exchange protocols (like those used in TLS, PGP, and SSH) rely on established methods to exchange secret keys and establish encrypted tunnels. However, with the advent of quantum computing, there is an urgent need to replace legacy schemes with post-quantum alternatives.
-
-QSMP provides a complete specification that:
-- Integrates post-quantum secure key exchange with built-in authentication and encrypted tunnel establishment.
-- Uses state-of-the-art asymmetric ciphers (e.g., Kyber or McEliece) and signature schemes (e.g., Dilithium or SPHINCS+) standardized by NIST.
-- Leverages a robust symmetric cipher (RCS) with enhanced key schedules and authenticated encryption (via KMAC or QMAC).
-
-By designing QSMP without the constraints of legacy systems, the protocol offers simplicity, improved performance, and superior security for future-proof communications.
-
-
-## Design Philosophy
-
-QSMP was developed with a clear focus on:
-- **Modernity:** Avoiding legacy APIs and compatibility issues to deliver a streamlined, secure protocol.
-- **Performance:** Incorporating multi-threading and hardware-specific optimizations (using AVX, AVX2, and AVX512 intrinsics) for best-in-class throughput.
-- **Security:** Employing next-generation post-quantum cryptographic primitives, QSMP ensures both the confidentiality and integrity of communications.
-- **Flexibility:** Offering both SIMPLEX and DUPLEX modes to cater to different operational environments—from client-server deployments to peer-to-peer networks.
-
+---
 
 ## Cryptographic Primitives
 
-QSMP employs state-of-the-art cryptographic algorithms:
+QSMP is built exclusively on algorithms from the NIST Post-Quantum Cryptography standardization process and NIST FIPS standards.
 
-### Asymmetric Cryptography
-- **Key Encapsulation Mechanisms:**  
-  - *McEliece:* Uses the Niederreiter dual form.  
-  - *Kyber:* Supports the full range of parameter sets (updated to the NIST FIPS 203 standard).  
+### Key Encapsulation (KEM)
 
-- **Digital Signature Schemes:**  
-  - *Dilithium* and *Sphincs+:* NIST-standardized for post-quantum security (updated to the FIPS 204 AND 205 standards).  
+| Algorithm | NIST Security Level | Standard |
+|---|---|---|
+| ML-KEM (Kyber) | 1 / 3 / 5 | NIST FIPS 203 |
+| Classic McEliece | 1 / 3 / 5 | NIST PQC Selected |
 
-### Symmetric Cryptography
+ML-KEM or McEliece is used to encapsulate the session secret. A fresh ephemeral encapsulation key pair is generated by the server for each connection, and the private key is destroyed immediately after decapsulation.
 
-- **Stream Ciphers:**  
-  - *RCS:* An authenticated stream cipher based on wide-block Rijndael with enhanced key schedule and AEAD (using KMAC/QMAC).
+### Digital Signatures
 
-### Hash Functions and MACs
-- **Hash Functions:**  
-  - *SHA3* (256 and 512-bit variants).
+| Algorithm | NIST Security Level | Standard |
+|---|---|---|
+| ML-DSA (Dilithium) | 2 / 3 / 5 | NIST FIPS 204 |
+| SLH-DSA (SPHINCS+) | 2 / 3 / 5 | NIST FIPS 205 |
 
-- **Message Authentication Codes:**  
-  - *KMAC, or a variant called *QMAC* (GMAC(2^256)).
+ML-DSA or SLH-DSA authenticates the server's ephemeral public encapsulation key during the handshake. The client verifies this signature against the server's pre-distributed public verification key before any secret is encapsulated.
 
-### Additional Primitives
-- **DRBG, XOF, and PRNGs:**  
-  - Uses Keccak-based functions (SHA3, SHAKE, cSHAKE).
-  
-- **Entropy Providers:**  
-  - ACP that integrates system providers, system state, hardware randomness (e.g., Intel RDRAND) hashed with SHAKE-512.
+### Symmetric AEAD Cipher
 
+| Cipher | Construction | Authentication |
+|---|---|---|
+| **RCS** (Rijndael Cryptographic Stream) | Wide-block Rijndael, 256-bit state, increased rounds, strengthened key schedule | KMAC or QMAC (post-quantum secure) |
 
-## Protocol Specifications
+RCS operates on a 256-bit wide Rijndael state with a cryptographically strengthened key schedule. Authentication is integrated natively via post-quantum secure KMAC or QMAC, with the serialised packet header included as associated data on every packet.
 
-QSMP defines two complete protocol specifications:
+### Hash and Key Derivation
 
-### SIMPLEX Protocol
-- **Model:** One-way trust; the client trusts the server.
-- **Operation:**  
-  - The server signs its public asymmetric key.
-  - The client verifies the signature using the server’s public verification key.
-  - A 256-bit secure two-way encrypted tunnel is established in just two round trips.
-- **Ideal for:** Scenarios where a high-performance, secure channel is needed between a trusted server and its clients.
+| Primitive | Algorithm | Purpose |
+|---|---|---|
+| Hash | SHA3-256 | Transcript hashing, public key binding |
+| KDF | cSHAKE-256 | Session key derivation, symmetric ratchet |
+| Entropy | ACP | RDRAND + system state, hashed with SHAKE-512 |
 
-### DUPLEX Protocol
-- **Model:** Bi-directional trust; both hosts authenticate each other.
-- **Operation:**  
-  - Both hosts exchange signed public asymmetric cipher keys.
-  - Each host contributes a secret that is combined to derive 512-bit secure symmetric cipher keys.
-- **Ideal for:** Peer-to-peer connections and high-security communications between remote hosts. This mode can be integrated with SIMPLEX for host registration and secure key distribution.
+---
 
+## Key Exchange Protocol
 
-## Testing and Deployment
+The QSMP SIMPLEX handshake is a two-round authenticated key exchange. The server holds a long-term signing key pair; the client holds the server's public verification key, distributed out-of-band prior to connection.
 
-### Windows Visual Studio Self-Test
+### Trust Model
+```
+Key Distribution (out-of-band)
+        │
+        │  Server generates signing keypair.
+        │  Public verification key (.qpkey) is
+        │  distributed to clients manually.
+        ▼
+    QSMP Server ──── signs ephemeral pubkey ────► Client
+                                                     │
+                                          Verifies signature using
+                                          pre-distributed verkey
+```
 
-**Simplex Mode:**
-- Set the server project as the startup project and run it. 
-- In the project pane, right-click the client project and choose **Debug → New Instance**.
-- Enter the loopback IP address `127.0.0.1` and specify the path to the public key created during server initialization.
+### Exchange Sequence
+```
+Legend:
+  C       = Client
+  S       = Server
+  H       = SHA3-256
+  KEM     = Key Encapsulation Mechanism
+  SIG     = ML-DSA or SLH-DSA Signature
+  cSHAKE  = Customizable SHAKE-256 KDF
+  sch     = Rolling transcript hash
+  pk_kem  = Ephemeral public encapsulation key
+  kid     = Key identifier
+  cfg     = Configuration string
 
-**Duplex Mode:**
-- Set the Listener project as the startup project and run it.
-- Right-click the client project in the project pane and choose **Debug → New Instance**.
-- Enter the loopback IP address `127.0.0.1` and specify the path to the public key created when the listener was initialized.
+Round 1  C → S :  kid || cfg
+                  sch₁ = H(cfg || kid || verkey)
 
-## References
+Round 2  S → C :  SIG(H(cfg || kid || pk_kem)) || pk_kem
+                  sch₂ = H(sch₁ || H(cfg || kid || pk_kem))
 
-- For further details on cryptographic primitives and implementations, please refer to the [QSC Library Documentation](https://qrcs-corp.github.io/QSC/).
+Round 3  C → S :  KEM_Encaps(pk_kem) → ciphertext || secret
+                  sch₃ = H(sch₂ || ciphertext)
+                  session_keys = cSHAKE(secret, sch₃)
+
+Confirm  S → C :  Ek(sch₃)
+                  C decrypts and verifies sch₃ matches local transcript
+                  Session established only on exact match
+```
+
+Session keys are derived from `cSHAKE(shared_secret, transcript_hash)`, binding them cryptographically to both parties' identities and every value exchanged during the handshake. The server encrypts its final transcript hash with the newly established session cipher and sends it as explicit key confirmation — a mismatch terminates the connection immediately before any application data is processed.
+
+### Security Properties
+
+| Property | Mechanism |
+|---|---|
+| Server authentication | ML-DSA / SLH-DSA signature over transcript hash, verified against pre-distributed verkey |
+| Key exchange secrecy | ML-KEM / McEliece — quantum-safe encapsulation of ephemeral secret |
+| Transcript binding | Four-step rolling SHA3-256 hash over all exchanged values |
+| Explicit key confirmation | Server transmits `Ek(sch₃)`; client verifies before accepting session |
+| Message confidentiality | RCS-256 AEAD per packet |
+| Message integrity | KMAC/QMAC authentication tag, 256-bit, per packet |
+| Anti-replay | Per-packet sequence counter + UTC timestamp window |
+| Forward secrecy | cSHAKE-256 symmetric ratchet refreshes session keys without re-handshaking |
+| Key erasure | Compiler-resistant secure erase on all key material immediately after use |
+
+---
+
+## Performance and Scalability
+
+The QSMP server is implemented as a multi-threaded platform capable of maintaining a uniquely keyed encrypted tunnel for each connected client simultaneously. Ephemeral encapsulation keys are generated and destroyed within the scope of each exchange, ensuring complete session isolation with no shared key material between connections. The per-client state is compact by design, enabling a single server instance to sustain a large number of concurrent connections without significant memory pressure.
+
+---
 
 ## Compilation
 
-QSMP uses the QSC cryptographic library. QSC is a standalone, portable, and MISRA-aligned cryptographic library written in C. It supports platform-optimized builds across **Windows**, **macOS**, and **Linux** via [CMake](https://cmake.org/), and includes support for modern hardware acceleration such as AES-NI, AVX2/AVX-512, and RDRAND.
+QSMP uses the [QSC Cryptographic Library](https://github.com/QRCS-CORP/QSC) — a standalone, portable, MISRA-aligned cryptographic library written in C23. QSC supports platform-optimised builds across Windows, macOS, and Linux, with hardware acceleration for AES-NI, AVX2/AVX-512, and RDRAND where available.
 
 ### Prerequisites
 
-- **CMake**: 3.15 or newer
-- **Windows**: Visual Studio 2022 or newer
-- **macOS**: Clang via Xcode or Homebrew
-- **Ubuntu**: GCC or Clang  
+| Tool | Requirement |
+|---|---|
+| CMake | 3.15 or newer |
+| Windows | Visual Studio 2022 or newer |
+| macOS | Clang via Xcode or Homebrew |
+| Linux | GCC or Clang (C23-capable) |
+| Dependency | [QSC Library](https://github.com/QRCS-CORP/QSC) |
 
-### Building the QSMP library and the Client/Server projects
+---
 
-#### Windows (MSVC)
+### Windows (MSVC)
 
-Use the Visual Studio solution to create the library and the server and client projects: QSMP, Simplex: Server, and Client, Duplex: Listener and Sender.
-Extract the files, and open the Server or Client projects. The QSMP library has a default location in a folder parallel to the Server and Client project folders.  
-The server and client projects additional files folder are set to: **$(SolutionDir)QSMP** and **$(SolutionDir)..\QSC\QSC**, if this is not the location of the library files, change it by going to server/client project properties **Configuration Properties->C/C++->General->Additional Include Directories** and set the library files location.  
-Ensure that the **[server/client]->References** property contains a reference to the QSMP library, and that the QSMP library contains a valid reference to the QSC library.  
-QSC and QSMP support every AVX instruction family (AVX/AVX2/AVX-512).  
-Set the QSC and QSMP libries and every server/client project to the same AVX family setting in **Configuration Properties->C/C++->All Options->Enable Enhanced Instruction Set**.  
-Set both QSC and QSMP to the same instruction set in Debug and Release Solution Configurations.  
-Compile the QSC library (right-click and choose build), build the QSMP library, then build the Server and Client, Listener and Sender projects.
+The Visual Studio solution contains three projects: **QSMP** (library), **Server**, and **Client**. The QSMP library is expected in a folder parallel to the Server and Client project folders.
 
-#### MacOS / Ubuntu (Eclipse)
+> **Critical:** The `Enable Enhanced Instruction Set` property must be set to the **same value** across the QSC library, the QSMP library, and all application projects in both Debug and Release configurations. Mismatched intrinsics settings produce ABI-incompatible struct layouts and are a source of undefined behaviour.
 
-The QSC and the QSMP library projects, along with the server and client projects have been tested using the Eclipse IDE on Ubuntu and MacOS.  
-In the Eclipse folder there are subfolders for Ubuntu and MacOS that contain the **.project**, **.cproject**, and **.settings** Eclipse project files.  Copy those files directly into the folders containing the code files; move the files in the **Eclipse\Ubuntu\project-name** or **Eclipse\MacOS\project-name** folder to the folder containing the project's header and implementation files for QSMP and each of the Server and Client projects.  
-Create a new project for QSC, select C/C++ project, and then **Create an empty project** with the same name as the folder with the files, 'QSC'. Repeat for each additional project.  
-Eclipse should load the project with all of the settings into the project view window. The same proceedure is true for **MacOS and Ubuntu**, but some settings are different (GCC/Clang), so choose the project files that correspond to the operating system.  
-The default projects use minimal flags, and is set to No Enhanced Instructions by default..
+**Build order:**
+1. Build the **QSC** library
+2. Build the **QSMP** library
+3. Build **Server** and **Client**
 
-Sample flag sets and their meanings:  
--**AVX Support**: -msse2 -mavx -maes -mpclmul -mrdrnd -mbmi2  
--**msse2**        # baseline for x86_64  
--**mavx**         # 256-bit FP/SIMD  
--**maes**         # AES-NI (128-bit AES rounds)  
--**mpclmul**      # PCLMUL (carry-less multiply)  
--**mrdrnd**       # RDRAND (hardware RNG)  
--**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
+**Include path configuration:**  
+If the library files are not at their default locations, update the include paths in each project under:  
+`Configuration Properties → C/C++ → General → Additional Include Directories`
 
--**AVX2 Support**: -msse2 -mavx -mavx2 -mpclmul -maes -mrdrnd -mbmi2  
--**msse2**        # baseline for x86_64  
--**mavx**         # AVX baseline  
--**mavx2**        # 256-bit integer + FP SIMD  
--**mpclmul**      # PCLMUL (carry-less multiply for AES-GCM, GHASH, etc.)  
--**maes**         # AES-NI (128-bit AES rounds)  
--**mrdrnd**       # RDRAND (hardware RNG)  
--**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
+Default paths:
+- `$(SolutionDir)QSMP`
+- `$(SolutionDir)..\QSC\QSC`
 
--**AVX-512 Support**: -msse2 -mavx -mavx2 -mavx512f -mavx512bw -mvaes -mpclmul -mrdrnd -mbmi2 -maes  
--**msse2**        # baseline for x86_64  
--**mavx**         # AVX baseline  
--**mavx2**        # AVX2 baseline (implied by AVX-512 but explicit is safer)  
--**mavx512f**     # 512-bit Foundation instructions  
--**mavx512bw**    # 512-bit Byte/Word integer instructions  
--**mvaes**        # Vector-AES (VAES) in 512-bit registers  
--**mpclmul**      # PCLMUL (carry-less multiply for GF(2ⁿ))  
--**mrdrnd**       # RDRAND (hardware RNG)  
--**mbmi2**        # BMI2 (PEXT/PDEP, bit-manipulation)  
--**maes**         # AES-NI (128-bit AES rounds; optional if VAES covers your AES use)  
+Ensure each application project's **References** property includes the QSMP library, and that the QSMP library references the QSC library.
 
+#### Local Protocol Test (Visual Studio)
+```
+1. Set QSMP Server as the startup project and run it.
+   On first run the server generates a signing keypair automatically:
 
-## Keywords
+   server> The private-key was not detected, generating a new private/public keypair...
+   server> The publickey has been saved to C:\Users\<username>\Documents\QSMP\server_public_key.qpkey
+   server> Distribute the public-key to intended clients.
+   server>
+   server> Waiting for a connection...
 
-Cryptography, Post-Quantum, Asymmetric Cryptography, Symmetric Cryptography, Digital Signature, Key Encapsulation, Key Exchange, Hash Function, MAC, Pseudo-Random Number Generator, DRBG, Entropy, SIMD, AVX, AVX2, AVX512, Secure Memory, Asynchronous, MISRA, QSMP.
+2. Right-click QSMP Client in the Solution Explorer → Debug → Start New Instance.
+   Enter the loopback address and the path to the server's public key when prompted:
+
+   client> Enter the destination IPv4 address, ex. 192.168.1.1
+   client> 127.0.0.1
+   client> Enter the path of the public key:
+   client> C:\Users\<username>\Documents\QSMP\server_public_key.qpkey
+   client>
+
+   The client authenticates the server, completes the key exchange, and the
+   encrypted tunnel is established. Messages typed in either console are
+   transmitted over the post-quantum secure channel.
+```
+
+> The server's public key file (`server_public_key.qpkey`) is generated once and persists across restarts. Distribute this file to all intended clients out-of-band before they connect. On subsequent server starts, the existing keypair is loaded automatically.
+
+---
+
+### macOS / Linux (Eclipse)
+
+The QSC and QSMP library projects, along with the Server and Client projects, have been tested with the Eclipse IDE on Ubuntu and macOS.
+
+Eclipse project files (`.project`, `.cproject`, `.settings`) are located in platform-specific subdirectories under the `Eclipse` folder. Copy the files from `Eclipse/Ubuntu/<project-name>` or `Eclipse/MacOS/<project-name>` directly into the folder containing each project's source files.
+
+To create a project in Eclipse: select **C/C++ Project → Create an empty project** and use the same name as the source folder. Eclipse will load all settings automatically. Repeat for each project. GCC and Clang project files differ — select the set that matches your platform.
+
+The default Eclipse projects are configured with no enhanced instruction extensions. Add flags as needed for your target hardware.
+
+#### Compiler Flag Reference
+
+**AVX (256-bit FP/SIMD)**
+```
+-msse2 -mavx -maes -mpclmul -mrdrnd -mbmi2
+```
+| Flag | Purpose |
+|---|---|
+| `-msse2` | Baseline x86_64 SSE2 |
+| `-mavx` | 256-bit FP/SIMD |
+| `-maes` | AES-NI hardware acceleration |
+| `-mpclmul` | Carry-less multiply (GHASH) |
+| `-mrdrnd` | RDRAND hardware RNG |
+| `-mbmi2` | Bit manipulation (PEXT/PDEP) |
+
+**AVX2 (256-bit integer SIMD)**
+```
+-msse2 -mavx -mavx2 -maes -mpclmul -mrdrnd -mbmi2
+```
+| Flag | Purpose |
+|---|---|
+| `-mavx2` | 256-bit integer and FP SIMD |
+| *(others as above)* | |
+
+**AVX-512 (512-bit SIMD)**
+```
+-msse2 -mavx -mavx2 -mavx512f -mavx512bw -mvaes -maes -mpclmul -mrdrnd -mbmi2
+```
+| Flag | Purpose |
+|---|---|
+| `-mavx512f` | 512-bit Foundation instructions |
+| `-mavx512bw` | 512-bit byte/word integer operations |
+| `-mvaes` | Vector-AES in 512-bit registers |
+| *(others as above)* | |
+
+---
+
+## Cryptographic Dependencies
+
+QSMP SIMPLEX depends on the [QSC Cryptographic Library](https://github.com/QRCS-CORP/QSC) for all underlying cryptographic operations, including post-quantum primitives, symmetric ciphers, hash functions, and random number generation.
+
+---
+
+## Related Repositories
+
+| Repository | Description |
+|---|---|
+| [QSMP DUPLEX](https://github.com/QRCS-CORP/QSMP-Duplex) | Mutual authentication variant for peer-to-peer and high-security deployments |
+| [QSC Library](https://github.com/QRCS-CORP/QSC) | Underlying cryptographic primitive library |
+| [QSTP](https://github.com/QRCS-CORP/QSTP) | Root-anchored tunneling protocol with certificate-based server identity |
+
+---
 
 ## License
 
-INVESTMENT INQUIRIES:
-QRCS is currently seeking a corporate investor for this technology.
-Parties interested in licensing or investment should connect to us at: contact@qrcscorp.ca  
-Visit https://www.qrcscorp.ca for a full inventory of our products and services.  
+> **Investment Inquiries:**  
+> QRCS is currently seeking a corporate investor for this technology. Parties interested in licensing or investment are invited to contact us at [contact@qrcscorp.ca](mailto:contact@qrcscorp.ca) or visit [https://www.qrcscorp.ca](https://www.qrcscorp.ca) for a full inventory of our products and services.
 
-PATENT NOTICE:
-One or more patent applications (provisional and/or non-provisional) covering aspects of this software have been filed with the United States Patent and 
-Trademark Office (USPTO). Unauthorized use may result in patent infringement liability.  
+> **Patent Notice:**  
+> One or more patent applications (provisional and/or non-provisional) covering aspects of this software have been filed with the United States Patent and Trademark Office (USPTO). Unauthorized use may result in patent infringement liability.
 
-License and Use Notice (2025-2026)  
-This repository contains cryptographic reference implementations, test code, and supporting materials published by Quantum Resistant Cryptographic Solutions Corporation (QRCS) for the purposes of public review, cryptographic analysis, interoperability testing, and evaluation.  
-All source code and materials in this repository are provided under the Quantum Resistant Cryptographic Solutions Public Research and Evaluation License (QRCS-PREL), 2025-2026, unless explicitly stated otherwise.  
-This license permits public access and non commercial research, evaluation, and testing use only. It does not permit production deployment, operational use, or incorporation into any commercial product or service without a separate written agreement executed with QRCS.  
-The public availability of this repository is intentional and is provided to support cryptographic transparency, independent security assessment, and compliance with applicable cryptographic publication and export regulations.  
-Commercial use, production deployment, supported builds, certified implementations, and integration into products or services require a separate commercial license and support agreement.  
-For licensing inquiries, supported implementations, or commercial use, contact: licensing@qrcscorp.ca  
-Quantum Resistant Cryptographic Solutions Corporation, 2026.  
-_All rights reserved by QRCS Corp. 2026._
+**License and Use Notice (2025–2026)**
+
+This repository contains cryptographic reference implementations, test code, and supporting materials published by Quantum Resistant Cryptographic Solutions Corporation (QRCS) for the purposes of public review, cryptographic analysis, interoperability testing, and evaluation.
+
+All source code and materials in this repository are provided under the **Quantum Resistant Cryptographic Solutions Public Research and Evaluation License (QRCS-PREL), 2025–2026**, unless explicitly stated otherwise.
+
+This license permits non-commercial research, evaluation, and testing use only. It does not permit production deployment, operational use, or incorporation into any commercial product or service without a separate written agreement executed with QRCS.
+
+The public availability of this repository is intentional and is provided to support cryptographic transparency, independent security assessment, and compliance with applicable cryptographic publication and export regulations.
+
+Commercial use, production deployment, supported builds, certified implementations, and integration into products or services require a separate commercial license and support agreement.
+
+For licensing inquiries, supported implementations, or commercial use, contact: [licensing@qrcscorp.ca](mailto:licensing@qrcscorp.ca)
+
+*Quantum Resistant Cryptographic Solutions Corporation, 2026. All rights reserved.*

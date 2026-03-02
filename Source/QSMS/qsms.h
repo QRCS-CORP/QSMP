@@ -167,42 +167,6 @@
 #define QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE 32U
 
 /*!
-* \def QSMP_SIMPLEX_SCHASH_SIZE
-* \brief The Simplex 256-bit session token hash size
-*/
-#define QSMP_SIMPLEX_SCHASH_SIZE 32U
-
-/*!
-* \def QSMP_DUPLEX_HASH_SIZE
-* \brief The Duplex 512-bit hash function size
-*/
-#define QSMP_DUPLEX_HASH_SIZE 64U
-
-/*!
-* \def QSMP_DUPLEX_MACKEY_SIZE
-* \brief The Duplex 512-bit mac key size
-*/
-#define QSMP_DUPLEX_MACKEY_SIZE 64U
-
-/*!
-* \def QSMP_DUPLEX_MACTAG_SIZE
-* \brief The Duplex 512-bit mac key size
-*/
-#define QSMP_DUPLEX_MACTAG_SIZE 64U
-
-/*!
-* \def QSMP_DUPLEX_SYMMETRIC_KEY_SIZE
-* \brief TheDuplex  512-bit symmetric cipher key size
-*/
-#define QSMP_DUPLEX_SYMMETRIC_KEY_SIZE 64U
-
-/*!
-* \def QSMP_DUPLEX_SCHASH_SIZE
-* \brief The Duplex session token 512-bit hash size
-*/
-#define QSMP_DUPLEX_SCHASH_SIZE 64U
-
-/*!
 * \def QSMP_ASYMMETRIC_KEYCHAIN_COUNT
 * \brief The key-chain asymmetric key count
 */
@@ -215,19 +179,15 @@
 #define QSMP_CLIENT_PORT 31118U
 
 /*!
-* \def QSMP_CONNECTIONS_INIT 
-* \brief The intitial QSMP connections queue size
-*/
-#define QSMP_CONNECTIONS_INIT 1000U
-
-/*!
-* \def QSMP_CONNECTIONS_MAX
-* \brief The maximum number of connections
-* Calculated given approx 5k (3480 connection state + 1500 mtu + overhead),
-* per connection on 256GB of DRAM.
-* Can be scaled to a greater number provided the hardware can support it.
-*/
-#define QSMP_CONNECTIONS_MAX 50000U
+ * \def QSTP_CONNECTIONS_MAX
+ * \brief The maximum number of QSTP connections.
+ * \details This is a modifiable constant: set to the desired number of maximum connections.
+ *
+ * \details Modifiable constant: calculated given approx 5k
+ * (3480 connection state + 1500 mtu + overhead), per connection on 256GB of DRAM.
+ * Can be scaled to a greater number provided the hardware can support it.
+ */
+#define QSMP_CONNECTIONS_MAX 100U
 
 /*!
 * \def QSMP_CONNECTION_MTU
@@ -386,7 +346,11 @@
 * \def QSMP_MESSAGE_MAX
 * \brief The maximum message size used during the key exchange (1 GB)
 */
-#define QSMP_MESSAGE_MAX 0x3D090000UL
+#define QSMP_MESSAGE_MAX 0x10000UL
+
+/** \cond DOXYGEN_NO_DOCUMENT */
+extern const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE];
+/** \endcond */
 
 #if defined(QSMP_CONFIG_DILITHIUM_KYBER)
 
@@ -420,20 +384,6 @@
 	 * \brief Verify a message with the asymmetric signature scheme
 	 */
 #	define qsmp_signature_verify qsc_dilithium_verify
-
-/** \cond */
-#	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_KYBER_S1K2P512)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s1_kyber-s1_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_KYBER_S3K3P768)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_kyber-s3_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S5K4P1024)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s5_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S6K5P1280)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s6_sha3_rcs";
-#	else
-#		error Invalid parameter set!
-#	endif
-/** \endcond */
 
 /*!
 * \def QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE
@@ -503,22 +453,6 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s6_
 	 */
 #	define qsmp_signature_verify qsc_dilithium_verify
 
-/** \cond */
-#	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_MCELIECE_S1N3488T64)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s1_mceliece-s1_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_MCELIECE_S3N4608T96)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s3_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s5_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S6N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s6_sha3_rcs";
-#	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S7N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s7_sha3_rcs";
-#	else
-#		error Invalid parameter set!
-#	endif
-/** \endcond */
-
 /*!
 * \def QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE
 * \brief The byte size of the asymmetric cipher-text array
@@ -587,32 +521,6 @@ static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-
 	 * \brief Verify a message with the asymmetric signature scheme
 	 */
 #	define qsmp_signature_verify qsc_sphincsplus_verify
-
-/** \cond */
-#	if defined(QSC_SPHINCSPLUS_S1S128SHAKERF) && defined(QSC_MCELIECE_S1N3488T64)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s1f_mceliece-s1_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S1S128SHAKERS) && defined(QSC_MCELIECE_S1N3488T64)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s1s_mceliece-s1_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERF) && defined(QSC_MCELIECE_S3N4608T96)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-3f_mceliece-s3_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERS) && defined(QSC_MCELIECE_S3N4608T96)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-3s_mceliece-s3_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF) && defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s5_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS) && defined(QSC_MCELIECE_S5N6688T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s5_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF) && defined(QSC_MCELIECE_S6N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s6_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS) && defined(QSC_MCELIECE_S6N6960T119)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s6_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF) && defined(QSC_MCELIECE_S7N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s7_sha3_rcs";
-#	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS) && defined(QSC_MCELIECE_S7N8192T128)
-static const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s7_sha3_rcs";
-#	else
-#		error Invalid parameter set!
-#	endif
-/** \endcond */
 
 /*!
 * \def QSMP_ASYMMETRIC_CIPHER_TEXT_SIZE
@@ -740,7 +648,7 @@ static const char QSMP_PUBKEY_FOOTER[QSMP_PUBKEY_FOOTER_SIZE] = "------END QSMP 
 * \def QSMP_ERROR_STRING_DEPTH
 * \brief The depth of the QSMP error string array
 */
-#define QSMP_ERROR_STRING_DEPTH 30U
+#define QSMP_ERROR_STRING_DEPTH 27U
 
 /*!
 * \def QSMP_ERROR_STRING_WIDTH
@@ -748,86 +656,30 @@ static const char QSMP_PUBKEY_FOOTER[QSMP_PUBKEY_FOOTER_SIZE] = "------END QSMP 
 */
 #define QSMP_ERROR_STRING_WIDTH 128U
 
-/** \cond */
-static const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_WIDTH] =
-{
-	"No error was detected",
-	"The socket accept function returned an error",
-	"The symmetric cipher had an authentication failure",
-	"The keep alive check failed",
-	"The communications channel has failed",
-	"The device could not make a connection to the remote host",
-	"The transmission failed at the KEX connection phase",
-	"The asymmetric cipher failed to decapsulate the shared secret",
-	"The decryption authentication has failed",
-	"The transmission failed at the KEX establish phase",
-	"The transmission failed at the KEX exchange phase",
-	"The public - key hash is invalid",
-	"The server has run out of socket connections",
-	"The expected input was invalid",
-	"The packet flag was unexpected",
-	"The keep alive has expired with no response",
-	"The decryption authentication has failed",
-	"The QSMP public key has expired ",
-	"The key identity is unrecognized",
-	"The ratchet operation has failed",
-	"The listener function failed to initialize",
-	"The server has run out of memory",
-	"The packet has valid time expired",
-	"The packet was received out of sequence",
-	"The random generator has failed",
-	"The receiver failed at the network layer",
-	"The transmitter failed at the network layer",
-	"The protocol string was not recognized",
-	"The expected data could not be verified",
-	"The remote host sent an error or disconnect message",
-};
-/** \endcond */
+/** \cond DOXYGEN_NO_DOCUMENT */
+extern const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_WIDTH];
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
 /*!
 * \def QSMP_MESSAGE_STRING_DEPTH
 * \brief The depth of the QSMP message string array
 */
-#define QSMP_MESSAGE_STRING_DEPTH 22U
+#define QSMP_MESSAGE_STRING_DEPTH 21U
 /*!
 * \def QSMP_MESSAGE_STRING_WIDTH
 * \brief The width of each QSMP message string
 */
 #define QSMP_MESSAGE_STRING_WIDTH 128U
 
-/** \cond */
-static const char QSMP_MESSAGE_STRINGS[QSMP_MESSAGE_STRING_DEPTH][QSMP_MESSAGE_STRING_WIDTH] =
-{
-	"The operation completed succesfully.",
-	"The socket server accept function failed.",
-	"The listener socket listener could not connect.",
-	"The listener socket could not bind to the address.",
-	"The listener socket could not be created.",
-	"The server is connected to remote host: ",
-	"The socket receive function failed.",
-	"The server had a memory allocation failure.",
-	"The key exchange has experienced a failure.",
-	"The server has disconnected from the remote host: ",
-	"The server has disconnected the client due to an error",
-	"The server has had a socket level error: ",
-	"The server has reached the maximum number of connections",
-	"The server listener socket has failed.",
-	"The server has run out of socket connections",
-	"The message decryption has failed",
-	"The keepalive function has failed",
-	"The keepalive period has been exceeded",
-	"The connection failed or was interrupted",
-	"The function received an invalid request",
-	"The host received an asymmetric ratchet request",
-	"The host received a symmetric ratchet request"
-};
-/** \endcond */
+/** \cond DOXYGEN_NO_DOCUMENT */
+extern const char QSMP_MESSAGE_STRINGS[QSMP_MESSAGE_STRING_DEPTH][QSMP_MESSAGE_STRING_WIDTH];
+/** \endcond DOXYGEN_NO_DOCUMENT */
 
 /*!
 * \enum qsmp_configuration
 * \brief The asymmetric cryptographic primitive configuration
 */
-QSMP_EXPORT_API typedef enum qsmp_configuration
+typedef enum qsmp_configuration
 {
 	qsmp_configuration_none = 0x00U,				/*!< No configuration was specified */
 	qsmp_configuration_sphincs_mceliece = 0x01U,	/*!< The Sphincs+ and McEliece configuration */
@@ -843,7 +695,7 @@ QSMP_EXPORT_API typedef enum qsmp_configuration
 * \enum qsmp_messages
 * \brief The logging message enumeration
 */
-QSMP_EXPORT_API typedef enum qsmp_messages
+typedef enum qsmp_messages
 {
 	qsmp_messages_none = 0x00U,						/*!< No configuration was specified */
 	qsmp_messages_accept_fail = 0x01U,				/*!< The socket accept failed */
@@ -865,53 +717,49 @@ QSMP_EXPORT_API typedef enum qsmp_messages
 	qsmp_messages_keepalive_timeout = 0x11U,		/*!< The keepalive period has been exceeded */
 	qsmp_messages_connection_fail = 0x12U,			/*!< The connection failed or was interrupted */
 	qsmp_messages_invalid_request = 0x13U,			/*!< The function received an invalid request */
-	qsmp_messages_asymmetric_ratchet = 0x14U,		/*!< The host received an asymmetric ratchet request */
-	qsmp_messages_symmetric_ratchet = 0x15U,		/*!< The host received a symmetric ratchet request */
+	qsmp_messages_symmetric_ratchet = 0x14U,		/*!< The host received a symmetric ratchet request */
 } qsmp_messages;
 
 /*!
 * \enum qsmp_errors
 * \brief The QSMP error values
 */
-QSMP_EXPORT_API typedef enum qsmp_errors
+typedef enum qsmp_errors
 {
 	qsmp_error_none = 0x00U,						/*!< No error was detected */
 	qsmp_error_accept_fail = 0x01U,					/*!< The socket accept function returned an error */
 	qsmp_error_authentication_failure = 0x02U,		/*!< The symmetric cipher had an authentication failure */
-	qsmp_error_bad_keep_alive = 0x03U,				/*!< The keep alive check failed */
-	qsmp_error_channel_down = 0x04U,				/*!< The communications channel has failed */
-	qsmp_error_connection_failure = 0x05U,			/*!< The device could not make a connection to the remote host */
-	qsmp_error_connect_failure = 0x06U,				/*!< The transmission failed at the KEX connection phase */
-	qsmp_error_decapsulation_failure = 0x07U,		/*!< The asymmetric cipher failed to decapsulate the shared secret */
-	qsmp_error_decryption_failure = 0x08U,			/*!< The decryption authentication has failed */
-	qsmp_error_establish_failure = 0x09U,			/*!< The transmission failed at the KEX establish phase */
-	qsmp_error_exchange_failure = 0x0AU,			/*!< The transmission failed at the KEX exchange phase */
-	qsmp_error_hash_invalid = 0x0BU,				/*!< The public-key hash is invalid */
-	qsmp_error_hosts_exceeded = 0x0CU,				/*!< The server has run out of socket connections */
-	qsmp_error_invalid_input = 0x0DU,				/*!< The expected input was invalid */
-	qsmp_error_invalid_request = 0x0EU,				/*!< The packet flag was unexpected */
-	qsmp_error_keepalive_expired = 0x0FU,			/*!< The keep alive has expired with no response */
-	qsmp_error_keepalive_timeout = 0x10U,			/*!< The decryption authentication has failed */
-	qsmp_error_key_expired = 0x11U,					/*!< The QSMP public key has expired  */
-	qsmp_error_key_unrecognized = 0x12U,			/*!< The key identity is unrecognized */
-	qsmp_error_keychain_fail = 0x13U,				/*!< The ratchet operation has failed */
-	qsmp_error_listener_fail = 0x14U,				/*!< The listener function failed to initialize */
-	qsmp_error_memory_allocation = 0x15U,			/*!< The server has run out of memory */
-	qsmp_error_message_time_invalid = 0x06U,		/*!< The packet has valid time expired */
-	qsmp_error_packet_unsequenced = 0x17U,			/*!< The packet was received out of sequence */
-	qsmp_error_random_failure = 0x18U,				/*!< The random generator has failed */
-	qsmp_error_receive_failure = 0x19U,				/*!< The receiver failed at the network layer */
-	qsmp_error_transmit_failure = 0x1AU,			/*!< The transmitter failed at the network layer */
-	qsmp_error_unknown_protocol = 0x1BU,			/*!< The protocol string was not recognized */
-	qsmp_error_verify_failure = 0x1CU,				/*!< The expected data could not be verified */
-	qsmp_messages_system_message = 0x1DU,			/*!< The remote host sent an error or disconnect message */
+	qsmp_error_channel_down = 0x03U,				/*!< The communications channel has failed */
+	qsmp_error_connection_failure = 0x04U,			/*!< The device could not make a connection to the remote host */
+	qsmp_error_connect_failure = 0x05U,				/*!< The transmission failed at the KEX connection phase */
+	qsmp_error_decapsulation_failure = 0x06U,		/*!< The asymmetric cipher failed to decapsulate the shared secret */
+	qsmp_error_decryption_failure = 0x07U,			/*!< The decryption authentication has failed */
+	qsmp_error_establish_failure = 0x08U,			/*!< The transmission failed at the KEX establish phase */
+	qsmp_error_exchange_failure = 0x09U,			/*!< The transmission failed at the KEX exchange phase */
+	qsmp_error_hash_invalid = 0x0AU,				/*!< The public-key hash is invalid */
+	qsmp_error_hosts_exceeded = 0x0BU,				/*!< The server has run out of socket connections */
+	qsmp_error_invalid_input = 0x0CU,				/*!< The expected input was invalid */
+	qsmp_error_invalid_request = 0x0DU,				/*!< The packet flag was unexpected */
+	qsmp_error_key_expired = 0x0EU,					/*!< The QSMP public key has expired  */
+	qsmp_error_key_unrecognized = 0x0FU,			/*!< The key identity is unrecognized */
+	qsmp_error_keychain_fail = 0x10U,				/*!< The ratchet operation has failed */
+	qsmp_error_listener_fail = 0x11U,				/*!< The listener function failed to initialize */
+	qsmp_error_memory_allocation = 0x12U,			/*!< The server has run out of memory */
+	qsmp_error_message_time_invalid = 0x13U,		/*!< The packet has valid time expired */
+	qsmp_error_packet_unsequenced = 0x14U,			/*!< The packet was received out of sequence */
+	qsmp_error_random_failure = 0x15U,				/*!< The random generator has failed */
+	qsmp_error_receive_failure = 0x16U,				/*!< The receiver failed at the network layer */
+	qsmp_error_transmit_failure = 0x17U,			/*!< The transmitter failed at the network layer */
+	qsmp_error_unknown_protocol = 0x18U,			/*!< The protocol string was not recognized */
+	qsmp_error_verify_failure = 0x19U,				/*!< The expected data could not be verified */
+	qsmp_messages_system_message = 0x1AU,			/*!< The remote host sent an error or disconnect message */
 } qsmp_errors;
 
 /*!
 * \enum qsmp_flags
 * \brief The QSMP packet flags
 */
-QSMP_EXPORT_API typedef enum qsmp_flags
+typedef enum qsmp_flags
 {
 	qsmp_flag_none = 0x00U,							/*!< No flag was specified */
 	qsmp_flag_connect_request = 0x01U,				/*!< The QSMP key-exchange client connection request flag  */
@@ -924,29 +772,17 @@ QSMP_EXPORT_API typedef enum qsmp_flags
 	qsmp_flag_exchange_response = 0x08U,			/*!< The QSMP key-exchange server exchange response flag */
 	qsmp_flag_establish_request = 0x09U,			/*!< The QSMP key-exchange client establish request flag */
 	qsmp_flag_establish_response = 0x0AU,			/*!< The QSMP key-exchange server establish response flag */
-	qsmp_flag_keep_alive_request = 0x0BU,			/*!< The packet contains a keep alive request */
-	qsmp_flag_keep_alive_response = 0x0CU,			/*!< The packet contains a keep alive response */
-	qsmp_flag_remote_connected = 0x0DU,				/*!< The remote host is connected flag */
-	qsmp_flag_remote_terminated = 0x0EU,			/*!< The remote host has terminated the connection */
-	qsmp_flag_session_established = 0x0FU,			/*!< The exchange is in the established state */
-	qsmp_flag_session_establish_verify = 0x10U,		/*!< The exchange is in the established verify state */
-	qsmp_flag_unrecognized_protocol = 0x11U,		/*!< The protocol string is not recognized */
-	qsmp_flag_asymmetric_ratchet_request = 0x12U,	/*!< The host has received a asymmetric key ratchet request */
-	qsmp_flag_asymmetric_ratchet_response = 0x13U,	/*!< The host has received a asymmetric key ratchet request */
-	qsmp_flag_symmetric_ratchet_request = 0x14U,	/*!< The host has received a symmetric key ratchet request */
-	qsmp_flag_transfer_request = 0x15U,				/*!< Reserved - The host has received a transfer request */
-	qsmp_flag_error_condition = 0xFFU,				/*!< The connection experienced an error */
+	qsmp_flag_remote_connected = 0x0BU,				/*!< The remote host is connected flag */
+	qsmp_flag_remote_terminated = 0x0CU,			/*!< The remote host has terminated the connection */
+	qsmp_flag_session_established = 0x0DU,			/*!< The exchange is in the established state */
+	qsmp_flag_session_establish_verify = 0x0EU,		/*!< The exchange is in the established verify state */
+	qsmp_flag_unrecognized_protocol = 0x0FU,		/*!< The protocol string is not recognized */
+	qsmp_flag_asymmetric_ratchet_request = 0x10U,	/*!< The host has received a asymmetric key ratchet request */
+	qsmp_flag_asymmetric_ratchet_response = 0x11U,	/*!< The host has received a asymmetric key ratchet request */
+	qsmp_flag_symmetric_ratchet_request = 0x12U,	/*!< The host has received a symmetric key ratchet request */
+	qsmp_flag_transfer_request = 0x13U,				/*!< Reserved - The host has received a transfer request */
+	qsmp_flag_error_condition = 0x14U,				/*!< The connection experienced an error */
 } qsmp_flags;
-
-/*!
-* \enum qsmp_mode
-* \brief The QSMP mode enumeration
-*/
-QSMP_EXPORT_API typedef enum qsmp_mode
-{
-	qsmp_mode_simplex = 0x00U,
-	qsmp_mode_duplex = 0x01U,
-} qsmp_mode;
 
 /*!
 * \struct qsmp_asymmetric_cipher_keypair
@@ -1024,7 +860,6 @@ QSMP_EXPORT_API typedef struct qsmp_keepalive_state
 */
 QSMP_EXPORT_API typedef struct qsmp_connection_state
 {
-	uint8_t rtcs[QSMP_DUPLEX_SYMMETRIC_KEY_SIZE];	/*!< The ratchet key generation state */
 	qsc_socket target;								/*!< The target socket structure */
 	qsc_rcs_state rxcpr;							/*!< The receive channel cipher state */
 	qsc_rcs_state txcpr;							/*!< The transmit channel cipher state */
@@ -1033,7 +868,7 @@ QSMP_EXPORT_API typedef struct qsmp_connection_state
 	uint32_t cid;									/*!< The connections instance count */
 	qsmp_flags exflag;								/*!< The KEX position flag */
 	bool receiver;									/*!< The instance was initialized in listener mode */
-	qsmp_mode mode;									/*!< The QSMP operations mode */
+	uint8_t rtcs[QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE];	/*!< The symmetric ratchet key */
 } qsmp_connection_state;
 
 /*!
@@ -1131,7 +966,7 @@ QSMP_EXPORT_API qsmp_errors qsmp_header_validate(qsmp_connection_state* cns, con
 * \param prikey: The private key, a secret key known only by the server
 * \param keyid: [const] The key identity string
 */
-QSMP_EXPORT_API void qsmp_generate_keypair(qsmp_client_verification_key* pubkey, qsmp_server_signature_key* prikey, const uint8_t keyid[QSMP_KEYID_SIZE]);
+QSMP_EXPORT_API void qsmp_generate_keypair(qsmp_client_verification_key* pubkey, qsmp_server_signature_key* prikey, const uint8_t* keyid);
 
 /*!
 * \brief Get the error string description
@@ -1298,7 +1133,7 @@ QSMP_EXPORT_API size_t qsmp_public_key_encoding_size(void);
 * \param kset: A pointer to the output server key structure
 * \param serk: [const] The input encoded secret key string
 */
-QSMP_EXPORT_API void qsmp_signature_key_deserialize(qsmp_server_signature_key* kset, const uint8_t serk[QSMP_SIGKEY_ENCODED_SIZE]);
+QSMP_EXPORT_API void qsmp_signature_key_deserialize(qsmp_server_signature_key* kset, const uint8_t* serk);
 
 /*!
 * \brief Encode a secret key structure and copy to a string
@@ -1306,7 +1141,7 @@ QSMP_EXPORT_API void qsmp_signature_key_deserialize(qsmp_server_signature_key* k
 * \param serk: The output encoded public key string
 * \param kset: [const] A pointer to the secret server key structure
 */
-QSMP_EXPORT_API void qsmp_signature_key_serialize(uint8_t serk[QSMP_SIGKEY_ENCODED_SIZE], const qsmp_server_signature_key* kset);
+QSMP_EXPORT_API void qsmp_signature_key_serialize(uint8_t* serk, const qsmp_server_signature_key* kset);
 
 /*!
 * \brief Deserialize a byte array to a packet

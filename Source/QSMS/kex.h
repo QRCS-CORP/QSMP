@@ -52,7 +52,7 @@
 #ifndef QSMP_KEX_H
 #define QSMP_KEX_H
 
-#include "qsmp.h"
+#include "qsms.h"
 
 /**
  * \file kex.h
@@ -82,58 +82,11 @@
  * \note These functions and state structures are internal and are not part of the public QSMP API.
  */
 
-/**
- * \struct qsmp_kex_duplex_client_state
- * \brief Internal state for the Duplex key exchange (client-side).
- *
- * \details
- * This structure holds the state information required by a client participating in a Duplex key exchange.
- * It includes:
- * - \c keyid: A unique key identity string (of size \c QSMP_KEYID_SIZE) that identifies the key exchange session.
- * - \c schash: A session token hash (of size \c QSMP_DUPLEX_SCHASH_SIZE) used to verify session integrity.
- * - \c prikey: The client's asymmetric cipher private key (of size \c QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE).
- * - \c pubkey: The client's asymmetric cipher public key (of size \c QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE).
- * - \c rverkey: The remote party's asymmetric signature verification key (of size \c QSMP_ASYMMETRIC_VERIFY_KEY_SIZE).
- * - \c sigkey: The client's asymmetric signature signing key (of size \c QSMP_ASYMMETRIC_SIGNING_KEY_SIZE).
- * - \c ssec: The derived asymmetric shared secret (of size \c QSMP_SECRET_SIZE) computed during key exchange.
- * - \c verkey: The client's local asymmetric signature verification key (of size \c QSMP_ASYMMETRIC_VERIFY_KEY_SIZE).
- * - \c expiration: A timestamp (in seconds from the epoch) indicating when the key exchange session expires.
- */
-typedef struct qsmp_kex_duplex_client_state
-{
-	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
-	uint8_t schash[QSMP_DUPLEX_SCHASH_SIZE];				/*!< The session token hash */
-	uint8_t prikey[QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE];		/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE];		/*!< The asymmetric cipher public key */
-	uint8_t rverkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The remote asymmetric signature verification-key */
-	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
-	uint8_t ssec[QSMP_SECRET_SIZE];							/*!< The asymmetric shared secret */
-	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
-	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
-} qsmp_kex_duplex_client_state;
-
-/**
- * \struct qsmp_kex_duplex_server_state
- * \brief Internal state for the Duplex key exchange (server-side).
- *
- * \details
- * This structure holds the state information required by a server participating in a Duplex key exchange.
- * It contains cryptographic parameters including key identities, session hashes, asymmetric keys, and an expiration
- * timestamp. In addition, it includes a callback function (\c key_query) that is used to retrieve the appropriate
- * public key during the key exchange process.
- */
-typedef struct qsmp_kex_duplex_server_state
-{
-	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
-	uint8_t schash[QSMP_DUPLEX_SCHASH_SIZE];				/*!< The session token hash */
-	uint8_t prikey[QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE];		/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE];		/*!< The asymmetric cipher public key */
-	uint8_t rverkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The remote asymmetric signature verification-key */
-	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
-	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
-	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
-	bool (*key_query)(uint8_t*, const uint8_t*);			/*!< The key query callback */
-} qsmp_kex_duplex_server_state;
+/*!
+* \def QSMP_KEX_TEST_ENABLED
+* \brief Enable to manually test the kex
+*/
+//#define QSMP_KEX_TEST_ENABLED
 
 /**
  * \struct qsmp_kex_simplex_client_state
@@ -142,14 +95,14 @@ typedef struct qsmp_kex_duplex_server_state
  * \details
  * This structure stores the state information for a client involved in a Simplex key exchange.
  * It includes a unique key identity, the remote party's signature verification key, the client's signing key,
- * a session token hash (of size \c QSMP_SIMPLEX_SCHASH_SIZE), and an expiration timestamp.
+ * a session token hash (of size \c QSMP_SIMPLEX_HASH_SIZE), and an expiration timestamp.
  */
 typedef struct qsmp_kex_simplex_client_state
 {
 	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
 	uint8_t rverkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The remote asymmetric signature verification-key */
 	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
-	uint8_t schash[QSMP_SIMPLEX_SCHASH_SIZE];				/*!< The session token hash */
+	uint8_t schash[QSMP_SIMPLEX_HASH_SIZE];				/*!< The session token hash */
 	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
 	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
 } qsmp_kex_simplex_client_state;
@@ -166,47 +119,13 @@ typedef struct qsmp_kex_simplex_client_state
 typedef struct qsmp_kex_simplex_server_state
 {
 	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
-	uint8_t schash[QSMP_SIMPLEX_SCHASH_SIZE];				/*!< The session token hash */
+	uint8_t schash[QSMP_SIMPLEX_HASH_SIZE];				/*!< The session token hash */
 	uint8_t prikey[QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE];		/*!< The asymmetric cipher private key */
 	uint8_t pubkey[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE];		/*!< The asymmetric cipher public key */
 	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
 	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
 	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
 } qsmp_kex_simplex_server_state;
-
-/**
- * \brief Execute the server-side Duplex key exchange.
- *
- * \details
- * This function processes an incoming Duplex key exchange request on the server side.
- * It uses the server key exchange state (\c qsmp_kex_duplex_server_state) to verify client credentials,
- * exchange the necessary asymmetric keys, and update the QSMP connection state accordingly.
- *
- * \param kss A pointer to the duplex server key exchange state structure.
- * \param cns A pointer to the current QSMP connection state.
- *
- * \return Returns a value of type \c qsmp_errors indicating the outcome of the key exchange process.
- *
- * \note This is an internal non-exportable API.
- */
-qsmp_errors qsmp_kex_duplex_server_key_exchange(qsmp_kex_duplex_server_state* kss, qsmp_connection_state* cns);
-
-/**
- * \brief Execute the client-side Duplex key exchange.
- *
- * \details
- * This function initiates and completes the Duplex key exchange from the client side.
- * It processes the server's response, computes the shared secret, and updates the QSMP connection state
- * with the derived cryptographic parameters.
- *
- * \param kcs A pointer to the duplex client key exchange state structure.
- * \param cns A pointer to the current QSMP connection state.
- *
- * \return Returns a value of type \c qsmp_errors representing the result of the key exchange operation.
- *
- * \note This is an internal non-exportable API.
- */
-qsmp_errors qsmp_kex_duplex_client_key_exchange(qsmp_kex_duplex_client_state* kcs, qsmp_connection_state* cns);
 
 /**
  * \brief Execute the server-side Simplex key exchange.
@@ -242,6 +161,7 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
  */
 qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns);
 
+#if defined(QSMP_KEX_TEST_ENABLED)
 /**
  * \brief Run internal tests for the key exchange functions.
  *
@@ -260,5 +180,6 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
  * \note This is an internal non-exportable API.
  */
 bool qsmp_kex_test(void);
+#endif
 
 #endif
