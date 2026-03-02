@@ -1,4 +1,4 @@
-# Quantum Secure Messaging Protocol — SIMPLEX
+# Quantum Secure Messaging Protocol - SIMPLEX
 
 ## Introduction
 
@@ -17,7 +17,7 @@
 
 **QSMP SIMPLEX** is a post-quantum secure messaging protocol that integrates key exchange, server authentication, and encrypted tunnel establishment into a single, self-contained specification. Engineered from the ground up to address the cryptographic challenges posed by quantum computing, QSMP avoids the design compromises and legacy constraints of protocols such as TLS, SSH, and PGP. There is no algorithm negotiation, no versioning attack surface, and no backward compatibility with classical-only primitives.
 
-> This repository contains the **SIMPLEX** variant of QSMP — a one-way trust model optimised for high-performance client-server deployments.  
+> This repository contains the **SIMPLEX** variant of QSMP: a one-way trust model optimised for high-performance client-server deployments.  
 > The **DUPLEX** (mutual authentication, peer-to-peer) variant is maintained in a [separate repository](https://github.com/QRCS-CORP/QSMP-Duplex).
 
 ---
@@ -43,14 +43,14 @@ The protocol is complete and self-contained. All cryptographic parameters are fi
 
 ### Key Properties
 
-- **Post-quantum security** — all asymmetric operations use NIST-standardised post-quantum algorithms
-- **Two-round-trip handshake** — session establishment with minimal latency overhead
-- **Transcript binding** — session keys are derived from a rolling SHA3-256 hash of every exchanged message, cryptographically committing them to the complete handshake
-- **Explicit key confirmation** — the server's final transcript hash is encrypted and sent to the client; the session is not established unless both parties hold an identical transcript
-- **Forward secrecy** — symmetric ratchet via cSHAKE-256 refreshes session keys on demand without a new asymmetric exchange
-- **Anti-replay protection** — per-packet sequence counters and UTC timestamp validation on every received message
-- **Minimal attack surface** — no algorithm negotiation, no fallback cipher paths, no protocol versioning surface
-- **MISRA-C aligned** — structured for deployment in safety-critical and high-assurance environments
+- **Post-quantum security** - all asymmetric operations use NIST-standardised post-quantum algorithms
+- **Two-round-trip handshake** - session establishment with minimal latency overhead
+- **Transcript binding** - session keys are derived from a rolling SHA3-256 hash of every exchanged message, cryptographically committing them to the complete handshake
+- **Explicit key confirmation** - the server's final transcript hash is encrypted and sent to the client; the session is not established unless both parties hold an identical transcript
+- **Forward secrecy** - symmetric ratchet via cSHAKE-256 refreshes session keys on demand without a new asymmetric exchange
+- **Anti-replay protection** - per-packet sequence counters and UTC timestamp validation on every received message
+- **Minimal attack surface** - no algorithm negotiation, no fallback cipher paths, no protocol versioning surface
+- **MISRA-C aligned** - structured for deployment in safety-critical and high-assurance environments
 
 ---
 
