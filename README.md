@@ -288,7 +288,7 @@ QSMP SIMPLEX depends on the [QSC Cryptographic Library](https://github.com/QRCS-
 
 | Repository | Description |
 |---|---|
-| [QSMP DUPLEX](https://github.com/QRCS-CORP/QSMP-Duplex) | Mutual authentication variant for peer-to-peer and high-security deployments |
+| [QSMP DUPLEX](https://github.com/QRCS-CORP/QSMD) | Mutual authentication variant for 512-bit secure peer-to-peer and high-security deployments |
 | [QSC Library](https://github.com/QRCS-CORP/QSC) | Underlying cryptographic primitive library |
 | [QSTP](https://github.com/QRCS-CORP/QSTP) | Root-anchored tunneling protocol with certificate-based server identity |
 
