@@ -49,68 +49,68 @@
  * Contact: contact@qrcscorp.ca
  */
 
-#ifndef QSMP_LOGGER_H
-#define QSMP_LOGGER_H
+#ifndef QSMS_LOGGER_H
+#define QSMS_LOGGER_H
 
-#include "qsmpcommon.h"
+#include "qsmscommon.h"
 
  /**
   * \file logger.h
-  * \brief QSMP logging functions.
+  * \brief QSMS logging functions.
   *
   * \details
-  * This header defines the internal logging functions for the Quantum Secure Tunneling Protocol (QSMP).
+  * This header defines the internal logging functions for the Quantum Secure Tunneling Protocol (QSMS).
   * These functions provide a basic logging subsystem to record operational events, errors, and diagnostic
-  * messages during QSMP execution. The logging system is designed for debugging and monitoring purposes and
+  * messages during QSMS execution. The logging system is designed for debugging and monitoring purposes and
   * includes functionality to initialize the log, write messages, read and print the log, reset (clear) the log,
   * and retrieve the current log file size.
   *
   * The logging subsystem uses several defined constants:
   *
-  * - \c QSMP_LOGGING_MESSAGE_MAX: Defines the maximum allowed length (in characters) for a single log message.
-  * - \c QSMP_LOGGER_PATH: The default directory path where the QSMP log file is stored.
-  * - \c QSMP_LOGGER_FILE: The default log filename.
-  * - \c QSMP_LOGGER_HEAD: The header string written to the log file at initialization, which typically includes
+  * - \c QSMS_LOGGING_MESSAGE_MAX: Defines the maximum allowed length (in characters) for a single log message.
+  * - \c QSMS_LOGGER_PATH: The default directory path where the QSMS log file is stored.
+  * - \c QSMS_LOGGER_FILE: The default log filename.
+  * - \c QSMS_LOGGER_HEAD: The header string written to the log file at initialization, which typically includes
   *   version information.
   *
-  * The logger also includes a built-in manual test (\c qsmp_logger_test()) that exercises all of the logging
+  * The logger also includes a built-in manual test (\c qsms_logger_test()) that exercises all of the logging
   * functions to ensure proper operation.
   *
   * \note These functions and constants are internal and non-exportable.
   */
 
   /*!
-   * \def QSMP_LOGGING_MESSAGE_MAX
+   * \def QSMS_LOGGING_MESSAGE_MAX
    * \brief Maximum length of a log message.
    *
    * This macro defines the maximum number of characters allowed for a single log message.
    */
-#define QSMP_LOGGING_MESSAGE_MAX 256U
+#define QSMS_LOGGING_MESSAGE_MAX 256U
 
    /*!
-	* \var QSMP_LOGGER_PATH
-	* \brief Default directory path for QSMP log files.
+	* \var QSMS_LOGGER_PATH
+	* \brief Default directory path for QSMS log files.
 	*
-	* This static constant defines the default directory where the QSMP log file is stored.
+	* This static constant defines the default directory where the QSMS log file is stored.
 	*/
-static const char QSMP_LOGGER_PATH[] = "QSMP";
+static const char QSMS_LOGGER_PATH[] = "QSMS";
 
 /*!
- * \var QSMP_LOGGER_FILE
+ * \var QSMS_LOGGER_FILE
  * \brief Default log file name.
  *
- * This static constant defines the default filename for the QSMP log file.
+ * This static constant defines the default filename for the QSMS log file.
  */
-static const char QSMP_LOGGER_FILE[] = "qsmp.log";
+static const char QSMS_LOGGER_FILE[] = "qsmp.log";
 
 /*!
- * \var QSMP_LOGGER_HEAD
+ * \var QSMS_LOGGER_HEAD
  * \brief Log file header string.
  *
  * This static constant defines the header string that is written to the log file upon initialization.
- * It typically includes the QSMP version information.
+ * It typically includes the QSMS version information.
  */
-static const char QSMP_LOGGER_HEAD[] = "QSMP Version 1.1a";
+static const char QSMS_LOGGER_HEAD[] = "QSMS Version 1.1a";
 
 /**
  * \brief Dispose of the logger.
@@ -121,81 +121,81 @@ static const char QSMP_LOGGER_HEAD[] = "QSMP Version 1.1a";
  * the logging subsystem is no longer required, typically at application shutdown.
  * Calling any other logger function after dispose results in undefined behaviour.
  */
-void qsmp_logger_dispose(void);
+void qsms_logger_dispose(void);
 
 /*!
  * \brief Test if the log file exists.
  *
  * \details
- * This function checks whether the QSMP log file exists in the configured logging directory.
+ * This function checks whether the QSMS log file exists in the configured logging directory.
  *
  * \return Returns true if the log file exists, otherwise false.
  */
-bool qsmp_logger_exists(void);
+bool qsms_logger_exists(void);
 
 /*!
  * \brief Initialize the logger.
  *
  * \details
- * This function initializes the QSMP logging subsystem. It sets the log file path to the provided
- * value and creates the log file if it does not already exist, writing the default header (\c QSMP_LOGGER_HEAD)
+ * This function initializes the QSMS logging subsystem. It sets the log file path to the provided
+ * value and creates the log file if it does not already exist, writing the default header (\c QSMS_LOGGER_HEAD)
  * to the file.
  *
  * \param path: [const] A pointer to a null-terminated string specifying the log file path.
  */
-void qsmp_logger_initialize(const char* path);
+void qsms_logger_initialize(const char* path);
 
 /*!
  * \brief Print the log file.
  *
  * \details
- * This function outputs the contents of the QSMP log file to the standard output or a designated debug console.
+ * This function outputs the contents of the QSMS log file to the standard output or a designated debug console.
  * It is useful for real-time debugging and monitoring of log messages.
  */
-void qsmp_logger_print(void);
+void qsms_logger_print(void);
 
 /*!
  * \brief Read the log file into a buffer.
  *
  * \details
- * This function reads the contents of the QSMP log file into the provided output array.
+ * This function reads the contents of the QSMS log file into the provided output array.
  * The caller must ensure that the output buffer is large enough to hold the log contents.
  *
  * \param output: [const] A pointer to the buffer where the log contents will be stored.
  * \param otplen: The size of the output buffer in bytes.
  */
-void qsmp_logger_read(char* output, size_t otplen);
+void qsms_logger_read(char* output, size_t otplen);
 
 /*!
  * \brief Reset the logger.
  *
  * \details
- * This function erases all contents of the QSMP log file, effectively resetting the log.
+ * This function erases all contents of the QSMS log file, effectively resetting the log.
  * This is useful for clearing old log data before starting a new session or for troubleshooting.
  */
-void qsmp_logger_reset(void);
+void qsms_logger_reset(void);
 
 /*!
  * \brief Get the size of the log file.
  *
  * \details
- * This function returns the current size (in bytes) of the QSMP log file.
+ * This function returns the current size (in bytes) of the QSMS log file.
  *
  * \return Returns the size of the log file in bytes.
  */
-size_t qsmp_logger_size(void);
+size_t qsms_logger_size(void);
 
 /*!
  * \brief Write a message to the log file.
  *
  * \details
- * This function appends the provided log message to the QSMP log file. The message should be a null-terminated
- * string and must not exceed \c QSMP_LOGGING_MESSAGE_MAX characters.
+ * This function appends the provided log message to the QSMS log file. The message should be a null-terminated
+ * string and must not exceed \c QSMS_LOGGING_MESSAGE_MAX characters.
  *
  * \param message: [const] A pointer to the log message string.
  *
  * \return Returns true if the message was successfully written to the log file; otherwise, false.
  */
-bool qsmp_logger_write(const char* message);
+bool qsms_logger_write(const char* message);
 
 #endif

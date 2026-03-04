@@ -49,8 +49,8 @@
  * Contact: contact@qrcscorp.ca
  */
 
-#ifndef QSMP_CLIENT_H
-#define QSMP_CLIENT_H
+#ifndef QSMS_CLIENT_H
+#define QSMS_CLIENT_H
 
 #include "qsms.h"
 #include "rcs.h"
@@ -58,18 +58,18 @@
 
 /**
  * \file client.h
- * \brief QSMP Client Functions
+ * \brief QSMS Client Functions
  *
  * \details
- * This header file defines the client-side functions for the Quantum Secure Messaging Protocol (QSMP).
- * QSMP is a post-quantum secure messaging protocol that supports both Duplex and Simplex key exchange
- * mechanisms over IPv4 and IPv6 networks. These functions enable QSMP clients to initiate secure connections,
+ * This header file defines the client-side functions for the Quantum Secure Messaging Protocol (QSMS).
+ * QSMS is a post-quantum secure messaging protocol that supports both Duplex and Simplex key exchange
+ * mechanisms over IPv4 and IPv6 networks. These functions enable QSMS clients to initiate secure connections,
  * perform key exchanges, and manage cryptographic ratchet operations during an active session.
  *
- * The QSMP client functionality provided in this header includes:
+ * The QSMS client functionality provided in this header includes:
  *
  * - **Key Ratchet Requests:**
- *   - **Asymmetric Key Ratchet Request:** (conditionally available when QSMP_ASYMMETRIC_RATCHET is defined)
+ *   - **Asymmetric Key Ratchet Request:** (conditionally available when QSMS_ASYMMETRIC_RATCHET is defined)
  *     Initiates an asymmetric key ratchet to update session keys using asymmetric cryptographic operations,
  *     thereby enhancing forward secrecy.
  *   - **Symmetric Key Ratchet Request:** Initiates a symmetric key ratchet that updates the session keys
@@ -89,8 +89,8 @@
  *     either the Simplex or Duplex key exchange protocols. In Duplex mode, an additional key query callback is
  *     provided to identify the correct public key based on a given identifier.
  *
- * All connection functions accept callback functions for sending and receiving data over the QSMP connection,
- * and they return a value of type `qsmp_errors` to indicate the success or failure of the operation.
+ * All connection functions accept callback functions for sending and receiving data over the QSMS connection,
+ * and they return a value of type `qsms_errors` to indicate the success or failure of the operation.
  *
  * \note This header file does not include any internal test functions.
  */
@@ -99,15 +99,15 @@
   * \brief Send a symmetric key-ratchet request to the remote host.
   *
   * \details
-  * This function initiates a symmetric key ratchet process in an ongoing QSMP session. By periodically
+  * This function initiates a symmetric key ratchet process in an ongoing QSMS session. By periodically
   * updating the symmetric session keys, it maintains forward secrecy and ensures that any compromise
   * of past keys does not affect the security of future communications.
   *
-  * \param cns A pointer to the current QSMP connection state structure.
+  * \param cns A pointer to the current QSMS connection state structure.
   *
   * \return Returns true if the symmetric ratchet request was successfully sent, otherwise false.
   */
-QSMP_EXPORT_API bool qsmp_simplex_send_symmetric_ratchet_request(qsmp_connection_state* cns);
+QSMS_EXPORT_API bool qsms_simplex_send_symmetric_ratchet_request(qsms_connection_state* cns);
 
 /**
  * \brief Connect to a remote server over IPv4 and perform the Simplex key exchange.
@@ -120,16 +120,16 @@ QSMP_EXPORT_API bool qsmp_simplex_send_symmetric_ratchet_request(qsmp_connection
  *
  * \param pubk [const] A pointer to the client's public signature verification key.
  * \param address [const] A pointer to the IPv4 address information structure of the server.
- * \param port The QSMP application port number (typically defined by QSMP_SERVER_PORT).
+ * \param port The QSMS application port number (typically defined by QSMS_SERVER_PORT).
  * \param send_func A pointer to the send callback function that manages the message transmission loop.
  * \param receive_callback A pointer to the receive callback function that processes incoming data from the server.
  *
- * \return Returns a value of type \c qsmp_errors representing the outcome of the connection and key exchange process.
+ * \return Returns a value of type \c qsms_errors representing the outcome of the connection and key exchange process.
  */
-QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_verification_key* pubk, 
+QSMS_EXPORT_API qsms_errors qsms_client_simplex_connect_ipv4(const qsms_client_verification_key* pubk, 
 	const qsc_ipinfo_ipv4_address* address, uint16_t port, 
-	void (*send_func)(qsmp_connection_state*), 
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t));
+	void (*send_func)(qsms_connection_state*), 
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t));
 
 /**
  * \brief Connect to a remote server over IPv6 and perform the Simplex key exchange.
@@ -141,16 +141,16 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv4(const qsmp_client_v
  *
  * \param pubk [const] A pointer to the client's public signature verification key.
  * \param address [const] A pointer to the IPv6 address information structure of the server.
- * \param port The QSMP application port number (typically defined by QSMP_SERVER_PORT).
+ * \param port The QSMS application port number (typically defined by QSMS_SERVER_PORT).
  * \param send_func A pointer to the send callback function responsible for handling outgoing messages.
  * \param receive_callback A pointer to the receive callback function that processes incoming server data.
  *
- * \return Returns a value of type \c qsmp_errors indicating the status of the connection and key exchange.
+ * \return Returns a value of type \c qsms_errors indicating the status of the connection and key exchange.
  */
-QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_verification_key* pubk, 
+QSMS_EXPORT_API qsms_errors qsms_client_simplex_connect_ipv6(const qsms_client_verification_key* pubk, 
 	const qsc_ipinfo_ipv6_address* address, uint16_t port, 
-	void (*send_func)(qsmp_connection_state*), 
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t));
+	void (*send_func)(qsms_connection_state*), 
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t));
 
 /**
  * \brief Start the server in Simplex mode over IPv4 and listen for client connections.
@@ -158,18 +158,18 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_connect_ipv6(const qsmp_client_v
  * \details
  * This function initiates a network listener on the IPv4 interface to wait for incoming client connections.
  * Upon a client connection, it executes the Simplex key exchange protocol, establishing a secure channel for
- * subsequent communications. The connected socket and QSMP connection state are delivered to the specified
+ * subsequent communications. The connected socket and QSMS connection state are delivered to the specified
  * callback functions.
  *
- * \param kset [const] A pointer to the QSMP server signature key used for signing and authenticating messages.
+ * \param kset [const] A pointer to the QSMS server signature key used for signing and authenticating messages.
  * \param send_func A pointer to the send callback function that manages the transmission of messages.
  * \param receive_callback A pointer to the receive callback function that processes incoming client data.
  *
- * \return Returns a value of type \c qsmp_errors representing the result of initializing the listener and key exchange.
+ * \return Returns a value of type \c qsms_errors representing the result of initializing the listener and key exchange.
  */
-QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv4(const qsmp_server_signature_key* kset, 
-	void (*send_func)(qsmp_connection_state*), 
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t));
+QSMS_EXPORT_API qsms_errors qsms_client_simplex_listen_ipv4(const qsms_server_signature_key* kset, 
+	void (*send_func)(qsms_connection_state*), 
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t));
 
 /**
  * \brief Start the server in Simplex mode over IPv6 and listen for client connections.
@@ -179,14 +179,14 @@ QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv4(const qsmp_server_si
  * Once a connection is established, the Simplex key exchange protocol is executed to create a secure
  * communication channel. The function utilizes the provided callback functions to handle sending and receiving data.
  *
- * \param kset [const] A pointer to the QSMP server signature key used for message signing and authentication.
+ * \param kset [const] A pointer to the QSMS server signature key used for message signing and authentication.
  * \param send_func A pointer to the send callback function responsible for outgoing message management.
  * \param receive_callback A pointer to the receive callback function that processes data received from clients.
  *
- * \return Returns a value of type \c qsmp_errors indicating the success or failure of the listener setup and key exchange.
+ * \return Returns a value of type \c qsms_errors indicating the success or failure of the listener setup and key exchange.
  */
-QSMP_EXPORT_API qsmp_errors qsmp_client_simplex_listen_ipv6(const qsmp_server_signature_key* kset, 
-	void (*send_func)(qsmp_connection_state*), 
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t));
+QSMS_EXPORT_API qsms_errors qsms_client_simplex_listen_ipv6(const qsms_server_signature_key* kset, 
+	void (*send_func)(qsms_connection_state*), 
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t));
 
 #endif

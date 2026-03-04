@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We support the latest release of QSMP. Older versions are not maintained and may be vulnerable.
+We support the latest release of QSMS. Older versions are not maintained and may be vulnerable.
 
 | Version | Supported |
 |---------|-----------|
@@ -11,7 +11,7 @@ We support the latest release of QSMP. Older versions are not maintained and may
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in QSMP, **please report it privately** and responsibly.
+If you discover a security vulnerability in QSMS, **please report it privately** and responsibly.
 
 - **Do not** file public GitHub issues.
 - Contact us at: [contact@qrcscorp.ca](mailto:contact@qrcscorp.ca)
@@ -44,4 +44,4 @@ If you responsibly disclose a severe issue, we’d be happy to include your name
 
 ---
 
-Thank you for helping us keep QSMP secure.
+Thank you for helping us keep QSMS secure.

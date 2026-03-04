@@ -49,20 +49,20 @@
  * Contact: contact@qrcscorp.ca
  */
 
-#ifndef QSMP_SERVER_H
-#define QSMP_SERVER_H
+#ifndef QSMS_SERVER_H
+#define QSMS_SERVER_H
 
 #include "qsms.h"
 #include "rcs.h"
 #include "socketserver.h"
 /**
  * \file server.h
- * \brief QSMP Server functions.
+ * \brief QSMS Server functions.
  *
  * \details
- * This header declares the functions used to implement the server component of the Quantum Secure Messaging Protocol (QSMP).
+ * This header declares the functions used to implement the server component of the Quantum Secure Messaging Protocol (QSMS).
  * The server functions manage client connections, broadcast messages, and control the server lifecycle through operations
- * such as pausing, resuming, and quitting. QSMP employs a multi-threaded server design that supports both IPv4 and IPv6 connections.
+ * such as pausing, resuming, and quitting. QSMS employs a multi-threaded server design that supports both IPv4 and IPv6 connections.
  *
  * The functions provided in this header include:
  * - Broadcasting a message to all connected hosts.
@@ -72,17 +72,17 @@
  * - Starting the multi-threaded server on IPv4 and IPv6 interfaces with support for callback functions to process
  *   incoming data and handle disconnect events.
  *
- * \note QSMP_EXPORT_API is used to ensure proper symbol visibility.
+ * \note QSMS_EXPORT_API is used to ensure proper symbol visibility.
  */
 
 /*!
- * \def QSMP_SERVER_PAUSE_INTERVAL
+ * \def QSMS_SERVER_PAUSE_INTERVAL
  * \brief The pause interval used by the server pause function.
  *
  * This macro defines the time interval (in milliseconds) that the server will pause before resuming
  * operations or processing new connection requests.
  */
-#define QSMP_SERVER_PAUSE_INTERVAL 100U
+#define QSMS_SERVER_PAUSE_INTERVAL 100U
 
 /**
  * \brief Pause the server.
@@ -91,7 +91,7 @@
  * This function temporarily suspends the acceptance of new client connections. While paused, the server continues
  * to service existing connections but does not allow any new joins until it is resumed.
  */
-QSMP_EXPORT_API void qsmp_server_pause(void);
+QSMS_EXPORT_API void qsms_server_pause(void);
 
 /**
  * \brief Quit the server.
@@ -100,7 +100,7 @@ QSMP_EXPORT_API void qsmp_server_pause(void);
  * This function gracefully shuts down the server by closing all active client connections and terminating the server's
  * listener. It is used to perform a complete shutdown of the server operations.
  */
-QSMP_EXPORT_API void qsmp_server_quit(void);
+QSMS_EXPORT_API void qsms_server_quit(void);
 
 /**
  * \brief Resume the server listener.
@@ -109,48 +109,48 @@ QSMP_EXPORT_API void qsmp_server_quit(void);
  * This function resumes the server's listener functionality after it has been paused. Once resumed, the server will
  * once again accept new incoming client connections.
  */
-QSMP_EXPORT_API void qsmp_server_resume(void);
+QSMS_EXPORT_API void qsms_server_resume(void);
 
 /**
  * \brief Start the IPv4 multi-threaded server.
  *
  * \details
- * This function initializes and starts the QSMP server for IPv4 connections using a multi-threaded architecture.
- * It listens on the provided socket and uses the specified QSMP private key for secure key exchange and authentication.
+ * This function initializes and starts the QSMS server for IPv4 connections using a multi-threaded architecture.
+ * It listens on the provided socket and uses the specified QSMS private key for secure key exchange and authentication.
  * Two callback functions are provided:
  * - A receive callback to process incoming client data streams.
  * - A disconnect callback to handle cleanup and resource deallocation when a client disconnects.
  *
  * \param source A pointer to the listener socket used by the server.
- * \param kset [const] A pointer to the QSMP server private signature key used for key exchange.
+ * \param kset [const] A pointer to the QSMS server private signature key used for key exchange.
  * \param receive_callback A pointer to the function that processes incoming client data.
  * \param disconnect_callback A pointer to the function that handles client disconnect events.
  *
- * \return Returns a QSMP error code indicating the success or failure of starting the IPv4 server.
+ * \return Returns a QSMS error code indicating the success or failure of starting the IPv4 server.
  */
-QSMP_EXPORT_API qsmp_errors qsmp_server_start_ipv4(qsc_socket* source,
-	const qsmp_server_signature_key* kset,
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
-	void (*disconnect_callback)(qsmp_connection_state*));
+QSMS_EXPORT_API qsms_errors qsms_server_start_ipv4(qsc_socket* source,
+	const qsms_server_signature_key* kset,
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t),
+	void (*disconnect_callback)(qsms_connection_state*));
 
 /**
  * \brief Start the IPv6 multi-threaded server.
  *
  * \details
- * This function initializes and starts the QSMP server for IPv6 connections using a multi-threaded design.
- * It listens on the provided IPv6 socket and employs the specified QSMP private key for secure communications.
+ * This function initializes and starts the QSMS server for IPv6 connections using a multi-threaded design.
+ * It listens on the provided IPv6 socket and employs the specified QSMS private key for secure communications.
  * The server uses two callback functions to process incoming client data and handle disconnect events.
  *
  * \param source A pointer to the listener socket used by the server.
- * \param kset [const] A pointer to the QSMP server private signature key used for key exchange and authentication.
+ * \param kset [const] A pointer to the QSMS server private signature key used for key exchange and authentication.
  * \param receive_callback A pointer to the function that processes incoming client data.
  * \param disconnect_callback A pointer to the function that handles client disconnect events.
  *
- * \return Returns a QSMP error code indicating the outcome of starting the IPv6 server.
+ * \return Returns a QSMS error code indicating the outcome of starting the IPv6 server.
  */
-QSMP_EXPORT_API qsmp_errors qsmp_server_start_ipv6(qsc_socket* source,
-	const qsmp_server_signature_key* kset,
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
-	void (*disconnect_callback)(qsmp_connection_state*));
+QSMS_EXPORT_API qsms_errors qsms_server_start_ipv6(qsc_socket* source,
+	const qsms_server_signature_key* kset,
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t),
+	void (*disconnect_callback)(qsms_connection_state*));
 
 #endif

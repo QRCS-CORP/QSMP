@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build QSMP on ${{ matrix.os }}
+    name: Build QSMS on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -22,10 +22,10 @@ jobs:
     - name: Set up CMake
       uses: lukka/get-cmake@v3.27.0
 
-    - name: Configure QSMP (CMake)
+    - name: Configure QSMS (CMake)
       run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build QSMP (CMake)
+    - name: Build QSMS (CMake)
       run: cmake --build build --config Release
 
     - name: Run Tests (if available)

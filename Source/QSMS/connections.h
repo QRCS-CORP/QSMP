@@ -49,46 +49,46 @@
  * Contact: contact@qrcscorp.ca
  */
 
-#ifndef QSMP_CONNECTIONS_H
-#define QSMP_CONNECTIONS_H
+#ifndef QSMS_CONNECTIONS_H
+#define QSMS_CONNECTIONS_H
 
-#include "qsmpcommon.h"
+#include "qsmscommon.h"
 #include "qsms.h"
 
- /**
-  * \file connections.h
-  * \brief The server connection collection.
-  *
-  * \details
-  * This header defines a set of internal functions for managing the QSTP connection collection.
-  * The connection collection is an array or list of QSTP connection state objects that represent
-  * active or available network connections. These functions provide mechanisms to:
-  *
-  * - Check the active status of a connection at a given index.
-  * - Add a new connection state to the collection.
-  * - Retrieve connection states by instance number or by index.
-  * - Initialize, clear, reset, and dispose of the entire connection collection.
-  * - Determine the number of available connection states and the total size of the collection.
-  *
-  * Additionally, a self-test function is provided to verify the correct operation of the connection
-  * collection management routines. The self-test exercises various operations including addition,
-  * retrieval, reset, and disposal of connection state items.
-  *
-  * \note These functions are internal and non-exportable.
-  */
+/**
+ * \file connections.h
+ * \brief The server connection collection.
+ *
+ * \details
+ * This header defines a set of internal functions for managing the QSTP connection collection.
+ * The connection collection is an array or list of QSTP connection state objects that represent
+ * active or available network connections. These functions provide mechanisms to:
+ *
+ * - Check the active status of a connection at a given index.
+ * - Add a new connection state to the collection.
+ * - Retrieve connection states by instance number or by index.
+ * - Initialize, clear, reset, and dispose of the entire connection collection.
+ * - Determine the number of available connection states and the total size of the collection.
+ *
+ * Additionally, a self-test function is provided to verify the correct operation of the connection
+ * collection management routines. The self-test exercises various operations including addition,
+ * retrieval, reset, and disposal of connection state items.
+ *
+ * \note These functions are internal and non-exportable.
+ */
 
-  /**
-   * \brief Check if a connection in the collection is active.
-   *
-   * \details
-   * This function checks whether the connection state at the specified index in the connection collection
-   * is currently marked as active.
-   *
-   * \param index: The index (zero-based) in the connections collection.
-   *
-   * \return Returns true if the connection at the given index is active; otherwise, returns false.
-   */
-bool qsmp_connections_active(size_t index);
+/**
+ * \brief Check if a connection in the collection is active.
+ *
+ * \details
+ * This function checks whether the connection state at the specified index in the connection collection
+ * is currently marked as active.
+ *
+ * \param index: The index (zero-based) in the connections collection.
+ *
+ * \return Returns true if the connection at the given index is active; otherwise, returns false.
+ */
+bool qsms_connections_active(size_t index);
 
 /**
  * \brief Get the number of available (inactive) connection states in the collection.
@@ -99,7 +99,7 @@ bool qsmp_connections_active(size_t index);
  *
  * \return The number of available connection state items.
  */
-size_t qsmp_connections_available(void);
+size_t qsms_connections_available(void);
 
 /**
  * \brief Retrieve a connection state pointer using its instance number.
@@ -112,7 +112,7 @@ size_t qsmp_connections_available(void);
  *
  * \return Returns a pointer to the QSTP connection state if found; otherwise, returns NULL.
  */
-qsmp_connection_state* qsmp_connections_get(uint32_t instance);
+qsms_connection_state* qsms_connections_get(uint32_t instance);
 
 /**
  * \brief Initialize the connections collection.
@@ -127,7 +127,7 @@ qsmp_connection_state* qsmp_connections_get(uint32_t instance);
  *
  * \return Returns true if the connection array was allocated successfully, otherwise false
  */
-bool qsmp_connections_initialize(size_t count);
+bool qsms_connections_initialize(size_t count);
 
 /**
  * \brief Erase all connection states in the collection.
@@ -136,7 +136,7 @@ bool qsmp_connections_initialize(size_t count);
  * This function clears all entries in the connection collection, marking each state as inactive.
  * It does not dispose of the collection itself, but resets its contents so that they may be reused.
  */
-void qsmp_connections_clear(void);
+void qsms_connections_clear(void);
 
 /**
  * \brief Dispose of the connections collection.
@@ -145,7 +145,7 @@ void qsmp_connections_clear(void);
  * This function releases all resources allocated for the connections collection and resets its state.
  * It should be called when the collection is no longer needed.
  */
-void qsmp_connections_dispose(void);
+void qsms_connections_dispose(void);
 
 /**
  * \brief Check if the connection collection is full.
@@ -156,7 +156,7 @@ void qsmp_connections_dispose(void);
  *
  * \return Returns true if the collection is full; otherwise, false.
  */
-bool qsmp_connections_full(void);
+bool qsms_connections_full(void);
 
 /**
  * \brief Retrieve a connection state pointer by its collection index.
@@ -169,7 +169,7 @@ bool qsmp_connections_full(void);
  *
  * \return Returns a pointer to the QSTP connection state, or NULL if the index is invalid.
  */
-qsmp_connection_state* qsmp_connections_index(size_t index);
+qsms_connection_state* qsms_connections_index(size_t index);
 
 /**
  * \brief Get the next available connection state.
@@ -180,7 +180,7 @@ qsmp_connection_state* qsmp_connections_index(size_t index);
  *
  * \return Returns a pointer to the next available QSTP connection state, or NULL if none are available.
  */
-qsmp_connection_state* qsmp_connections_next(void);
+qsms_connection_state* qsms_connections_next(void);
 
 /**
  * \brief Reset a connection state in the collection.
@@ -191,7 +191,7 @@ qsmp_connection_state* qsmp_connections_next(void);
  *
  * \param instance: The unique instance number of the connection to reset.
  */
-void qsmp_connections_reset(uint32_t instance);
+void qsms_connections_reset(uint32_t instance);
 
 /**
  * \brief Get the total number of connection state objects in the collection.
@@ -201,6 +201,6 @@ void qsmp_connections_reset(uint32_t instance);
  *
  * \return Returns the total number of connection state items in the collection.
  */
-size_t qsmp_connections_size(void);
+size_t qsms_connections_size(void);
 
 #endif

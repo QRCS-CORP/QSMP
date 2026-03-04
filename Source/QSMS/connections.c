@@ -3,19 +3,19 @@
 #include "memutils.h"
 
 /** \cond */
-typedef struct qsmp_connection_set
+typedef struct qsms_connection_set
 {
-	qsmp_connection_state* conset;
+	qsms_connection_state* conset;
 	bool* active;
 	size_t count;
-} qsmp_connection_set;
+} qsms_connection_set;
 
-static qsmp_connection_set m_connection_set;
+static qsms_connection_set m_connection_set;
 static qsc_mutex m_pool_mutex;
 static bool m_state_initialized;
 /** \endcond */
 
-bool qsmp_connections_active(size_t index)
+bool qsms_connections_active(size_t index)
 {
 	bool res;
 
@@ -36,7 +36,7 @@ bool qsmp_connections_active(size_t index)
 	return res;
 }
 
-size_t qsmp_connections_available(void)
+size_t qsms_connections_available(void)
 {
 	size_t count;
 
@@ -60,13 +60,13 @@ size_t qsmp_connections_available(void)
 	return count;
 }
 
-void qsmp_connections_clear(void)
+void qsms_connections_clear(void)
 {
 	if (m_state_initialized == true)
 	{
 		qsc_async_mutex_lock(m_pool_mutex);
 
-		qsc_memutils_clear(m_connection_set.conset, sizeof(qsmp_connection_state) * m_connection_set.count);
+		qsc_memutils_clear(m_connection_set.conset, sizeof(qsms_connection_state) * m_connection_set.count);
 
 		for (size_t i = 0; i < m_connection_set.count; ++i)
 		{
@@ -78,13 +78,13 @@ void qsmp_connections_clear(void)
 	}
 }
 
-void qsmp_connections_dispose(void)
+void qsms_connections_dispose(void)
 {
 	if (m_state_initialized == true)
 	{
 		if (m_connection_set.conset != NULL)
 		{
-			qsmp_connections_clear();
+			qsms_connections_clear();
 
 			if (m_connection_set.conset != NULL)
 			{
@@ -110,7 +110,7 @@ void qsmp_connections_dispose(void)
 	}
 }
 
-bool qsmp_connections_full(void)
+bool qsms_connections_full(void)
 {
 	bool res;
 
@@ -135,9 +135,9 @@ bool qsmp_connections_full(void)
 	return res;
 }
 
-qsmp_connection_state* qsmp_connections_get(uint32_t cid)
+qsms_connection_state* qsms_connections_get(uint32_t cid)
 {
-	qsmp_connection_state* res;
+	qsms_connection_state* res;
 
 	res = NULL;
 
@@ -159,9 +159,9 @@ qsmp_connection_state* qsmp_connections_get(uint32_t cid)
 	return res;
 }
 
-qsmp_connection_state* qsmp_connections_index(size_t index)
+qsms_connection_state* qsms_connections_index(size_t index)
 {
-	qsmp_connection_state* res;
+	qsms_connection_state* res;
 
 	res = NULL;
 
@@ -180,9 +180,9 @@ qsmp_connection_state* qsmp_connections_index(size_t index)
 	return res;
 }
 
-bool qsmp_connections_initialize(size_t count)
+bool qsms_connections_initialize(size_t count)
 {
-	QSMP_ASSERT(count != 0U);
+	QSMS_ASSERT(count != 0U);
 
 	bool res;
 
@@ -193,11 +193,11 @@ bool qsmp_connections_initialize(size_t count)
 		m_pool_mutex = qsc_async_mutex_create();
 
 		m_connection_set.count = count;
-		m_connection_set.conset = qsc_memutils_malloc(count * sizeof(qsmp_connection_state));
+		m_connection_set.conset = qsc_memutils_malloc(count * sizeof(qsms_connection_state));
 
 		if (m_connection_set.conset != NULL)
 		{
-			qsc_memutils_clear(m_connection_set.conset, count * sizeof(qsmp_connection_state));
+			qsc_memutils_clear(m_connection_set.conset, count * sizeof(qsms_connection_state));
 			m_connection_set.active = qsc_memutils_malloc(count * sizeof(bool));
 
 			if (m_connection_set.active != NULL)
@@ -217,9 +217,9 @@ bool qsmp_connections_initialize(size_t count)
 	return res;
 }
 
-qsmp_connection_state* qsmp_connections_next(void)
+qsms_connection_state* qsms_connections_next(void)
 {
-	qsmp_connection_state* res;
+	qsms_connection_state* res;
 
 	res = NULL;
 
@@ -243,7 +243,7 @@ qsmp_connection_state* qsmp_connections_next(void)
 	return res;
 }
 
-void qsmp_connections_reset(uint32_t cid)
+void qsms_connections_reset(uint32_t cid)
 {
 	if (m_state_initialized == true)
 	{
@@ -253,7 +253,7 @@ void qsmp_connections_reset(uint32_t cid)
 		{
 			if (m_connection_set.conset[i].cid == cid)
 			{
-				qsc_memutils_clear(&m_connection_set.conset[i], sizeof(qsmp_connection_state));
+				qsc_memutils_clear(&m_connection_set.conset[i], sizeof(qsms_connection_state));
 				m_connection_set.conset[i].cid = (uint32_t)i;
 				m_connection_set.active[i] = false;
 				break;
@@ -264,7 +264,7 @@ void qsmp_connections_reset(uint32_t cid)
 	}
 }
 
-size_t qsmp_connections_size(void)
+size_t qsms_connections_size(void)
 {
 	size_t res;
 

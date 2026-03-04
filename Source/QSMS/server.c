@@ -14,10 +14,10 @@
 /** \cond */
 typedef struct server_receiver_state
 {
-	qsmp_connection_state* pcns;
-	const qsmp_server_signature_key* pprik;
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t);
-	void (*disconnect_callback)(qsmp_connection_state*);
+	qsms_connection_state* pcns;
+	const qsms_server_signature_key* pprik;
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t);
+	void (*disconnect_callback)(qsms_connection_state*);
 } server_receiver_state;
 /** \endcond */
 
@@ -25,12 +25,12 @@ typedef struct server_receiver_state
 volatile bool m_server_pause;
 volatile bool m_server_run;
 
-static void server_state_initialize(qsmp_kex_simplex_server_state* kss, const server_receiver_state* prcv)
+static void server_state_initialize(qsms_kex_simplex_server_state* kss, const server_receiver_state* prcv)
 {
-	qsc_memutils_copy(kss->keyid, prcv->pprik->keyid, QSMP_KEYID_SIZE);
-	qsc_memutils_copy(kss->sigkey, prcv->pprik->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
-	qsc_memutils_copy(kss->verkey, prcv->pprik->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
-	qsc_memutils_clear(&prcv->pcns->rtcs, QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE);
+	qsc_memutils_copy(kss->keyid, prcv->pprik->keyid, QSMS_KEYID_SIZE);
+	qsc_memutils_copy(kss->sigkey, prcv->pprik->sigkey, QSMS_ASYMMETRIC_SIGNING_KEY_SIZE);
+	qsc_memutils_copy(kss->verkey, prcv->pprik->verkey, QSMS_ASYMMETRIC_VERIFY_KEY_SIZE);
+	qsc_memutils_clear(&prcv->pcns->rtcs, QSMS_SIMPLEX_SYMMETRIC_KEY_SIZE);
 	kss->expiration = prcv->pprik->expiration;
 }
 
@@ -39,19 +39,19 @@ static void server_poll_sockets(void)
 	size_t clen;
 	qsc_mutex mtx;
 
-	clen = qsmp_connections_size();
+	clen = qsms_connections_size();
 
 	for (size_t i = 0U; i < clen; ++i)
 	{
-		const qsmp_connection_state* cns = qsmp_connections_index(i);
+		const qsms_connection_state* cns = qsms_connections_index(i);
 
-		if (cns != NULL && qsmp_connections_active(i) == true)
+		if (cns != NULL && qsms_connections_active(i) == true)
 		{
 			mtx = qsc_async_mutex_lock_ex();
 
 			if (qsc_socket_is_connected(&cns->target) == false)
 			{
-				qsmp_connections_reset(cns->cid);
+				qsms_connections_reset(cns->cid);
 			}
 
 			qsc_async_mutex_unlock_ex(mtx);
@@ -61,33 +61,33 @@ static void server_poll_sockets(void)
 
 static void server_receive_loop(void* prcv)
 {
-	QSMP_ASSERT(prcv != NULL);
+	QSMS_ASSERT(prcv != NULL);
 
-	qsmp_network_packet pkt = { 0 };
+	qsms_network_packet pkt = { 0 };
 	char cadd[QSC_SOCKET_ADDRESS_MAX_SIZE] = { 0 };
-	qsmp_kex_simplex_server_state* pkss;
+	qsms_kex_simplex_server_state* pkss;
 	server_receiver_state* pprcv;
 	uint8_t* rbuf;
 	size_t mlen;
 	size_t plen;
 	size_t slen;
-	qsmp_errors qerr;
+	qsms_errors qerr;
 
 	pprcv = (server_receiver_state*)prcv;
 	qsc_memutils_copy(cadd, (const char*)pprcv->pcns->target.address, sizeof(cadd));
-	pkss = (qsmp_kex_simplex_server_state*)qsc_memutils_malloc(sizeof(qsmp_kex_simplex_server_state));
+	pkss = (qsms_kex_simplex_server_state*)qsc_memutils_malloc(sizeof(qsms_kex_simplex_server_state));
 
 	if (pkss != NULL)
 	{
 		server_state_initialize(pkss, pprcv);
-		qerr = qsmp_kex_simplex_server_key_exchange(pkss, pprcv->pcns);
-		qsc_memutils_secure_erase(pkss, sizeof(qsmp_kex_simplex_server_state));
+		qerr = qsms_kex_simplex_server_key_exchange(pkss, pprcv->pcns);
+		qsc_memutils_secure_erase(pkss, sizeof(qsms_kex_simplex_server_state));
 		qsc_memutils_alloc_free(pkss);
 		pkss = NULL;
 
-		if (qerr == qsmp_error_none)
+		if (qerr == qsms_error_none)
 		{
-			rbuf = (uint8_t*)qsc_memutils_malloc(QSMP_HEADER_SIZE);
+			rbuf = (uint8_t*)qsc_memutils_malloc(QSMS_HEADER_SIZE);
 
 			if (rbuf != NULL)
 			{
@@ -98,17 +98,17 @@ static void server_receive_loop(void* prcv)
 					mlen = 0U;
 					slen = 0U;
 
-					plen = qsc_socket_peek(&pprcv->pcns->target, rbuf, QSMP_HEADER_SIZE);
+					plen = qsc_socket_peek(&pprcv->pcns->target, rbuf, QSMS_HEADER_SIZE);
 
-					if (plen == QSMP_HEADER_SIZE)
+					if (plen == QSMS_HEADER_SIZE)
 					{
-						qsmp_packet_header_deserialize(rbuf, &pkt);
+						qsms_packet_header_deserialize(rbuf, &pkt);
 
-						if (pkt.msglen > 0U && pkt.msglen <= QSMP_MESSAGE_MAX)
+						if (pkt.msglen > 0U && pkt.msglen <= QSMS_MESSAGE_MAX)
 						{
 							uint8_t* rtmp;
 
-							plen = pkt.msglen + QSMP_HEADER_SIZE;
+							plen = pkt.msglen + QSMS_HEADER_SIZE;
 							rtmp = (uint8_t*)qsc_memutils_realloc(rbuf, plen);
 
 							if (rtmp != NULL)
@@ -119,29 +119,29 @@ static void server_receive_loop(void* prcv)
 
 								if (mlen != 0U)
 								{
-									pkt.pmessage = rbuf + QSMP_HEADER_SIZE;
+									pkt.pmessage = rbuf + QSMS_HEADER_SIZE;
 
-									if (pkt.flag == qsmp_flag_encrypted_message)
+									if (pkt.flag == qsms_flag_encrypted_message)
 									{
 										uint8_t* mstr;
 
-										slen = pkt.msglen + QSMP_SIMPLEX_MACTAG_SIZE;
+										slen = pkt.msglen + QSMS_SIMPLEX_MACTAG_SIZE;
 										mstr = (uint8_t*)qsc_memutils_malloc(slen);
 
 										if (mstr != NULL)
 										{
 											qsc_memutils_clear(mstr, slen);
 
-											qerr = qsmp_packet_decrypt(pprcv->pcns, mstr, &mlen, &pkt);
+											qerr = qsms_packet_decrypt(pprcv->pcns, mstr, &mlen, &pkt);
 
-											if (qerr == qsmp_error_none)
+											if (qerr == qsms_error_none)
 											{
 												pprcv->receive_callback(pprcv->pcns, mstr, mlen);
 											}
 											else
 											{
 												/* close the connection on authentication failure */
-												qsmp_log_write(qsmp_messages_decryption_fail, cadd);
+												qsms_log_write(qsms_messages_decryption_fail, cadd);
 												break;
 											}
 
@@ -151,24 +151,24 @@ static void server_receive_loop(void* prcv)
 										else
 										{
 											/* close the connection on memory allocation failure */
-											qsmp_log_write(qsmp_messages_allocate_fail, cadd);
+											qsms_log_write(qsms_messages_allocate_fail, cadd);
 											break;
 										}
 									}
-									else if (pkt.flag == qsmp_flag_error_condition)
+									else if (pkt.flag == qsms_flag_error_condition)
 									{
 										/* anti-dos: break on error message is conditional
 										   on succesful authentication/decryption */
-										if (qsmp_decrypt_error_message(&qerr, pprcv->pcns, rbuf) == true)
+										if (qsms_decrypt_error_message(&qerr, pprcv->pcns, rbuf) == true)
 										{
-											qsmp_log_system_error(qerr);
+											qsms_log_system_error(qerr);
 											break;
 										}
 									}
 									else
 									{
 										/* ignore unknown message type */
-										qsmp_log_write(qsmp_messages_receive_fail, cadd);
+										qsms_log_write(qsms_messages_receive_fail, cadd);
 									}
 								}
 								else
@@ -177,7 +177,7 @@ static void server_receive_loop(void* prcv)
 
 									if (err != qsc_socket_exception_success)
 									{
-										qsmp_log_error(qsmp_messages_receive_fail, err, cadd);
+										qsms_log_error(qsms_messages_receive_fail, err, cadd);
 
 										/* fatal socket errors */
 										if (err == qsc_socket_exception_circuit_reset ||
@@ -187,7 +187,7 @@ static void server_receive_loop(void* prcv)
 											err == qsc_socket_exception_network_failure ||
 											err == qsc_socket_exception_shut_down)
 										{
-											qsmp_log_write(qsmp_messages_connection_fail, cadd);
+											qsms_log_write(qsms_messages_connection_fail, cadd);
 											break;
 										}
 									}
@@ -196,14 +196,14 @@ static void server_receive_loop(void* prcv)
 							else
 							{
 								/* close the connection on memory allocation failure */
-								qsmp_log_write(qsmp_messages_allocate_fail, cadd);
+								qsms_log_write(qsms_messages_allocate_fail, cadd);
 								break;
 							}
 						}
 						else
 						{
 							/* close the connection on memory reallocation failure */
-							qsmp_log_write(qsmp_messages_allocate_fail, cadd);
+							qsms_log_write(qsms_messages_allocate_fail, cadd);
 							break;
 						}
 					}
@@ -215,7 +215,7 @@ static void server_receive_loop(void* prcv)
 			else
 			{
 				/* close the connection on memory allocation failure */
-				qsmp_log_write(qsmp_messages_allocate_fail, cadd);
+				qsms_log_write(qsms_messages_allocate_fail, cadd);
 			}
 
 			if (pprcv->disconnect_callback != NULL)
@@ -225,12 +225,12 @@ static void server_receive_loop(void* prcv)
 		}
 		else
 		{
-			qsmp_log_message(qsmp_messages_kex_fail);
+			qsms_log_message(qsms_messages_kex_fail);
 		}
 
 		if (pprcv != NULL)
 		{
-			qsmp_connections_reset(pprcv->pcns->cid);
+			qsms_connections_reset(pprcv->pcns->cid);
 			qsc_memutils_secure_erase(pprcv, sizeof(server_receiver_state));
 			qsc_memutils_alloc_free(pprcv);
 			pprcv = NULL;
@@ -238,30 +238,30 @@ static void server_receive_loop(void* prcv)
 	}
 	else
 	{
-		qsmp_log_message(qsmp_messages_allocate_fail);
+		qsms_log_message(qsms_messages_allocate_fail);
 	}
 }
 
-static qsmp_errors server_start(const qsmp_server_signature_key* kset, 
+static qsms_errors server_start(const qsms_server_signature_key* kset, 
 	const qsc_socket* source, 
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
-	void (*disconnect_callback)(qsmp_connection_state*))
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t),
+	void (*disconnect_callback)(qsms_connection_state*))
 {
-	QSMP_ASSERT(kset != NULL);
-	QSMP_ASSERT(source != NULL);
-	QSMP_ASSERT(receive_callback != NULL);
+	QSMS_ASSERT(kset != NULL);
+	QSMS_ASSERT(source != NULL);
+	QSMS_ASSERT(receive_callback != NULL);
 
 	qsc_socket_exceptions res;
-	qsmp_errors qerr;
+	qsms_errors qerr;
 
-	qerr = qsmp_error_none;
+	qerr = qsms_error_none;
 	qsc_async_atomic_bool_store(&m_server_pause, false);
 	qsc_async_atomic_bool_store(&m_server_run, true);
-	qsmp_connections_initialize(QSMP_CONNECTIONS_MAX);
+	qsms_connections_initialize(QSMS_CONNECTIONS_MAX);
 
 	do
 	{
-		qsmp_connection_state* cns = qsmp_connections_next();
+		qsms_connection_state* cns = qsms_connections_next();
 
 		if (cns != NULL)
 		{
@@ -279,34 +279,34 @@ static qsmp_errors server_start(const qsmp_server_signature_key* kset,
 					prcv->disconnect_callback = disconnect_callback;
 					prcv->receive_callback = receive_callback;
 
-					qsmp_log_write(qsmp_messages_connect_success, (const char*)cns->target.address);
+					qsms_log_write(qsms_messages_connect_success, (const char*)cns->target.address);
 					/* start the receive loop on a new thread */
 					qsc_async_thread_create(&server_receive_loop, prcv);
 					server_poll_sockets();
 				}
 				else
 				{
-					qsmp_connections_reset(cns->cid);
-					qerr = qsmp_error_memory_allocation;
-					qsmp_log_message(qsmp_messages_sockalloc_fail);
+					qsms_connections_reset(cns->cid);
+					qerr = qsms_error_memory_allocation;
+					qsms_log_message(qsms_messages_sockalloc_fail);
 				}
 			}
 			else
 			{
-				qsmp_connections_reset(cns->cid);
-				qerr = qsmp_error_accept_fail;
-				qsmp_log_message(qsmp_messages_accept_fail);
+				qsms_connections_reset(cns->cid);
+				qerr = qsms_error_accept_fail;
+				qsms_log_message(qsms_messages_accept_fail);
 			}
 		}
 		else
 		{
-			qerr = qsmp_error_hosts_exceeded;
-			qsmp_log_message(qsmp_messages_queue_empty);
+			qerr = qsms_error_hosts_exceeded;
+			qsms_log_message(qsms_messages_queue_empty);
 		}
 
 		while (qsc_async_atomic_bool_load(&m_server_pause) == true)
 		{
-			qsc_async_thread_sleep(QSMP_SERVER_PAUSE_INTERVAL);
+			qsc_async_thread_sleep(QSMS_SERVER_PAUSE_INTERVAL);
 		}
 	} 
 	while (qsc_async_atomic_bool_load(&m_server_run) == true);
@@ -317,23 +317,23 @@ static qsmp_errors server_start(const qsmp_server_signature_key* kset,
 
 /* Public Functions */
 
-void qsmp_server_pause(void)
+void qsms_server_pause(void)
 {
 	qsc_async_atomic_bool_store(&m_server_pause, true);
 }
 
-void qsmp_server_quit(void)
+void qsms_server_quit(void)
 {
 	size_t clen;
 	qsc_mutex mtx;
 
-	clen = qsmp_connections_size();
+	clen = qsms_connections_size();
 
 	for (size_t i = 0U; i < clen; ++i)
 	{
-		qsmp_connection_state* cns = qsmp_connections_index(i);
+		qsms_connection_state* cns = qsms_connections_index(i);
 
-		if (cns != NULL && qsmp_connections_active(i) == true)
+		if (cns != NULL && qsms_connections_active(i) == true)
 		{
 			mtx = qsc_async_mutex_lock_ex();
 
@@ -342,34 +342,34 @@ void qsmp_server_quit(void)
 				qsc_socket_close_socket(&cns->target);
 			}
 
-			qsmp_connections_reset(cns->cid);
+			qsms_connections_reset(cns->cid);
 
 			qsc_async_mutex_unlock_ex(mtx);
 		}
 	}
 
-	qsmp_connections_dispose();
+	qsms_connections_dispose();
 	qsc_async_atomic_bool_store(&m_server_run, false);
 }
 
-void qsmp_server_resume(void)
+void qsms_server_resume(void)
 {
 	qsc_async_atomic_bool_store(&m_server_pause, false);
 }
 
-qsmp_errors qsmp_server_start_ipv4(qsc_socket* source, 
-	const qsmp_server_signature_key* kset,
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
-	void (*disconnect_callback)(qsmp_connection_state*))
+qsms_errors qsms_server_start_ipv4(qsc_socket* source, 
+	const qsms_server_signature_key* kset,
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t),
+	void (*disconnect_callback)(qsms_connection_state*))
 {
-	QSMP_ASSERT(kset != NULL);
-	QSMP_ASSERT(receive_callback != NULL);
+	QSMS_ASSERT(kset != NULL);
+	QSMS_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv4_address addt = { 0 };
 	qsc_socket_exceptions res;
-	qsmp_errors qerr;
+	qsms_errors qerr;
 
-	qsmp_logger_initialize(NULL);
+	qsms_logger_initialize(NULL);
 
 	addt = qsc_ipinfo_ipv4_address_any();
 	qsc_socket_server_initialize(source);
@@ -377,7 +377,7 @@ qsmp_errors qsmp_server_start_ipv4(qsc_socket* source,
 
 	if (res == qsc_socket_exception_success)
 	{
-		res = qsc_socket_bind_ipv4(source, &addt, QSMP_SERVER_PORT);
+		res = qsc_socket_bind_ipv4(source, &addt, QSMS_SERVER_PORT);
 
 		if (res == qsc_socket_exception_success)
 		{
@@ -389,40 +389,40 @@ qsmp_errors qsmp_server_start_ipv4(qsc_socket* source,
 			}
 			else
 			{
-				qerr = qsmp_error_listener_fail;
-				qsmp_log_message(qsmp_messages_listener_fail);
+				qerr = qsms_error_listener_fail;
+				qsms_log_message(qsms_messages_listener_fail);
 			}
 		}
 		else
 		{
-			qerr = qsmp_error_connection_failure;
-			qsmp_log_message(qsmp_messages_bind_fail);
+			qerr = qsms_error_connection_failure;
+			qsms_log_message(qsms_messages_bind_fail);
 		}
 	}
 	else
 	{
-		qerr = qsmp_error_connection_failure;
-		qsmp_log_message(qsmp_messages_create_fail);
+		qerr = qsms_error_connection_failure;
+		qsms_log_message(qsms_messages_create_fail);
 	}
 
-	qsmp_logger_dispose();
+	qsms_logger_dispose();
 
 	return qerr;
 }
 
-qsmp_errors qsmp_server_start_ipv6(qsc_socket* source,
-	const qsmp_server_signature_key* kset,
-	void (*receive_callback)(qsmp_connection_state*, const uint8_t*, size_t),
-	void (*disconnect_callback)(qsmp_connection_state*))
+qsms_errors qsms_server_start_ipv6(qsc_socket* source,
+	const qsms_server_signature_key* kset,
+	void (*receive_callback)(qsms_connection_state*, const uint8_t*, size_t),
+	void (*disconnect_callback)(qsms_connection_state*))
 {
-	QSMP_ASSERT(kset != NULL);
-	QSMP_ASSERT(receive_callback != NULL);
+	QSMS_ASSERT(kset != NULL);
+	QSMS_ASSERT(receive_callback != NULL);
 
 	qsc_ipinfo_ipv6_address addt = { 0 };
 	qsc_socket_exceptions res;
-	qsmp_errors qerr;
+	qsms_errors qerr;
 
-	qsmp_logger_initialize(NULL);
+	qsms_logger_initialize(NULL);
 
 	addt = qsc_ipinfo_ipv6_address_any();
 	qsc_socket_server_initialize(source);
@@ -430,7 +430,7 @@ qsmp_errors qsmp_server_start_ipv6(qsc_socket* source,
 
 	if (res == qsc_socket_exception_success)
 	{
-		res = qsc_socket_bind_ipv6(source, &addt, QSMP_SERVER_PORT);
+		res = qsc_socket_bind_ipv6(source, &addt, QSMS_SERVER_PORT);
 
 		if (res == qsc_socket_exception_success)
 		{
@@ -442,23 +442,23 @@ qsmp_errors qsmp_server_start_ipv6(qsc_socket* source,
 			}
 			else
 			{
-				qerr = qsmp_error_listener_fail;
-				qsmp_log_message(qsmp_messages_listener_fail);
+				qerr = qsms_error_listener_fail;
+				qsms_log_message(qsms_messages_listener_fail);
 			}
 		}
 		else
 		{
-			qerr = qsmp_error_connection_failure;
-			qsmp_log_message(qsmp_messages_bind_fail);
+			qerr = qsms_error_connection_failure;
+			qsms_log_message(qsms_messages_bind_fail);
 		}
 	}
 	else
 	{
-		qerr = qsmp_error_connection_failure;
-		qsmp_log_message(qsmp_messages_create_fail);
+		qerr = qsms_error_connection_failure;
+		qsms_log_message(qsms_messages_create_fail);
 	}
 
-	qsmp_logger_dispose();
+	qsms_logger_dispose();
 
 	return qerr;
 }

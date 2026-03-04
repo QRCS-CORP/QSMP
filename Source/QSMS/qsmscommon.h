@@ -49,8 +49,8 @@
  * Contact: contact@qrcscorp.ca
  */
 
-#ifndef QSMP_MASTER_COMMON_H
-#define QSMP_MASTER_COMMON_H
+#ifndef QSMS_COMMON_H
+#define QSMS_COMMON_H
 
 #include "qsccommon.h"
 #include <assert.h>
@@ -62,69 +62,69 @@
 /**
 * \internal
 * \file common.h
-* \brief QSMP common includes and definitions
+* \brief QSMS common includes and definitions
 * \note These are internal definitions.
 */
 
 /** \cond DOXYGEN_IGNORE */
 
 /*!
-\def QSMP_DLL_API
+\def QSMS_DLL_API
 * \brief Enables the dll api exports
 */
 #if defined(_DLL)
-#	define QSMP_DLL_API
+#	define QSMS_DLL_API
 #endif
 /*!
-\def QSMP_EXPORT_API
+\def QSMS_EXPORT_API
 * \brief The api export prefix
 */
-#if defined(QSMP_DLL_API)
+#if defined(QSMS_DLL_API)
 #	if defined(QSC_SYSTEM_COMPILER_MSC)
-#		if defined(QSMP_DLL_IMPORT)
-#			define QSMP_EXPORT_API __declspec(dllimport)
+#		if defined(QSMS_DLL_IMPORT)
+#			define QSMS_EXPORT_API __declspec(dllimport)
 #		else
-#			define QSMP_EXPORT_API __declspec(dllexport)
+#			define QSMS_EXPORT_API __declspec(dllexport)
 #		endif
 #	elif defined(QSC_SYSTEM_COMPILER_GCC)
-#		if defined(QSMP_DLL_IMPORT)
-#		define QSMP_EXPORT_API __attribute__((dllimport))
+#		if defined(QSMS_DLL_IMPORT)
+#		define QSMS_EXPORT_API __attribute__((dllimport))
 #		else
-#		define QSMP_EXPORT_API __attribute__((dllexport))
+#		define QSMS_EXPORT_API __attribute__((dllexport))
 #		endif
 #	else
 #		if defined(__SUNPRO_C)
 #			if !defined(__GNU_C__)
-#				define QSMP_EXPORT_API __attribute__ (visibility(__global))
+#				define QSMS_EXPORT_API __attribute__ (visibility(__global))
 #			else
-#				define QSMP_EXPORT_API __attribute__ __global
+#				define QSMS_EXPORT_API __attribute__ __global
 #			endif
 #		elif defined(_MSG_VER)
-#			define QSMP_EXPORT_API extern __declspec(dllexport)
+#			define QSMS_EXPORT_API extern __declspec(dllexport)
 #		else
-#			define QSMP_EXPORT_API __attribute__ ((visibility ("default")))
+#			define QSMS_EXPORT_API __attribute__ ((visibility ("default")))
 #		endif
 #	endif
 #else
-#	define QSMP_EXPORT_API
+#	define QSMS_EXPORT_API
 #endif
 
 #if defined(DEBUG) || defined(_DEBUG) || defined(__DEBUG__) || (defined(__GNUC__) && !defined(__OPTIMIZE__))
   /*!
-   * \def QSMP_DEBUG_MODE
+   * \def QSMS_DEBUG_MODE
    * \brief Defined when the build is in debug mode.
    */
-#	define QSMP_DEBUG_MODE
+#	define QSMS_DEBUG_MODE
 #endif
 
-#ifdef QSMP_DEBUG_MODE
+#ifdef QSMS_DEBUG_MODE
   /*!
-   * \def QSMP_ASSERT
-   * \brief Define the QSMP_ASSERT function and guarantee it as debug only.
+   * \def QSMS_ASSERT
+   * \brief Define the QSMS_ASSERT function and guarantee it as debug only.
    */
-#  define QSMP_ASSERT(expr) assert(expr)
+#  define QSMS_ASSERT(expr) assert(expr)
 #else
-#  define QSMP_ASSERT(expr) ((void)0)
+#  define QSMS_ASSERT(expr) ((void)0)
 #endif
 
 /** \endcond DOXYGEN_IGNORE */

@@ -49,10 +49,10 @@
  * Contact: contact@qrcscorp.ca
  */
 
-#ifndef QSMP_SERVER_APP_H
-#define QSMP_SERVER_APP_H
+#ifndef QSMS_SERVER_APP_H
+#define QSMS_SERVER_APP_H
 
-#include "qsmpcommon.h"
+#include "qsmscommon.h"
 
 /**
 * \file appsrv.h
@@ -60,10 +60,10 @@
 * Version 1.2a: 2022-05-01
 */
 
-#define QSMP_SERVER_MAX_CLIENTS 8192
+#define QSMS_SERVER_MAX_CLIENTS 8192
 
-static const char QSMP_PUBKEY_NAME[] = "server_public_key.qpkey";
-static const char QSMP_PRIKEY_NAME[] = "server_secret_key.qskey";
-static const char QSMP_APP_PATH[] = "QSMP";
+static const char QSMS_PUBKEY_NAME[] = "server_public_key.qpkey";
+static const char QSMS_PRIKEY_NAME[] = "server_secret_key.qskey";
+static const char QSMS_APP_PATH[] = "QSMS";
 
 #endif

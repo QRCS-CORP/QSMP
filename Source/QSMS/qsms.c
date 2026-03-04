@@ -8,59 +8,59 @@
 #include "stringutils.h"
 #include "timestamp.h"
 
-#if defined(QSMP_CONFIG_DILITHIUM_KYBER)
+#if defined(QSMS_CONFIG_DILITHIUM_KYBER)
 #	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_KYBER_S1K2P512)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s1_kyber-s1_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s1_kyber-s1_sha3_rcs";
 #	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_KYBER_S3K3P768)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_kyber-s3_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s3_kyber-s3_sha3_rcs";
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S5K4P1024)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s5_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s5_kyber-s5_sha3_rcs";
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_KYBER_S6K5P1280)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_kyber-s6_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s5_kyber-s6_sha3_rcs";
 #	else
 #		error Invalid parameter set!
 #	endif
-#elif defined(QSMP_CONFIG_DILITHIUM_MCELIECE)
+#elif defined(QSMS_CONFIG_DILITHIUM_MCELIECE)
 #	if defined(QSC_DILITHIUM_S1P44) && defined(QSC_MCELIECE_S1N3488T64)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s1_mceliece-s1_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s1_mceliece-s1_sha3_rcs";
 #	elif defined(QSC_DILITHIUM_S3P65) && defined(QSC_MCELIECE_S3N4608T96)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s3_mceliece-s3_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s3_mceliece-s3_sha3_rcs";
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S5N6688T128)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s5_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s5_mceliece-s5_sha3_rcs";
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S6N6960T119)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s6_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s5_mceliece-s6_sha3_rcs";
 #	elif defined(QSC_DILITHIUM_S5P87) && defined(QSC_MCELIECE_S7N8192T128)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "dilithium-s5_mceliece-s7_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "dilithium-s5_mceliece-s7_sha3_rcs";
 #	else
 #		error Invalid parameter set!
 #	endif
-#elif defined(QSMP_CONFIG_SPHINCS_MCELIECE)
+#elif defined(QSMS_CONFIG_SPHINCS_MCELIECE)
 #	if defined(QSC_SPHINCSPLUS_S1S128SHAKERF) && defined(QSC_MCELIECE_S1N3488T64)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s1f_mceliece-s1_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-s1f_mceliece-s1_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S1S128SHAKERS) && defined(QSC_MCELIECE_S1N3488T64)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s1s_mceliece-s1_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-s1s_mceliece-s1_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERF) && defined(QSC_MCELIECE_S3N4608T96)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-3f_mceliece-s3_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-3f_mceliece-s3_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S3S192SHAKERS) && defined(QSC_MCELIECE_S3N4608T96)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-3s_mceliece-s3_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-3s_mceliece-s3_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF) && defined(QSC_MCELIECE_S5N6688T128)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s5_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-s5f_mceliece-s5_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS) && defined(QSC_MCELIECE_S5N6688T128)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s5_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-s5s_mceliece-s5_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF) && defined(QSC_MCELIECE_S6N6960T119)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s6_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-s5f_mceliece-s6_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS) && defined(QSC_MCELIECE_S6N6960T119)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s6_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-s5s_mceliece-s6_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERF) && defined(QSC_MCELIECE_S7N8192T128)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5f_mceliece-s7_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-s5f_mceliece-s7_sha3_rcs";
 #	elif defined(QSC_SPHINCSPLUS_S5S256SHAKERS) && defined(QSC_MCELIECE_S7N8192T128)
-const char QSMP_CONFIG_STRING[QSMP_CONFIG_SIZE] = "sphincs-s5s_mceliece-s7_sha3_rcs";
+const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE] = "sphincs-s5s_mceliece-s7_sha3_rcs";
 #	else
 #		error Invalid parameter set!
 #	endif
 #endif
 
-const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_WIDTH] =
+const char QSMS_ERROR_STRINGS[QSMS_ERROR_STRING_DEPTH][QSMS_ERROR_STRING_WIDTH] =
 {
 	"No error was detected",
 	"The socket accept function returned an error",
@@ -76,7 +76,7 @@ const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_WIDTH] 
 	"The server has run out of socket connections",
 	"The expected input was invalid",
 	"The decryption authentication has failed",
-	"The QSMP public key has expired ",
+	"The QSMS public key has expired ",
 	"The key identity is unrecognized",
 	"The ratchet operation has failed",
 	"The listener function failed to initialize",
@@ -91,7 +91,7 @@ const char QSMP_ERROR_STRINGS[QSMP_ERROR_STRING_DEPTH][QSMP_ERROR_STRING_WIDTH] 
 	"The remote host sent an error or disconnect message",
 };
 
-const char QSMP_MESSAGE_STRINGS[QSMP_MESSAGE_STRING_DEPTH][QSMP_MESSAGE_STRING_WIDTH] =
+const char QSMS_MESSAGE_STRINGS[QSMS_MESSAGE_STRING_DEPTH][QSMS_MESSAGE_STRING_WIDTH] =
 {
 	"The operation completed succesfully.",
 	"The socket server accept function failed.",
@@ -116,111 +116,9 @@ const char QSMP_MESSAGE_STRINGS[QSMP_MESSAGE_STRING_DEPTH][QSMP_MESSAGE_STRING_W
 	"The host received a symmetric ratchet request"
 };
 
-void qsmp_asymmetric_cipher_keypair_dispose(qsmp_asymmetric_cipher_keypair* keypair)
+void qsms_connection_close(qsms_connection_state* cns, qsms_errors err, bool notify)
 {
-	QSMP_ASSERT(keypair != NULL);
-
-	if (keypair != NULL)
-	{
-		if (keypair->prikey != NULL)
-		{
-			qsc_memutils_secure_erase(keypair->prikey, QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
-			qsc_memutils_alloc_free(keypair->prikey);
-			keypair->prikey = NULL;
-		}
-
-		if (keypair->pubkey != NULL)
-		{
-			qsc_memutils_secure_erase(keypair->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
-			qsc_memutils_alloc_free(keypair->pubkey);
-			keypair->pubkey = NULL;
-		}
-
-		qsc_memutils_alloc_free(keypair);
-		keypair = NULL;
-	}
-}
-
-qsmp_asymmetric_cipher_keypair* qsmp_asymmetric_cipher_keypair_initialize(void)
-{
-	qsmp_asymmetric_cipher_keypair* pkp;
-
-	pkp = qsc_memutils_malloc(sizeof(qsmp_asymmetric_cipher_keypair));
-
-	if (pkp != NULL)
-	{
-		pkp->prikey = qsc_memutils_malloc(QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
-
-		if (pkp->prikey != NULL)
-		{
-			qsc_memutils_clear(pkp->prikey, QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE);
-
-			pkp->pubkey = qsc_memutils_malloc(QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
-
-			if (pkp->pubkey != NULL)
-			{
-				qsc_memutils_clear(pkp->pubkey, QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE);
-			}
-		}
-	}
-
-	return pkp;
-}
-
-void qsmp_asymmetric_signature_keypair_dispose(qsmp_asymmetric_signature_keypair* keypair)
-{
-	QSMP_ASSERT(keypair != NULL);
-
-	if (keypair != NULL)
-	{
-		if (keypair->sigkey != NULL)
-		{
-			qsc_memutils_secure_erase(keypair->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
-			qsc_memutils_alloc_free(keypair->sigkey);
-			keypair->sigkey = NULL;
-		}
-
-		if (keypair->verkey != NULL)
-		{
-			qsc_memutils_secure_erase(keypair->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
-			qsc_memutils_alloc_free(keypair->verkey);
-			keypair->verkey = NULL;
-		}
-
-		qsc_memutils_alloc_free(keypair);
-		keypair = NULL;
-	}
-}
-
-qsmp_asymmetric_signature_keypair* qsmp_asymmetric_signature_keypair_initialize(void)
-{
-	qsmp_asymmetric_signature_keypair* pkp;
-
-	pkp = qsc_memutils_malloc(sizeof(qsmp_asymmetric_signature_keypair));
-
-	if (pkp != NULL)
-	{
-		pkp->sigkey = qsc_memutils_malloc(QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
-
-		if (pkp->sigkey != NULL)
-		{
-			qsc_memutils_clear(pkp->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
-
-			pkp->verkey = qsc_memutils_malloc(QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
-
-			if (pkp->verkey != NULL)
-			{
-				qsc_memutils_clear(pkp->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
-			}
-		}
-	}
-
-	return pkp;
-}
-
-void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool notify)
-{
-	QSMP_ASSERT(cns != NULL);
+	QSMS_ASSERT(cns != NULL);
 
 	if (cns != NULL)
 	{
@@ -228,29 +126,29 @@ void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool not
 		{
 			if (notify == true)
 			{
-				qsmp_network_packet resp = { 0U };
+				qsms_network_packet resp = { 0U };
 
 				/* build a disconnect message */
 				cns->txseq += 1U;
-				resp.flag = qsmp_flag_error_condition;
+				resp.flag = qsms_flag_error_condition;
 				resp.sequence = cns->txseq;
-				resp.msglen = QSMP_SIMPLEX_MACTAG_SIZE + 1U;
+				resp.msglen = QSMS_SIMPLEX_MACTAG_SIZE + 1U;
 				
-				qsmp_packet_set_utc_time(&resp);
+				qsms_packet_set_utc_time(&resp);
 
 				/* tunnel gets encrypted message */
-				if (cns->exflag == qsmp_flag_session_established)
+				if (cns->exflag == qsms_flag_session_established)
 				{
-					uint8_t spct[QSMP_HEADER_SIZE + QSMP_SIMPLEX_MACTAG_SIZE + 1U] = { 0U };
+					uint8_t spct[QSMS_HEADER_SIZE + QSMS_SIMPLEX_MACTAG_SIZE + 1U] = { 0U };
 					uint8_t pmsg[1U] = { 0U };
 
-					resp.pmessage = spct + QSMP_HEADER_SIZE;
-					qsmp_packet_header_serialize(&resp, spct);
+					resp.pmessage = spct + QSMS_HEADER_SIZE;
+					qsms_packet_header_serialize(&resp, spct);
 					/* the error is the message */
 					pmsg[0U] = (uint8_t)err;
 
 					/* add the header to aad */
-					qsc_rcs_set_associated(&cns->txcpr, spct, QSMP_HEADER_SIZE);
+					qsc_rcs_set_associated(&cns->txcpr, spct, QSMS_HEADER_SIZE);
 					/* encrypt the message */
 					qsc_rcs_transform(&cns->txcpr, resp.pmessage, pmsg, sizeof(pmsg));
 					/* send the message */
@@ -259,10 +157,10 @@ void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool not
 				else
 				{
 					/* pre-established phase */
-					uint8_t spct[QSMP_HEADER_SIZE + 1U] = { 0U };
+					uint8_t spct[QSMS_HEADER_SIZE + 1U] = { 0U };
 
-					qsmp_packet_header_serialize(&resp, spct);
-					spct[QSMP_HEADER_SIZE] = (uint8_t)err;
+					qsms_packet_header_serialize(&resp, spct);
+					spct[QSMS_HEADER_SIZE] = (uint8_t)err;
 					/* send the message */
 					qsc_socket_send(&cns->target, spct, sizeof(spct), qsc_socket_send_flag_none);
 				}
@@ -274,51 +172,48 @@ void qsmp_connection_close(qsmp_connection_state* cns, qsmp_errors err, bool not
 	}
 }
 
-bool qsmp_decrypt_error_message(qsmp_errors* merr, qsmp_connection_state* cns, const uint8_t* message)
+bool qsms_decrypt_error_message(qsms_errors* merr, qsms_connection_state* cns, const uint8_t* message)
 {
-	QSMP_ASSERT(merr != NULL);
-	QSMP_ASSERT(cns != NULL);
-	QSMP_ASSERT(message != NULL);
+	QSMS_ASSERT(merr != NULL);
+	QSMS_ASSERT(cns != NULL);
+	QSMS_ASSERT(message != NULL);
 
-	qsmp_network_packet pkt = { 0U };
+	qsms_network_packet pkt = { 0U };
 	uint8_t dmsg[1U] = { 0U };
 	const uint8_t* emsg;
 	size_t mlen;
-	qsmp_errors err;
+	qsms_errors err;
 	bool res;
 
 	mlen = 0U;
 	res = false;
-	err = qsmp_error_invalid_input;
+	err = qsms_error_invalid_input;
 
-	if (cns->exflag == qsmp_flag_session_established)
+	if (cns->exflag == qsms_flag_session_established)
 	{
-		qsmp_packet_header_deserialize(message, &pkt);
-		emsg = message + QSMP_HEADER_SIZE;
+		qsms_packet_header_deserialize(message, &pkt);
+		emsg = message + QSMS_HEADER_SIZE;
 
 		if (cns != NULL && message != NULL)
 		{
 			if (pkt.sequence == cns->rxseq + 1U)
 			{
-				if (cns->exflag == qsmp_flag_session_established)
+				/* anti-replay; verify the packet time */
+				if (qsms_packet_time_valid(&pkt) == true)
 				{
-					/* anti-replay; verify the packet time */
-					if (qsmp_packet_time_valid(&pkt) == true)
+					if (pkt.msglen > QSMS_SIMPLEX_MACTAG_SIZE)
 					{
-						if (pkt.msglen > QSMP_SIMPLEX_MACTAG_SIZE)
-						{
-							qsc_rcs_set_associated(&cns->rxcpr, message, QSMP_HEADER_SIZE);
-							mlen = pkt.msglen - QSMP_SIMPLEX_MACTAG_SIZE;
+						qsc_rcs_set_associated(&cns->rxcpr, message, QSMS_HEADER_SIZE);
+						mlen = pkt.msglen - QSMS_SIMPLEX_MACTAG_SIZE;
 
-							if (mlen == 1U)
+						if (mlen == 1U)
+						{
+							/* authenticate then decrypt the data */
+							if (qsc_rcs_transform(&cns->rxcpr, dmsg, emsg, mlen) == true)
 							{
-								/* authenticate then decrypt the data */
-								if (qsc_rcs_transform(&cns->rxcpr, dmsg, emsg, mlen) == true)
-								{
-									cns->rxseq += 1;
-									err = (qsmp_errors)dmsg[0U];
-									res = true;
-								}
+								cns->rxseq += 1;
+								err = (qsms_errors)dmsg[0U];
+								res = true;
 							}
 						}
 					}
@@ -332,41 +227,41 @@ bool qsmp_decrypt_error_message(qsmp_errors* merr, qsmp_connection_state* cns, c
 	return res;
 }
 
-void qsmp_connection_state_dispose(qsmp_connection_state* cns)
+void qsms_connection_state_dispose(qsms_connection_state* cns)
 {
-	QSMP_ASSERT(cns != NULL);
+	QSMS_ASSERT(cns != NULL);
 
 	if (cns != NULL)
 	{
 		qsc_rcs_dispose(&cns->rxcpr);
 		qsc_rcs_dispose(&cns->txcpr);
 		qsc_memutils_secure_erase((uint8_t*)&cns->target, sizeof(qsc_socket));
-		qsc_memutils_secure_erase(&cns->rtcs, QSMP_SIMPLEX_SYMMETRIC_KEY_SIZE);
+		qsc_memutils_secure_erase(&cns->rtcs, QSMS_SIMPLEX_SYMMETRIC_KEY_SIZE);
 		cns->rxseq = 0U;
 		cns->txseq = 0U;
 		cns->cid = 0U;
-		cns->exflag = qsmp_flag_none;
+		cns->exflag = qsms_flag_none;
 		cns->receiver = false;
 	}
 }
 
-const char* qsmp_error_to_string(qsmp_errors error)
+const char* qsms_error_to_string(qsms_errors error)
 {
 	const char* dsc;
 
 	dsc = NULL;
 
-	if ((size_t)error < QSMP_ERROR_STRING_DEPTH && error >= 0)
+	if ((size_t)error < QSMS_ERROR_STRING_DEPTH && error >= 0)
 	{
-		dsc = QSMP_ERROR_STRINGS[(size_t)error];
+		dsc = QSMS_ERROR_STRINGS[(size_t)error];
 	}
 
 	return dsc;
 }
 
-void qsmp_header_create(qsmp_network_packet* packetout, qsmp_flags flag, uint64_t sequence, uint32_t msglen)
+void qsms_header_create(qsms_network_packet* packetout, qsms_flags flag, uint64_t sequence, uint32_t msglen)
 {
-	QSMP_ASSERT(packetout != NULL);
+	QSMS_ASSERT(packetout != NULL);
 
 	if (packetout != NULL)
 	{
@@ -374,33 +269,33 @@ void qsmp_header_create(qsmp_network_packet* packetout, qsmp_flags flag, uint64_
 		packetout->sequence = sequence;
 		packetout->msglen = msglen;
 		/* set the packet creation time */
-		qsmp_packet_set_utc_time(packetout);
+		qsms_packet_set_utc_time(packetout);
 	}
 }
 
-qsmp_errors qsmp_header_validate(qsmp_connection_state* cns, const qsmp_network_packet* packetin, qsmp_flags kexflag, qsmp_flags pktflag, uint64_t sequence, uint32_t msglen)
+qsms_errors qsms_header_validate(qsms_connection_state* cns, const qsms_network_packet* packetin, qsms_flags kexflag, qsms_flags pktflag, uint64_t sequence, uint32_t msglen)
 {
-	QSMP_ASSERT(cns != NULL);
-	QSMP_ASSERT(packetin != NULL);
+	QSMS_ASSERT(cns != NULL);
+	QSMS_ASSERT(packetin != NULL);
 
-	qsmp_errors merr;
+	qsms_errors merr;
 
 	if (cns != NULL && packetin != NULL)
 	{
-		if (packetin->flag == qsmp_flag_error_condition)
+		if (packetin->flag == qsms_flag_error_condition)
 		{
 			if (packetin->pmessage != NULL)
 			{
-				merr = (qsmp_errors)packetin->pmessage[0U];
+				merr = (qsms_errors)packetin->pmessage[0U];
 			}
 			else
 			{
-				merr = qsmp_error_invalid_request;
+				merr = qsms_error_invalid_request;
 			}
 		}
 		else
 		{
-			if (qsmp_packet_time_valid(packetin) == true)
+			if (qsms_packet_time_valid(packetin) == true)
 			{
 				if (packetin->msglen == msglen)
 				{
@@ -411,31 +306,31 @@ qsmp_errors qsmp_header_validate(qsmp_connection_state* cns, const qsmp_network_
 							if (cns->exflag == kexflag)
 							{
 								cns->rxseq += 1U;
-								merr = qsmp_error_none;
+								merr = qsms_error_none;
 							}
 							else
 							{
-								merr = qsmp_error_invalid_request;
+								merr = qsms_error_invalid_request;
 							}
 						}
 						else
 						{
-							merr = qsmp_error_invalid_request;
+							merr = qsms_error_invalid_request;
 						}
 					}
 					else
 					{
-						merr = qsmp_error_packet_unsequenced;
+						merr = qsms_error_packet_unsequenced;
 					}
 				}
 				else
 				{
-					merr = qsmp_error_receive_failure;
+					merr = qsms_error_receive_failure;
 				}
 			}
 			else
 			{
-				merr = qsmp_error_message_time_invalid;
+				merr = qsms_error_message_time_invalid;
 			}
 		}
 	}
@@ -443,56 +338,56 @@ qsmp_errors qsmp_header_validate(qsmp_connection_state* cns, const qsmp_network_
 	return merr;
 }
 
-void qsmp_generate_keypair(qsmp_client_verification_key* pubkey, qsmp_server_signature_key* prikey, const uint8_t* keyid)
+void qsms_generate_keypair(qsms_client_verification_key* pubkey, qsms_server_signature_key* prikey, const uint8_t* keyid)
 {
-	QSMP_ASSERT(prikey != NULL);
-	QSMP_ASSERT(pubkey != NULL);
-	QSMP_ASSERT(keyid != NULL);
+	QSMS_ASSERT(prikey != NULL);
+	QSMS_ASSERT(pubkey != NULL);
+	QSMS_ASSERT(keyid != NULL);
 
 	if (prikey != NULL && pubkey != NULL && keyid != NULL)
 	{
 		/* add the timestamp plus duration to the key */
-		prikey->expiration = qsc_timestamp_datetime_utc() + QSMP_PUBKEY_DURATION_SECONDS;
+		prikey->expiration = qsc_timestamp_datetime_utc() + QSMS_PUBKEY_DURATION_SECONDS;
 
 		/* set the configuration string and key-identity strings */
-		qsc_memutils_copy(prikey->config, QSMP_CONFIG_STRING, QSMP_CONFIG_SIZE);
-		qsc_memutils_copy(prikey->keyid, keyid, QSMP_KEYID_SIZE);
+		qsc_memutils_copy(prikey->config, QSMS_CONFIG_STRING, QSMS_CONFIG_SIZE);
+		qsc_memutils_copy(prikey->keyid, keyid, QSMS_KEYID_SIZE);
 
 		/* generate the signature key-pair */
-		qsmp_signature_generate_keypair(prikey->verkey, prikey->sigkey, qsc_acp_generate);
+		qsms_signature_generate_keypair(prikey->verkey, prikey->sigkey, qsc_acp_generate);
 
 		/* copy the key expiration, config, key-id, and the signatures verification key, to the public key structure */
 		pubkey->expiration = prikey->expiration;
-		qsc_memutils_copy(pubkey->config, prikey->config, QSMP_CONFIG_SIZE);
-		qsc_memutils_copy(pubkey->keyid, prikey->keyid, QSMP_KEYID_SIZE);
-		qsc_memutils_copy(pubkey->verkey, prikey->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+		qsc_memutils_copy(pubkey->config, prikey->config, QSMS_CONFIG_SIZE);
+		qsc_memutils_copy(pubkey->keyid, prikey->keyid, QSMS_KEYID_SIZE);
+		qsc_memutils_copy(pubkey->verkey, prikey->verkey, QSMS_ASYMMETRIC_VERIFY_KEY_SIZE);
 	}
 }
 
-const char* qsmp_get_error_description(qsmp_messages emsg)
+const char* qsms_get_error_description(qsms_messages emsg)
 {
 	const char* dsc;
 
 	dsc = NULL;
 
-	if ((size_t)emsg < QSMP_MESSAGE_STRING_DEPTH && emsg >= 0U)
+	if ((size_t)emsg < QSMS_MESSAGE_STRING_DEPTH && emsg >= 0U)
 	{
-		dsc = QSMP_MESSAGE_STRINGS[(size_t)emsg];
+		dsc = QSMS_MESSAGE_STRINGS[(size_t)emsg];
 	}
 
 	return dsc;
 }
 
-void qsmp_log_error(qsmp_messages emsg, qsc_socket_exceptions err, const char* msg)
+void qsms_log_error(qsms_messages emsg, qsc_socket_exceptions err, const char* msg)
 {
-	QSMP_ASSERT(msg != NULL);
+	QSMS_ASSERT(msg != NULL);
 
-	char mtmp[QSMP_ERROR_STRING_WIDTH * 2] = { 0 };
+	char mtmp[QSMS_ERROR_STRING_WIDTH * 2] = { 0 };
 	const char* perr;
 	const char* phdr;
 	const char* pmsg;
 
-	pmsg = qsmp_get_error_description(emsg);
+	pmsg = qsms_get_error_description(emsg);
 
 	if (pmsg != NULL)
 	{
@@ -500,15 +395,15 @@ void qsmp_log_error(qsmp_messages emsg, qsc_socket_exceptions err, const char* m
 		{
 			qsc_stringutils_copy_string(mtmp, sizeof(mtmp), pmsg);
 			qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), msg);
-			qsmp_logger_write(mtmp);
+			qsms_logger_write(mtmp);
 		}
 		else
 		{
-			qsmp_logger_write(pmsg);
+			qsms_logger_write(pmsg);
 		}
 	}
 
-	phdr = qsmp_get_error_description(qsmp_messages_socket_message);
+	phdr = qsms_get_error_description(qsms_messages_socket_message);
 	perr = qsc_socket_error_to_string(err);
 
 	if (pmsg != NULL && perr != NULL)
@@ -516,66 +411,66 @@ void qsmp_log_error(qsmp_messages emsg, qsc_socket_exceptions err, const char* m
 		qsc_stringutils_clear_string(mtmp);
 		qsc_stringutils_copy_string(mtmp, sizeof(mtmp), phdr);
 		qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), perr);
-		qsmp_logger_write(mtmp);
+		qsms_logger_write(mtmp);
 	}
 }
 
-void qsmp_log_message(qsmp_messages emsg)
+void qsms_log_message(qsms_messages emsg)
 {
-	const char* msg = qsmp_get_error_description(emsg);
+	const char* msg = qsms_get_error_description(emsg);
 
 	if (msg != NULL)
 	{
-		qsmp_logger_write(msg);
+		qsms_logger_write(msg);
 	}
 }
 
-void qsmp_log_system_error(qsmp_errors err)
+void qsms_log_system_error(qsms_errors err)
 {
-	char mtmp[QSMP_ERROR_STRING_WIDTH * 2U] = { 0 };
+	char mtmp[QSMS_ERROR_STRING_WIDTH * 2U] = { 0 };
 	const char* perr;
 	const char* pmsg;
 
-	perr = qsmp_error_to_string(qsmp_messages_system_message);
-	pmsg = qsmp_error_to_string(err);
+	pmsg = qsms_get_error_description(qsms_messages_system_message);
+	perr = qsms_error_to_string(err);
 
-	qsc_stringutils_copy_string(mtmp, sizeof(mtmp), perr);
+	qsc_stringutils_copy_string(mtmp, sizeof(mtmp), pmsg);
 	qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), ": ");
-	qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), pmsg);
+	qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), perr);
 
-	qsmp_logger_write(mtmp);
+	qsms_logger_write(mtmp);
 }
 
-void qsmp_log_write(qsmp_messages emsg, const char* msg)
+void qsms_log_write(qsms_messages emsg, const char* msg)
 {
-	QSMP_ASSERT(msg != NULL);
+	QSMS_ASSERT(msg != NULL);
 
-	const char* pmsg = qsmp_get_error_description(emsg);
+	const char* pmsg = qsms_get_error_description(emsg);
 
 	if (pmsg != NULL)
 	{
 		if (msg != NULL)
 		{
-			char mtmp[QSMP_ERROR_STRING_WIDTH + 1U] = { 0 };
+			char mtmp[QSMS_ERROR_STRING_WIDTH + 1U] = { 0 };
 
 			qsc_stringutils_copy_string(mtmp, sizeof(mtmp), pmsg);
 
 			if ((qsc_stringutils_string_size(msg) + qsc_stringutils_string_size(mtmp)) < sizeof(mtmp))
 			{
 				qsc_stringutils_concat_strings(mtmp, sizeof(mtmp), msg);
-				qsmp_logger_write(mtmp);
+				qsms_logger_write(mtmp);
 			}
 		}
 		else
 		{
-			qsmp_logger_write(pmsg);
+			qsms_logger_write(pmsg);
 		}
 	}
 }
 
-void qsmp_packet_clear(qsmp_network_packet* packet)
+void qsms_packet_clear(qsms_network_packet* packet)
 {
-	QSMP_ASSERT(packet != NULL);
+	QSMS_ASSERT(packet != NULL);
 
 	if (packet != NULL)
 	{
@@ -584,171 +479,171 @@ void qsmp_packet_clear(qsmp_network_packet* packet)
 			qsc_memutils_secure_erase(packet->pmessage, packet->msglen);
 		}
 
-		packet->flag = (uint8_t)qsmp_flag_none;
+		packet->flag = (uint8_t)qsms_flag_none;
 		packet->msglen = 0U;
 		packet->sequence = 0U;
 		packet->utctime = 0U;
 	}
 }
 
-qsmp_errors qsmp_packet_decrypt(qsmp_connection_state* cns, uint8_t* message, size_t* msglen, const qsmp_network_packet* packetin)
+qsms_errors qsms_packet_decrypt(qsms_connection_state* cns, uint8_t* message, size_t* msglen, const qsms_network_packet* packetin)
 {
-	QSMP_ASSERT(cns != NULL);
-	QSMP_ASSERT(packetin != NULL);
-	QSMP_ASSERT(message != NULL);
-	QSMP_ASSERT(msglen != NULL);
+	QSMS_ASSERT(cns != NULL);
+	QSMS_ASSERT(packetin != NULL);
+	QSMS_ASSERT(message != NULL);
+	QSMS_ASSERT(msglen != NULL);
 
-	uint8_t hdr[QSMP_HEADER_SIZE] = { 0U };
-	qsmp_errors qerr;
+	uint8_t hdr[QSMS_HEADER_SIZE] = { 0U };
+	qsms_errors qerr;
 
-	qerr = qsmp_error_invalid_input;
+	qerr = qsms_error_invalid_input;
 	*msglen = 0U;
 
 	if (cns != NULL && message != NULL && msglen != NULL && packetin != NULL)
 	{
 		if (packetin->sequence == cns->rxseq + 1U)
 		{
-			if (cns->exflag == qsmp_flag_session_established)
+			if (cns->exflag == qsms_flag_session_established)
 			{
-				if (qsmp_packet_time_valid(packetin) == true)
+				if (qsms_packet_time_valid(packetin) == true)
 				{
-					if (packetin->msglen > QSMP_SIMPLEX_MACTAG_SIZE)
+					if (packetin->msglen > QSMS_SIMPLEX_MACTAG_SIZE)
 					{
 						/* serialize the header and add it to the ciphers associated data */
-						qsmp_packet_header_serialize(packetin, hdr);
+						qsms_packet_header_serialize(packetin, hdr);
 
-						qsc_rcs_set_associated(&cns->rxcpr, hdr, QSMP_HEADER_SIZE);
-						*msglen = (size_t)packetin->msglen - QSMP_SIMPLEX_MACTAG_SIZE;
+						qsc_rcs_set_associated(&cns->rxcpr, hdr, QSMS_HEADER_SIZE);
+						*msglen = (size_t)packetin->msglen - QSMS_SIMPLEX_MACTAG_SIZE;
 
 						/* authenticate then decrypt the data */
 						if (qsc_rcs_transform(&cns->rxcpr, message, packetin->pmessage, *msglen) == true)
 						{
 							cns->rxseq += 1U;
-							qerr = qsmp_error_none;
+							qerr = qsms_error_none;
 						}
 						else
 						{
 							*msglen = 0U;
-							qerr = qsmp_error_authentication_failure;
+							qerr = qsms_error_authentication_failure;
 						}
 					}
 					else
 					{
 						*msglen = 0U;
-						qerr = qsmp_error_receive_failure;
+						qerr = qsms_error_receive_failure;
 					}
 				}
 				else
 				{
-					qerr = qsmp_error_message_time_invalid;
+					qerr = qsms_error_message_time_invalid;
 				}
 			}
 			else
 			{
-				qerr = qsmp_error_channel_down;
+				qerr = qsms_error_channel_down;
 			}
 		}
 		else
 		{
-			qerr = qsmp_error_packet_unsequenced;
+			qerr = qsms_error_packet_unsequenced;
 		}
 	}
 
 	return qerr;
 }
 
-qsmp_errors qsmp_packet_encrypt(qsmp_connection_state* cns, qsmp_network_packet* packetout, const uint8_t* message, size_t msglen)
+qsms_errors qsms_packet_encrypt(qsms_connection_state* cns, qsms_network_packet* packetout, const uint8_t* message, size_t msglen)
 {
-	QSMP_ASSERT(cns != NULL);
-	QSMP_ASSERT(message != NULL);
-	QSMP_ASSERT(packetout != NULL);
+	QSMS_ASSERT(cns != NULL);
+	QSMS_ASSERT(message != NULL);
+	QSMS_ASSERT(packetout != NULL);
 
-	qsmp_errors qerr;
+	qsms_errors qerr;
 
-	qerr = qsmp_error_invalid_input;
+	qerr = qsms_error_invalid_input;
 
 	if (cns != NULL && message != NULL && packetout != NULL)
 	{
-		if (cns->exflag == qsmp_flag_session_established && msglen != 0)
+		if (cns->exflag == qsms_flag_session_established && msglen != 0)
 		{
-			uint8_t hdr[QSMP_HEADER_SIZE] = { 0U };
+			uint8_t hdr[QSMS_HEADER_SIZE] = { 0U };
 
 			/* assemble the encryption packet */
 			cns->txseq += 1U;
-			qsmp_header_create(packetout, qsmp_flag_encrypted_message, cns->txseq, (uint32_t)msglen + QSMP_SIMPLEX_MACTAG_SIZE);
+			qsms_header_create(packetout, qsms_flag_encrypted_message, cns->txseq, (uint32_t)msglen + QSMS_SIMPLEX_MACTAG_SIZE);
 
 			/* serialize the header and add it to the ciphers associated data */
-			qsmp_packet_header_serialize(packetout, hdr);
-			qsc_rcs_set_associated(&cns->txcpr, hdr, QSMP_HEADER_SIZE);
+			qsms_packet_header_serialize(packetout, hdr);
+			qsc_rcs_set_associated(&cns->txcpr, hdr, QSMS_HEADER_SIZE);
 			/* encrypt the message */
 			(void)qsc_rcs_transform(&cns->txcpr, packetout->pmessage, message, msglen);
 
-			qerr = qsmp_error_none;
+			qerr = qsms_error_none;
 		}
 		else
 		{
-			qerr = qsmp_error_channel_down;
+			qerr = qsms_error_channel_down;
 		}
 	}
 
 	return qerr;
 }
 
-void qsmp_packet_error_message(qsmp_network_packet* packet, qsmp_errors error)
+void qsms_packet_error_message(qsms_network_packet* packet, qsms_errors error)
 {
-	QSMP_ASSERT(packet != NULL);
+	QSMS_ASSERT(packet != NULL);
 
 	if (packet != NULL)
 	{
-		packet->flag = qsmp_flag_error_condition;
-		packet->msglen = QSMP_ERROR_MESSAGE_SIZE;
-		packet->sequence = QSMP_ERROR_SEQUENCE;
+		packet->flag = qsms_flag_error_condition;
+		packet->msglen = QSMS_ERROR_MESSAGE_SIZE;
+		packet->sequence = QSMS_ERROR_SEQUENCE;
 		packet->pmessage[0U] = (uint8_t)error;
-		qsmp_packet_set_utc_time(packet);
+		qsms_packet_set_utc_time(packet);
 	}
 }
 
-void qsmp_packet_header_deserialize(const uint8_t* header, qsmp_network_packet* packet)
+void qsms_packet_header_deserialize(const uint8_t* header, qsms_network_packet* packet)
 {
-	QSMP_ASSERT(header != NULL);
-	QSMP_ASSERT(packet != NULL);
+	QSMS_ASSERT(header != NULL);
+	QSMS_ASSERT(packet != NULL);
 
 	if (header != NULL && packet != NULL)
 	{
 		size_t pos;
 
 		packet->flag = header[0U];
-		pos = QSMP_FLAG_SIZE;
+		pos = QSMS_FLAG_SIZE;
 		packet->msglen = qsc_intutils_le8to32(header + pos);
-		pos += QSMP_MSGLEN_SIZE;
+		pos += QSMS_MSGLEN_SIZE;
 		packet->sequence = qsc_intutils_le8to64(header + pos);
-		pos += QSMP_SEQUENCE_SIZE;
+		pos += QSMS_SEQUENCE_SIZE;
 		packet->utctime = qsc_intutils_le8to64(header + pos);
 	}
 }
 
-void qsmp_packet_header_serialize(const qsmp_network_packet* packet, uint8_t* header)
+void qsms_packet_header_serialize(const qsms_network_packet* packet, uint8_t* header)
 {
-	QSMP_ASSERT(header != NULL);
-	QSMP_ASSERT(packet != NULL);
+	QSMS_ASSERT(header != NULL);
+	QSMS_ASSERT(packet != NULL);
 
 	if (header != NULL && packet != NULL)
 	{
 		size_t pos;
 
 		header[0U] = packet->flag;
-		pos = QSMP_FLAG_SIZE;
+		pos = QSMS_FLAG_SIZE;
 		qsc_intutils_le32to8(header + pos, packet->msglen);
-		pos += QSMP_MSGLEN_SIZE;
+		pos += QSMS_MSGLEN_SIZE;
 		qsc_intutils_le64to8(header + pos, packet->sequence);
-		pos += QSMP_SEQUENCE_SIZE;
+		pos += QSMS_SEQUENCE_SIZE;
 		qsc_intutils_le64to8(header + pos, packet->utctime);
 	}
 }
 
-void qsmp_packet_set_utc_time(qsmp_network_packet* packet)
+void qsms_packet_set_utc_time(qsms_network_packet* packet)
 {
-	QSMP_ASSERT(packet != NULL);
+	QSMS_ASSERT(packet != NULL);
 
 	if (packet != NULL)
 	{
@@ -756,9 +651,9 @@ void qsmp_packet_set_utc_time(qsmp_network_packet* packet)
 	}
 }
 
-bool qsmp_packet_time_valid(const qsmp_network_packet* packet)
+bool qsms_packet_time_valid(const qsms_network_packet* packet)
 {
-	QSMP_ASSERT(packet != NULL);
+	QSMS_ASSERT(packet != NULL);
 
 	uint64_t ltime;
 	bool res;
@@ -771,20 +666,20 @@ bool qsmp_packet_time_valid(const qsmp_network_packet* packet)
 
 		/* two-way variance to account for differences in system clocks */
 		if (ltime > 0U && ltime < UINT64_MAX &&
-			UINT64_MAX - packet->utctime >= QSMP_PACKET_TIME_THRESHOLD &&
-			packet->utctime >= QSMP_PACKET_TIME_THRESHOLD)
+			UINT64_MAX - packet->utctime >= QSMS_PACKET_TIME_THRESHOLD &&
+			packet->utctime >= QSMS_PACKET_TIME_THRESHOLD)
 		{
-			res = (ltime >= packet->utctime - QSMP_PACKET_TIME_THRESHOLD && ltime <= packet->utctime + QSMP_PACKET_TIME_THRESHOLD);
+			res = (ltime >= packet->utctime - QSMS_PACKET_TIME_THRESHOLD && ltime <= packet->utctime + QSMS_PACKET_TIME_THRESHOLD);
 		}
 	}
 
 	return res;
 }
 
-bool qsmp_public_key_compare(const qsmp_client_verification_key* a, const qsmp_client_verification_key* b)
+bool qsms_public_key_compare(const qsms_client_verification_key* a, const qsms_client_verification_key* b)
 {
-	QSMP_ASSERT(a != NULL);
-	QSMP_ASSERT(b != NULL);
+	QSMS_ASSERT(a != NULL);
+	QSMS_ASSERT(b != NULL);
 
 	bool res;
 
@@ -794,11 +689,11 @@ bool qsmp_public_key_compare(const qsmp_client_verification_key* a, const qsmp_c
 	{
 		if (a->expiration == b->expiration)
 		{
-			if (qsc_memutils_are_equal(a->config, b->config, QSMP_CONFIG_SIZE) == true)
+			if (qsc_memutils_are_equal(a->config, b->config, QSMS_CONFIG_SIZE) == true)
 			{
-				if (qsc_memutils_are_equal(a->keyid, b->keyid, QSMP_KEYID_SIZE) == true)
+				if (qsc_memutils_are_equal(a->keyid, b->keyid, QSMS_KEYID_SIZE) == true)
 				{
-					res = qsc_memutils_are_equal(a->verkey, b->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+					res = qsc_memutils_are_equal(a->verkey, b->verkey, QSMS_ASYMMETRIC_VERIFY_KEY_SIZE);
 				}
 			}
 		}
@@ -807,10 +702,10 @@ bool qsmp_public_key_compare(const qsmp_client_verification_key* a, const qsmp_c
 	return res;
 }
 
-bool qsmp_public_key_decode(qsmp_client_verification_key* pubk, const char* enck, size_t enclen)
+bool qsms_public_key_decode(qsms_client_verification_key* pubk, const char* enck, size_t enclen)
 {
-	QSMP_ASSERT(pubk != NULL);
-	QSMP_ASSERT(enck != NULL);
+	QSMS_ASSERT(pubk != NULL);
+	QSMS_ASSERT(enck != NULL);
 
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
 	char* pvk;
@@ -823,38 +718,38 @@ bool qsmp_public_key_decode(qsmp_client_verification_key* pubk, const char* enck
 
 	if (pubk != NULL && enck != NULL)
 	{
-		spos = sizeof(QSMP_PUBKEY_HEADER) - 1U;
+		spos = sizeof(QSMS_PUBKEY_HEADER) - 1U;
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_VERSION) - 1U;
+		slen = sizeof(QSMS_PUBKEY_VERSION) - 1U;
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1U;
+		spos += sizeof(QSMS_PUBKEY_CONFIG_PREFIX) - 1U;
 		slen = qsc_stringutils_find_char(enck + spos, '\n');
 		qsc_memutils_copy(pubk->config, enck + spos, slen);
 		spos += slen;
 		++spos;
 
-		spos += sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1U;
-		qsc_intutils_hex_to_bin(enck + spos, pubk->keyid, QSMP_KEYID_SIZE);
-		spos += (QSMP_KEYID_SIZE * 2U);
+		spos += sizeof(QSMS_PUBKEY_KEYID_PREFIX) - 1U;
+		qsc_intutils_hex_to_bin(enck + spos, pubk->keyid, QSMS_KEYID_SIZE);
+		spos += (QSMS_KEYID_SIZE * 2U);
 		++spos;
 
-		spos += sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1U;
+		spos += sizeof(QSMS_PUBKEY_EXPIRATION_PREFIX) - 1U;
 		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
 		qsc_memutils_copy(dtm, enck + spos, slen);
 		spos += QSC_TIMESTAMP_STRING_SIZE;
 		pubk->expiration = qsc_timestamp_datetime_to_seconds(dtm);
 
-		elen = qsc_encoding_base64_encoded_size(QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+		elen = qsc_encoding_base64_encoded_size(QSMS_ASYMMETRIC_VERIFY_KEY_SIZE);
 		pvk = qsc_memutils_malloc(elen);
 
 		if (pvk != NULL)
 		{
 			qsc_memutils_clear(pvk, elen);
 			elen = qsc_stringutils_remove_line_breaks(pvk, elen, enck + spos, enclen - spos);
-			res = qsc_encoding_base64_decode(pubk->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE, pvk, elen);
+			res = qsc_encoding_base64_decode(pubk->verkey, QSMS_ASYMMETRIC_VERIFY_KEY_SIZE, pvk, elen);
 			qsc_memutils_alloc_free(pvk);
 		}
 	}
@@ -862,13 +757,13 @@ bool qsmp_public_key_decode(qsmp_client_verification_key* pubk, const char* enck
 	return res;
 }
 
-size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verification_key* pubk)
+size_t qsms_public_key_encode(char* enck, size_t enclen, const qsms_client_verification_key* pubk)
 {
-	QSMP_ASSERT(enck != NULL);
-	QSMP_ASSERT(pubk != NULL);
+	QSMS_ASSERT(enck != NULL);
+	QSMS_ASSERT(pubk != NULL);
 
-	char dtm[QSMP_TIMESTAMP_STRING_SIZE] = { 0 };
-	char hexid[(QSMP_KEYID_SIZE * 2U)] = { 0 };
+	char dtm[QSMS_TIMESTAMP_STRING_SIZE] = { 0 };
+	char hexid[(QSMS_KEYID_SIZE * 2U)] = { 0 };
 	char* prvs;
 	size_t elen;
 	size_t slen;
@@ -878,39 +773,39 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 
 	if (enck != NULL && pubk != NULL)
 	{
-		slen = sizeof(QSMP_PUBKEY_HEADER) - 1U;
-		qsc_memutils_copy(enck, QSMP_PUBKEY_HEADER, slen);
+		slen = sizeof(QSMS_PUBKEY_HEADER) - 1U;
+		qsc_memutils_copy(enck, QSMS_PUBKEY_HEADER, slen);
 		spos = slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_VERSION) - 1U;
-		qsc_memutils_copy(enck + spos, QSMP_PUBKEY_VERSION, slen);
+		slen = sizeof(QSMS_PUBKEY_VERSION) - 1U;
+		qsc_memutils_copy(enck + spos, QSMS_PUBKEY_VERSION, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1U;
-		qsc_memutils_copy(enck + spos, QSMP_PUBKEY_CONFIG_PREFIX, slen);
+		slen = sizeof(QSMS_PUBKEY_CONFIG_PREFIX) - 1U;
+		qsc_memutils_copy(enck + spos, QSMS_PUBKEY_CONFIG_PREFIX, slen);
 		spos += slen;
-		slen = qsc_stringutils_string_size(QSMP_CONFIG_STRING);
-		qsc_memutils_copy(enck + spos, QSMP_CONFIG_STRING, slen);
+		slen = qsc_stringutils_string_size(QSMS_CONFIG_STRING);
+		qsc_memutils_copy(enck + spos, QSMS_CONFIG_STRING, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1U;
-		qsc_memutils_copy(enck + spos, QSMP_PUBKEY_KEYID_PREFIX, slen);
+		slen = sizeof(QSMS_PUBKEY_KEYID_PREFIX) - 1U;
+		qsc_memutils_copy(enck + spos, QSMS_PUBKEY_KEYID_PREFIX, slen);
 		spos += slen;
-		qsc_intutils_bin_to_hex(pubk->keyid, hexid, QSMP_KEYID_SIZE);
+		qsc_intutils_bin_to_hex(pubk->keyid, hexid, QSMS_KEYID_SIZE);
 		slen = sizeof(hexid);
 		qsc_memutils_copy(enck + spos, hexid, slen);
 		spos += slen;
 		enck[spos] = '\n';
 		++spos;
 
-		slen = sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1U;
-		qsc_memutils_copy(enck + spos, QSMP_PUBKEY_EXPIRATION_PREFIX, slen);
+		slen = sizeof(QSMS_PUBKEY_EXPIRATION_PREFIX) - 1U;
+		qsc_memutils_copy(enck + spos, QSMS_PUBKEY_EXPIRATION_PREFIX, slen);
 		spos += slen;
 		qsc_timestamp_seconds_to_datetime(pubk->expiration, dtm);
 		slen = QSC_TIMESTAMP_STRING_SIZE - 1U;
@@ -919,7 +814,7 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 		enck[spos] = '\n';
 		++spos;
 
-		slen = QSMP_ASYMMETRIC_VERIFY_KEY_SIZE;
+		slen = QSMS_ASYMMETRIC_VERIFY_KEY_SIZE;
 		elen = qsc_encoding_base64_encoded_size(slen);
 		prvs = qsc_memutils_malloc(elen);
 
@@ -927,12 +822,12 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 		{
 			qsc_memutils_clear(prvs, elen);
 			qsc_encoding_base64_encode(prvs, elen, pubk->verkey, slen);
-			spos += qsc_stringutils_add_line_breaks(enck + spos, enclen - spos, QSMP_PUBKEY_LINE_LENGTH, prvs, elen);
+			spos += qsc_stringutils_add_line_breaks(enck + spos, enclen - spos, QSMS_PUBKEY_LINE_LENGTH, prvs, elen);
 			qsc_memutils_alloc_free(prvs);
 		}
 
-		slen = sizeof(QSMP_PUBKEY_FOOTER) - 1U;
-		qsc_memutils_copy((enck + spos), QSMP_PUBKEY_FOOTER, slen);
+		slen = sizeof(QSMS_PUBKEY_FOOTER) - 1U;
+		qsc_memutils_copy((enck + spos), QSMS_PUBKEY_FOOTER, slen);
 		spos += slen;
 		enck[spos] = '\n';
 	}
@@ -940,100 +835,100 @@ size_t qsmp_public_key_encode(char* enck, size_t enclen, const qsmp_client_verif
 	return spos;
 }
 
-size_t qsmp_public_key_encoding_size(void)
+size_t qsms_public_key_encoding_size(void)
 {
 	size_t elen;
 	size_t klen;
 
-	elen = sizeof(QSMP_PUBKEY_HEADER) - 1U;
+	elen = sizeof(QSMS_PUBKEY_HEADER) - 1U;
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_VERSION) - 1U;
+	elen += sizeof(QSMS_PUBKEY_VERSION) - 1U;
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_CONFIG_PREFIX) - 1U;
-	elen += sizeof(QSMP_CONFIG_STRING) - 1U;
+	elen += sizeof(QSMS_PUBKEY_CONFIG_PREFIX) - 1U;
+	elen += sizeof(QSMS_CONFIG_STRING) - 1U;
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_KEYID_PREFIX) - 1U;
-	elen += (QSMP_KEYID_SIZE * 2);
+	elen += sizeof(QSMS_PUBKEY_KEYID_PREFIX) - 1U;
+	elen += (QSMS_KEYID_SIZE * 2);
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_EXPIRATION_PREFIX) - 1U;
+	elen += sizeof(QSMS_PUBKEY_EXPIRATION_PREFIX) - 1U;
 	elen += QSC_TIMESTAMP_STRING_SIZE - 1U;
 	++elen;
-	klen = qsc_encoding_base64_encoded_size(QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
-	elen += klen + (klen / QSMP_PUBKEY_LINE_LENGTH) + 1U;
+	klen = qsc_encoding_base64_encoded_size(QSMS_ASYMMETRIC_VERIFY_KEY_SIZE);
+	elen += klen + (klen / QSMS_PUBKEY_LINE_LENGTH) + 1U;
 	++elen;
-	elen += sizeof(QSMP_PUBKEY_FOOTER) - 1U;
+	elen += sizeof(QSMS_PUBKEY_FOOTER) - 1U;
 	++elen;
 
 	return elen;
 }
 
-void qsmp_signature_key_deserialize(qsmp_server_signature_key* kset, const uint8_t* serk)
+void qsms_signature_key_deserialize(qsms_server_signature_key* kset, const uint8_t* serk)
 {
-	QSMP_ASSERT(kset != NULL);
-	QSMP_ASSERT(serk != NULL);
+	QSMS_ASSERT(kset != NULL);
+	QSMS_ASSERT(serk != NULL);
 
 	size_t pos;
 
 	if (kset != NULL && serk != NULL)
 	{
-		qsc_memutils_copy(kset->config, serk, QSMP_CONFIG_SIZE);
-		pos = QSMP_CONFIG_SIZE;
+		qsc_memutils_copy(kset->config, serk, QSMS_CONFIG_SIZE);
+		pos = QSMS_CONFIG_SIZE;
 		kset->expiration = qsc_intutils_le8to64((serk + pos));
-		pos += QSMP_TIMESTAMP_SIZE;
-		qsc_memutils_copy(kset->keyid, (serk + pos), QSMP_KEYID_SIZE);
-		pos += QSMP_KEYID_SIZE;
-		qsc_memutils_copy(kset->sigkey, (serk + pos), QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
-		pos += QSMP_ASYMMETRIC_SIGNING_KEY_SIZE;
-		qsc_memutils_copy(kset->verkey, (serk + pos), QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+		pos += QSMS_TIMESTAMP_SIZE;
+		qsc_memutils_copy(kset->keyid, (serk + pos), QSMS_KEYID_SIZE);
+		pos += QSMS_KEYID_SIZE;
+		qsc_memutils_copy(kset->sigkey, (serk + pos), QSMS_ASYMMETRIC_SIGNING_KEY_SIZE);
+		pos += QSMS_ASYMMETRIC_SIGNING_KEY_SIZE;
+		qsc_memutils_copy(kset->verkey, (serk + pos), QSMS_ASYMMETRIC_VERIFY_KEY_SIZE);
 	}
 }
 
-void qsmp_signature_key_serialize(uint8_t* serk, const qsmp_server_signature_key* kset)
+void qsms_signature_key_serialize(uint8_t* serk, const qsms_server_signature_key* kset)
 {
-	QSMP_ASSERT(serk != NULL);
-	QSMP_ASSERT(kset != NULL);
+	QSMS_ASSERT(serk != NULL);
+	QSMS_ASSERT(kset != NULL);
 
 	size_t pos;
 
 	if (serk != NULL && kset != NULL)
 	{
-		qsc_memutils_copy(serk, kset->config, QSMP_CONFIG_SIZE);
-		pos = QSMP_CONFIG_SIZE;
+		qsc_memutils_copy(serk, kset->config, QSMS_CONFIG_SIZE);
+		pos = QSMS_CONFIG_SIZE;
 		qsc_intutils_le64to8((serk + pos), kset->expiration);
-		pos += QSMP_TIMESTAMP_SIZE;
-		qsc_memutils_copy((serk + pos), kset->keyid, QSMP_KEYID_SIZE);
-		pos += QSMP_KEYID_SIZE;
-		qsc_memutils_copy((serk + pos), kset->sigkey, QSMP_ASYMMETRIC_SIGNING_KEY_SIZE);
-		pos += QSMP_ASYMMETRIC_SIGNING_KEY_SIZE;
-		qsc_memutils_copy((serk + pos), kset->verkey, QSMP_ASYMMETRIC_VERIFY_KEY_SIZE);
+		pos += QSMS_TIMESTAMP_SIZE;
+		qsc_memutils_copy((serk + pos), kset->keyid, QSMS_KEYID_SIZE);
+		pos += QSMS_KEYID_SIZE;
+		qsc_memutils_copy((serk + pos), kset->sigkey, QSMS_ASYMMETRIC_SIGNING_KEY_SIZE);
+		pos += QSMS_ASYMMETRIC_SIGNING_KEY_SIZE;
+		qsc_memutils_copy((serk + pos), kset->verkey, QSMS_ASYMMETRIC_VERIFY_KEY_SIZE);
 	}
 }
 
-void qsmp_stream_to_packet(const uint8_t* pstream, qsmp_network_packet* packet)
+void qsms_stream_to_packet(const uint8_t* pstream, qsms_network_packet* packet)
 {
-	QSMP_ASSERT(packet != NULL);
-	QSMP_ASSERT(pstream != NULL);
+	QSMS_ASSERT(packet != NULL);
+	QSMS_ASSERT(pstream != NULL);
 
 	size_t pos;
 
 	if (packet != NULL && pstream != NULL)
 	{
 		packet->flag = pstream[0U];
-		pos = QSMP_FLAG_SIZE;
+		pos = QSMS_FLAG_SIZE;
 		packet->msglen = qsc_intutils_le8to32(pstream + pos);
-		pos += QSMP_MSGLEN_SIZE;
+		pos += QSMS_MSGLEN_SIZE;
 		packet->sequence = qsc_intutils_le8to64(pstream + pos);
-		pos += QSMP_SEQUENCE_SIZE;
+		pos += QSMS_SEQUENCE_SIZE;
 		packet->utctime = qsc_intutils_le8to64(pstream + pos);
-		pos += QSMP_TIMESTAMP_SIZE;
+		pos += QSMS_TIMESTAMP_SIZE;
 		qsc_memutils_copy(packet->pmessage, pstream + pos, packet->msglen);
 	}
 }
 
-size_t qsmp_packet_to_stream(const qsmp_network_packet* packet, uint8_t* pstream)
+size_t qsms_packet_to_stream(const qsms_network_packet* packet, uint8_t* pstream)
 {
-	QSMP_ASSERT(packet != NULL);
-	QSMP_ASSERT(pstream != NULL);
+	QSMS_ASSERT(packet != NULL);
+	QSMS_ASSERT(pstream != NULL);
 
 	size_t pos;
 	size_t res;
@@ -1043,46 +938,46 @@ size_t qsmp_packet_to_stream(const qsmp_network_packet* packet, uint8_t* pstream
 	if (packet != NULL && pstream != NULL)
 	{
 		pstream[0U] = packet->flag;
-		pos = QSMP_FLAG_SIZE;
+		pos = QSMS_FLAG_SIZE;
 		qsc_intutils_le32to8(pstream + pos, packet->msglen);
-		pos += QSMP_MSGLEN_SIZE;
+		pos += QSMS_MSGLEN_SIZE;
 		qsc_intutils_le64to8(pstream + pos, packet->sequence);
-		pos += QSMP_SEQUENCE_SIZE;
+		pos += QSMS_SEQUENCE_SIZE;
 		qsc_intutils_le64to8(pstream + pos, packet->utctime);
-		pos += QSMP_TIMESTAMP_SIZE;
+		pos += QSMS_TIMESTAMP_SIZE;
 		qsc_memutils_copy(pstream + pos, packet->pmessage, packet->msglen);
-		res = (size_t)QSMP_HEADER_SIZE + packet->msglen;
+		res = (size_t)QSMS_HEADER_SIZE + packet->msglen;
 	}
 
 	return res;
 }
 
-#if defined (QSMP_DEBUG_MODE)
-bool qsmp_certificate_encoding_test(void)
+#if defined (QSMS_DEBUG_MODE)
+bool qsms_certificate_encoding_test(void)
 {
-	qsmp_client_verification_key pcpy = { 0 };
-	qsmp_client_verification_key pkey = { 0 };
-	qsmp_server_signature_key skey = { 0 };
-	uint8_t keyid[QSMP_KEYID_SIZE] = { 0U };
+	qsms_client_verification_key pcpy = { 0 };
+	qsms_client_verification_key pkey = { 0 };
+	qsms_server_signature_key skey = { 0 };
+	uint8_t keyid[QSMS_KEYID_SIZE] = { 0U };
 	char* enck;
 	size_t elen;
 	bool res;
 
 	res = false;
 	qsc_acp_generate(keyid, sizeof(keyid));
-	qsmp_generate_keypair(&pkey, &skey, keyid);
+	qsms_generate_keypair(&pkey, &skey, keyid);
 
-	elen = qsmp_public_key_encoding_size();
+	elen = qsms_public_key_encoding_size();
 	enck = qsc_memutils_malloc(elen);
 
 	if (enck != NULL)
 	{
 		qsc_memutils_clear(enck, elen);
 
-		qsmp_public_key_encode(enck, elen, &pkey);
-		qsmp_public_key_decode(&pcpy, enck, elen);
+		qsms_public_key_encode(enck, elen, &pkey);
+		qsms_public_key_decode(&pcpy, enck, elen);
 
-		res = qsmp_public_key_compare(&pkey, &pcpy);
+		res = qsms_public_key_compare(&pkey, &pcpy);
 		qsc_memutils_alloc_free(enck);
 	}
 

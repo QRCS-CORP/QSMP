@@ -49,10 +49,10 @@
  * Contact: contact@qrcscorp.ca
  */
 
-#ifndef QSMP_CLIENT_APP_H
-#define QSMP_CLIENT_APP_H
+#ifndef QSMS_CLIENT_APP_H
+#define QSMS_CLIENT_APP_H
 
-#include "qsmpcommon.h"
+#include "qsmscommon.h"
 
 /**
 * \file appclt.h
@@ -60,6 +60,6 @@
 * Version 1.2a: 2022-05-01
 */
 
-static const char QSMP_PUBKEY_NAME[] = "server_public_key.qpkey";
+static const char QSMS_PUBKEY_NAME[] = "server_public_key.qpkey";
 
 #endif

@@ -18,7 +18,7 @@ static void logger_default_path(char* path, size_t pathlen)
 	{
 		qsc_folderutils_get_directory(qsc_folderutils_directories_user_documents, path);
 		qsc_folderutils_append_delimiter(path);
-		qsc_stringutils_concat_strings(path, pathlen, QSMP_LOGGER_PATH);
+		qsc_stringutils_concat_strings(path, pathlen, QSMS_LOGGER_PATH);
 		res = qsc_folderutils_directory_exists(path);
 
 		if (res == false)
@@ -29,12 +29,12 @@ static void logger_default_path(char* path, size_t pathlen)
 		if (res == true)
 		{
 			qsc_folderutils_append_delimiter(path);
-			qsc_stringutils_concat_strings(path, pathlen, QSMP_LOGGER_FILE);
+			qsc_stringutils_concat_strings(path, pathlen, QSMS_LOGGER_FILE);
 		}
 	}
 }
 
-void qsmp_logger_dispose(void)
+void qsms_logger_dispose(void)
 {
 	if (m_log_mutex != NULL)
 	{
@@ -45,7 +45,7 @@ void qsmp_logger_dispose(void)
 	qsc_memutils_clear(m_log_path, sizeof(m_log_path));
 }
 
-void qsmp_logger_initialize(const char* path)
+void qsms_logger_initialize(const char* path)
 {
 	qsc_memutils_clear(m_log_path, QSC_SYSTEM_MAX_PATH);
 	m_log_mutex = qsc_async_mutex_create();
@@ -65,13 +65,13 @@ void qsmp_logger_initialize(const char* path)
 		logger_default_path(m_log_path, QSC_SYSTEM_MAX_PATH);
 	}
 
-	if (qsmp_logger_exists() == false)
+	if (qsms_logger_exists() == false)
 	{
-		qsmp_logger_reset();
+		qsms_logger_reset();
 	}
 }
 
-bool qsmp_logger_exists(void)
+bool qsms_logger_exists(void)
 {
 	bool res;
 
@@ -85,15 +85,15 @@ bool qsmp_logger_exists(void)
 	return res;
 }
 
-void qsmp_logger_print(void)
+void qsms_logger_print(void)
 {
-	char buf[QSMP_LOGGING_MESSAGE_MAX + 1U] = { 0 };
+	char buf[QSMS_LOGGING_MESSAGE_MAX + 1U] = { 0 };
 	size_t lctr;
 	size_t mlen;
 
 	lctr = 0U;
 
-	if (qsmp_logger_exists() == true)
+	if (qsms_logger_exists() == true)
 	{
 		do
 		{
@@ -109,13 +109,13 @@ void qsmp_logger_print(void)
 	}
 }
 
-void qsmp_logger_read(char* output, size_t otplen)
+void qsms_logger_read(char* output, size_t otplen)
 {
-	QSMP_ASSERT(output != NULL);
+	QSMS_ASSERT(output != NULL);
 
 	if (output != NULL)
 	{
-		if (qsmp_logger_exists() == true)
+		if (qsms_logger_exists() == true)
 		{
 			qsc_async_mutex_lock(m_log_mutex);
 			qsc_fileutils_safe_read(m_log_path, 0U, output, otplen);
@@ -124,15 +124,15 @@ void qsmp_logger_read(char* output, size_t otplen)
 	}
 }
 
-void qsmp_logger_reset(void)
+void qsms_logger_reset(void)
 {
 	char dtm[QSC_TIMESTAMP_STRING_SIZE] = { 0 };
-	char msg[QSMP_LOGGING_MESSAGE_MAX] = "Created: ";
+	char msg[QSMS_LOGGING_MESSAGE_MAX] = "Created: ";
 	size_t mlen;
 
 	qsc_async_mutex_lock(m_log_mutex);
 
-	if (qsmp_logger_exists() == true)
+	if (qsms_logger_exists() == true)
 	{
 		qsc_fileutils_erase(m_log_path);
 	}
@@ -141,7 +141,7 @@ void qsmp_logger_reset(void)
 		qsc_fileutils_create(m_log_path);
 	}
 
-	qsc_fileutils_write_line(m_log_path, QSMP_LOGGER_HEAD, sizeof(QSMP_LOGGER_HEAD) - 1U);
+	qsc_fileutils_write_line(m_log_path, QSMS_LOGGER_HEAD, sizeof(QSMS_LOGGER_HEAD) - 1U);
 	qsc_timestamp_current_datetime(dtm);
 	mlen = qsc_stringutils_concat_strings(msg, sizeof(msg), dtm);
 	qsc_fileutils_write_line(m_log_path, msg, mlen);
@@ -149,13 +149,13 @@ void qsmp_logger_reset(void)
 	qsc_async_mutex_unlock(m_log_mutex);
 }
 
-size_t qsmp_logger_size(void)
+size_t qsms_logger_size(void)
 {
 	size_t res;
 
 	res = 0U;
 
-	if (qsmp_logger_exists() == true)
+	if (qsms_logger_exists() == true)
 	{
 		res = qsc_fileutils_get_size(m_log_path);
 	}
@@ -163,11 +163,11 @@ size_t qsmp_logger_size(void)
 	return res;
 }
 
-bool qsmp_logger_write(const char* message)
+bool qsms_logger_write(const char* message)
 {
-	QSMP_ASSERT(message != NULL);
+	QSMS_ASSERT(message != NULL);
 
-	char buf[QSMP_LOGGING_MESSAGE_MAX + QSC_TIMESTAMP_STRING_SIZE + 4U] = { 0 };
+	char buf[QSMS_LOGGING_MESSAGE_MAX + QSC_TIMESTAMP_STRING_SIZE + 4U] = { 0 };
 	char dlm[4U] = " : ";
 	size_t blen;
 	size_t mlen;
@@ -177,10 +177,10 @@ bool qsmp_logger_write(const char* message)
 
 	if (message != NULL)
 	{
-		res = qsmp_logger_exists();
+		res = qsms_logger_exists();
 		mlen = qsc_stringutils_string_size(message);
 
-		if (res == true && mlen <= QSMP_LOGGING_MESSAGE_MAX && mlen > 0U)
+		if (res == true && mlen <= QSMS_LOGGING_MESSAGE_MAX && mlen > 0U)
 		{
 			qsc_timestamp_current_datetime(buf);
 			qsc_stringutils_concat_strings(buf, sizeof(buf), dlm);

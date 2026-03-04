@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(QSMP_Complete C)
+project(QSMS_Complete C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -20,44 +20,30 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(QSC)
 
-# QSMP Static Library
-file(GLOB_RECURSE QSMP_SOURCES "Source/QSMP/*.c")
-file(GLOB_RECURSE QSMP_HEADERS "Source/QSMP/*.h")
+# QSMS Static Library
+file(GLOB_RECURSE QSMS_SOURCES "Source/QSMS/*.c")
+file(GLOB_RECURSE QSMS_HEADERS "Source/QSMS/*.h")
 
-add_library(qsmp STATIC ${QSMP_SOURCES} ${QSMP_HEADERS})
-target_include_directories(qsmp PUBLIC "Source/QSMP")
-target_link_libraries(qsmp PUBLIC qsc)
+add_library(qsms STATIC ${QSMS_SOURCES} ${QSMS_HEADERS})
+target_include_directories(qsms PUBLIC "Source/QSMS")
+target_link_libraries(qsms PUBLIC qsc)
 
-# QSMP SIMPLEX Client
-file(GLOB_RECURSE QSMP_CLIENT_SOURCES "Source/Simplex/Client/*.c")
+# QSMS SIMPLEX Client
+file(GLOB_RECURSE QSMS_CLIENT_SOURCES "Source/Client/*.c")
 
-add_executable(qsmp_client ${QSMP_CLIENT_SOURCES})
-target_include_directories(qsmp_client PRIVATE "Source/Simplex/Client")
-target_link_libraries(qsmp_client PRIVATE qsmp)
+add_executable(qsms_client ${QSMS_CLIENT_SOURCES})
+target_include_directories(qsms_client PRIVATE "Source/Client")
+target_link_libraries(qsms_client PRIVATE qsms)
 
 # QSMP Simplex Server
-file(GLOB_RECURSE QSMP_SERVER_SOURCES "Source/Simplex/Server/*.c")
+file(GLOB_RECURSE QSMS_SERVER_SOURCES "Source/Server/*.c")
 
-add_executable(qsmp_server ${QSMP_SERVER_SOURCES})
-target_include_directories(qsmp_server PRIVATE "Source/Simplex/Server")
-target_link_libraries(qsmp_server PRIVATE qsmp)
-
-# QSMP Duplex Listener
-file(GLOB_RECURSE QSMP_LISTENER_SOURCES "Source/Duplex/Listener/*.c")
-
-add_executable(qsmp_listener ${QSMP_LISTENER_SOURCES})
-target_include_directories(qsmp_listener PRIVATE "Source/Duplex/Listener")
-target_link_libraries(qsmp_listener PRIVATE qsmp)
-
-# QSMP DUPLEX Sender
-file(GLOB_RECURSE QSMP_SENDER_SOURCES "Source/Duplex/Sender/*.c")
-
-add_executable(qsmp_sender ${QSMP_SENDER_SOURCES})
-target_include_directories(qsmp_sender PRIVATE "Source/Duplex/Sender")
-target_link_libraries(qsmp_sender PRIVATE qsmp)
+add_executable(qsms_server ${QSMS_SERVER_SOURCES})
+target_include_directories(qsms_server PRIVATE "Source/Server")
+target_link_libraries(qsms_server PRIVATE qsms)
 
 # Warnings
-foreach(target qsmp qsmp_client qsmp_server qsmp_listener qsmp_sender)
+foreach(target qsms qsms_client qsms_server)
   if (MSVC)
     target_compile_options(${target} PRIVATE /W4 /WX)
   else()

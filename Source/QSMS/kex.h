@@ -49,18 +49,18 @@
  * Contact: contact@qrcscorp.ca
  */
 
-#ifndef QSMP_KEX_H
-#define QSMP_KEX_H
+#ifndef QSMS_KEX_H
+#define QSMS_KEX_H
 
 #include "qsms.h"
 
 /**
  * \file kex.h
- * \brief QSMP Key Exchange Functions.
+ * \brief QSMS Key Exchange Functions.
  *
  * \details
- * This header file contains the internal key exchange functions for the Quantum Secure Messaging Protocol (QSMP).
- * QSMP supports two key exchange variants:
+ * This header file contains the internal key exchange functions for the Quantum Secure Messaging Protocol (QSMS).
+ * QSMS supports two key exchange variants:
  * 
  * - **Duplex:** A bidirectional key exchange method that enables mutual authentication and secure session key
  *   establishment. Both parties exchange cryptographic material to derive a shared secret.
@@ -73,42 +73,42 @@
  *
  * The following internal (non-exportable) functions are declared:
  *
- * - \c qsmp_kex_duplex_server_key_exchange: Executes the server-side Duplex key exchange.
- * - \c qsmp_kex_duplex_client_key_exchange: Executes the client-side Duplex key exchange.
- * - \c qsmp_kex_simplex_server_key_exchange: Executes the server-side Simplex key exchange.
- * - \c qsmp_kex_simplex_client_key_exchange: Executes the client-side Simplex key exchange.
- * - \c qsmp_kex_test: Runs a suite of internal tests to validate the correctness of the key exchange operations.
+ * - \c qsms_kex_duplex_server_key_exchange: Executes the server-side Duplex key exchange.
+ * - \c qsms_kex_duplex_client_key_exchange: Executes the client-side Duplex key exchange.
+ * - \c qsms_kex_simplex_server_key_exchange: Executes the server-side Simplex key exchange.
+ * - \c qsms_kex_simplex_client_key_exchange: Executes the client-side Simplex key exchange.
+ * - \c qsms_kex_test: Runs a suite of internal tests to validate the correctness of the key exchange operations.
  *
- * \note These functions and state structures are internal and are not part of the public QSMP API.
+ * \note These functions and state structures are internal and are not part of the public QSMS API.
  */
 
 /*!
-* \def QSMP_KEX_TEST_ENABLED
+* \def QSMS_KEX_TEST_ENABLED
 * \brief Enable to manually test the kex
 */
-//#define QSMP_KEX_TEST_ENABLED
+//#define QSMS_KEX_TEST_ENABLED
 
 /**
- * \struct qsmp_kex_simplex_client_state
+ * \struct qsms_kex_simplex_client_state
  * \brief Internal state for the Simplex key exchange (client-side).
  *
  * \details
  * This structure stores the state information for a client involved in a Simplex key exchange.
  * It includes a unique key identity, the remote party's signature verification key, the client's signing key,
- * a session token hash (of size \c QSMP_SIMPLEX_HASH_SIZE), and an expiration timestamp.
+ * a session token hash (of size \c QSMS_SIMPLEX_HASH_SIZE), and an expiration timestamp.
  */
-typedef struct qsmp_kex_simplex_client_state
+typedef struct qsms_kex_simplex_client_state
 {
-	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
-	uint8_t rverkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The remote asymmetric signature verification-key */
-	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
-	uint8_t schash[QSMP_SIMPLEX_HASH_SIZE];				/*!< The session token hash */
-	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
+	uint8_t keyid[QSMS_KEYID_SIZE];							/*!< The key identity string */
+	uint8_t rverkey[QSMS_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The remote asymmetric signature verification-key */
+	uint8_t sigkey[QSMS_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
+	uint8_t schash[QSMS_SIMPLEX_HASH_SIZE];				/*!< The session token hash */
+	uint8_t verkey[QSMS_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
 	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
-} qsmp_kex_simplex_client_state;
+} qsms_kex_simplex_client_state;
 
 /**
- * \struct qsmp_kex_simplex_server_state
+ * \struct qsms_kex_simplex_server_state
  * \brief Internal state for the Simplex key exchange (server-side).
  *
  * \details
@@ -116,33 +116,33 @@ typedef struct qsmp_kex_simplex_client_state
  * It includes the key identity, a session token hash, asymmetric keys for encryption and signing,
  * the local verification key, and an expiration time indicating the validity of the session.
  */
-typedef struct qsmp_kex_simplex_server_state
+typedef struct qsms_kex_simplex_server_state
 {
-	uint8_t keyid[QSMP_KEYID_SIZE];							/*!< The key identity string */
-	uint8_t schash[QSMP_SIMPLEX_HASH_SIZE];				/*!< The session token hash */
-	uint8_t prikey[QSMP_ASYMMETRIC_PRIVATE_KEY_SIZE];		/*!< The asymmetric cipher private key */
-	uint8_t pubkey[QSMP_ASYMMETRIC_PUBLIC_KEY_SIZE];		/*!< The asymmetric cipher public key */
-	uint8_t sigkey[QSMP_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
-	uint8_t verkey[QSMP_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
+	uint8_t keyid[QSMS_KEYID_SIZE];							/*!< The key identity string */
+	uint8_t schash[QSMS_SIMPLEX_HASH_SIZE];				/*!< The session token hash */
+	uint8_t prikey[QSMS_ASYMMETRIC_PRIVATE_KEY_SIZE];		/*!< The asymmetric cipher private key */
+	uint8_t pubkey[QSMS_ASYMMETRIC_PUBLIC_KEY_SIZE];		/*!< The asymmetric cipher public key */
+	uint8_t sigkey[QSMS_ASYMMETRIC_SIGNING_KEY_SIZE];		/*!< The asymmetric signature signing-key */
+	uint8_t verkey[QSMS_ASYMMETRIC_VERIFY_KEY_SIZE];		/*!< The local asymmetric signature verification-key */
 	uint64_t expiration;									/*!< The expiration time, in seconds from epoch */
-} qsmp_kex_simplex_server_state;
+} qsms_kex_simplex_server_state;
 
 /**
  * \brief Execute the server-side Simplex key exchange.
  *
  * \details
  * This function handles the Simplex key exchange on the server side. It processes the client's connection
- * request, validates the provided cryptographic material, and updates the QSMP connection state with the
+ * request, validates the provided cryptographic material, and updates the QSMS connection state with the
  * negotiated session parameters.
  *
  * \param kss A pointer to the simplex server key exchange state structure.
- * \param cns A pointer to the current QSMP connection state.
+ * \param cns A pointer to the current QSMS connection state.
  *
- * \return Returns a value of type \c qsmp_errors indicating the success or failure of the key exchange.
+ * \return Returns a value of type \c qsms_errors indicating the success or failure of the key exchange.
  *
  * \note This is an internal non-exportable API.
  */
-qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* kss, qsmp_connection_state* cns);
+qsms_errors qsms_kex_simplex_server_key_exchange(qsms_kex_simplex_server_state* kss, qsms_connection_state* cns);
 
 /**
  * \brief Execute the client-side Simplex key exchange.
@@ -150,28 +150,28 @@ qsmp_errors qsmp_kex_simplex_server_key_exchange(qsmp_kex_simplex_server_state* 
  * \details
  * This function initiates and completes the Simplex key exchange from the client side.
  * It exchanges the necessary cryptographic keys, verifies the server's identity using the remote verification key,
- * and updates the QSMP connection state with the established session parameters.
+ * and updates the QSMS connection state with the established session parameters.
  *
  * \param kcs A pointer to the simplex client key exchange state structure.
- * \param cns A pointer to the current QSMP connection state.
+ * \param cns A pointer to the current QSMS connection state.
  *
- * \return Returns a value of type \c qsmp_errors representing the outcome of the key exchange process.
+ * \return Returns a value of type \c qsms_errors representing the outcome of the key exchange process.
  *
  * \note This is an internal non-exportable API.
  */
-qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* kcs, qsmp_connection_state* cns);
+qsms_errors qsms_kex_simplex_client_key_exchange(qsms_kex_simplex_client_state* kcs, qsms_connection_state* cns);
 
-#if defined(QSMP_KEX_TEST_ENABLED)
+#if defined(QSMS_KEX_TEST_ENABLED)
 /**
  * \brief Run internal tests for the key exchange functions.
  *
  * \details
- * This function executes a suite of internal tests designed to validate the correct operation of the QSMP
+ * This function executes a suite of internal tests designed to validate the correct operation of the QSMS
  * key exchange mechanisms. The tests include:
  *
  * - Verifying the proper initialization and management of state structures for both Duplex and Simplex modes.
  * - Testing the cryptographic operations involved in key generation, shared secret derivation, and session token hashing.
- * - Ensuring that the key exchange functions correctly update the QSMP connection state.
+ * - Ensuring that the key exchange functions correctly update the QSMS connection state.
  *
  * The function returns true if all internal tests pass, confirming the reliability and correctness of the key exchange implementation.
  *
@@ -179,7 +179,7 @@ qsmp_errors qsmp_kex_simplex_client_key_exchange(qsmp_kex_simplex_client_state* 
  *
  * \note This is an internal non-exportable API.
  */
-bool qsmp_kex_test(void);
+bool qsms_kex_test(void);
 #endif
 
 #endif
