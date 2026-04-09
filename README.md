@@ -39,7 +39,7 @@
 
 QSMP SIMPLEX establishes a 256-bit secure, bidirectional, authenticated encryption tunnel between a client and server using a **one-way trust model**: the client authenticates the server using a pre-distributed public verification key, and both parties derive shared session keys from a post-quantum KEM exchange. The complete handshake completes in **two round trips** with no session tickets, no certificate chains, and no runtime cipher negotiation.
 
-The protocol is complete and self-contained. All cryptographic parameters are fixed at compile time for a given configuration, eliminating downgrade attacks and cipher-suite confusion by construction. 
+The protocol is complete and self-contained. All cryptographic parameters are fixed at compile time for a given configuration, eliminating downgrade attacks and cipher-suite confusion by construction.
 
 ### Key Properties
 
