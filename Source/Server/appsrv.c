@@ -77,18 +77,22 @@ static void server_print_banner(void)
 	qsc_consoleutils_print_line("");
 }
 
-static bool server_get_storage_path(char* path, size_t pathlen)
+static bool server_get_storage_path(char* fpath, size_t pathlen)
 {
 	bool res;
 
-	qsc_folderutils_get_directory(qsc_folderutils_directories_user_documents, path);
-	qsc_folderutils_append_delimiter(path);
-	qsc_stringutils_concat_strings(path, pathlen, QSMS_APP_PATH);
-	res = qsc_folderutils_directory_exists(path);
+#if defined(QSC_SYSTEM_OS_WINDOWS)
+	qsc_folderutils_get_directory(qsc_folderutils_directories_user_app_data, fpath);
+#else
+	qsc_folderutils_get_directory(qsc_folderutils_directories_user_documents, fpath);
+#endif
+	qsc_folderutils_append_delimiter(fpath);
+	qsc_stringutils_concat_strings(fpath, pathlen, QSMS_APP_PATH);
+	res = qsc_folderutils_directory_exists(fpath);
 
 	if (res == false)
 	{
-		res = qsc_folderutils_create_directory(path);
+		res = qsc_folderutils_create_directory(fpath);
 	}
 
 	return res;
@@ -160,7 +164,7 @@ static void server_certificate_print(const qsms_client_verification_key* pubk)
 
 static bool server_key_dialogue(qsms_server_signature_key* prik, qsms_client_verification_key* pubk, uint8_t keyid[QSMS_KEYID_SIZE])
 {
-	uint8_t spri[QSMS_SIGKEY_ENCODED_SIZE] = { 0U };
+	uint8_t spri[QSMS_SIGNATURE_KEY_SERIALIZED_SIZE] = { 0U };
 	char dir[QSC_SYSTEM_MAX_PATH] = { 0 };
 	char fpath[QSC_SYSTEM_MAX_PATH] = { 0 };
 	bool res;

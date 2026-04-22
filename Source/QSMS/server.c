@@ -4,6 +4,7 @@
 #include "logger.h"
 #include "acp.h"
 #include "async.h"
+#include "csp.h"
 #include "encoding.h"
 #include "intutils.h"
 #include "memutils.h"
@@ -266,6 +267,7 @@ static qsms_errors server_start(const qsms_server_signature_key* kset,
 		if (cns != NULL)
 		{
 			res = qsc_socket_accept(source, &cns->target);
+			cns->target.instance = qsc_csp_uint32();
 
 			if (res == qsc_socket_exception_success)
 			{

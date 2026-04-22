@@ -146,7 +146,7 @@
 * \def QSMS_CONFIG_SIZE
 * \brief The size of the protocol configuration string
 */
-#define QSMS_CONFIG_SIZE 48U
+#define QSMS_CONFIG_SIZE 34U
 
 /*!
 * \def QSMS_SIMPLEX_HASH_SIZE
@@ -571,10 +571,23 @@ extern const char QSMS_CONFIG_STRING[QSMS_CONFIG_SIZE];
 /* public key encoding constants */
 
 /*!
-* \def QSMS_SIGKEY_ENCODED_SIZE
-* \brief The secret signature key size
+* \def QSMS_VERIFICATION_KEY_SERIALIZED_SIZE
+* \brief The verification key serialized size
 */
-#define QSMS_SIGKEY_ENCODED_SIZE (QSMS_KEYID_SIZE + QSMS_TIMESTAMP_SIZE + QSMS_CONFIG_SIZE + QSMS_ASYMMETRIC_SIGNING_KEY_SIZE + QSMS_ASYMMETRIC_VERIFY_KEY_SIZE)
+#define QSMS_VERIFICATION_KEY_SERIALIZED_SIZE (QSMS_KEYID_SIZE + \
+	QSMS_TIMESTAMP_SIZE + \
+	QSMS_CONFIG_SIZE + \
+	QSMS_ASYMMETRIC_VERIFY_KEY_SIZE)
+
+/*!
+* \def QSMS_SIGNATURE_KEY_SERIALIZED_SIZE
+* \brief The secret signature key serialized size
+*/
+#define QSMS_SIGNATURE_KEY_SERIALIZED_SIZE (QSMS_KEYID_SIZE + \
+	QSMS_TIMESTAMP_SIZE + \
+	QSMS_CONFIG_SIZE + \
+	QSMS_ASYMMETRIC_SIGNING_KEY_SIZE + \
+	QSMS_ASYMMETRIC_VERIFY_KEY_SIZE)
 
 /*!
 * \def QSMS_PUBKEY_HEADER_SIZE
@@ -737,7 +750,7 @@ typedef enum qsms_errors
 	qsms_error_authentication_failure = 0x02U,		/*!< The symmetric cipher had an authentication failure */
 	qsms_error_channel_down = 0x03U,				/*!< The communications channel has failed */
 	qsms_error_connection_failure = 0x04U,			/*!< The device could not make a connection to the remote host */
-	qsms_error_connect_failure = 0x05U,				/*!< The transmission failed at the KEX connection phase */
+	qsms_error_connection_refused = 0x05U,			/*!< The remote host has refused the connection */
 	qsms_error_decapsulation_failure = 0x06U,		/*!< The asymmetric cipher failed to decapsulate the shared secret */
 	qsms_error_decryption_failure = 0x07U,			/*!< The decryption authentication has failed */
 	qsms_error_establish_failure = 0x08U,			/*!< The transmission failed at the KEX establish phase */
