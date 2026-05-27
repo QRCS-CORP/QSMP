@@ -1,4 +1,4 @@
-# Quantum Secure Messaging Protocol - SIMPLEX
+# QSMP: Quantum Secure Messaging Protocol SIMPLEX
 
 ## Introduction
 
