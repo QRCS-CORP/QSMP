@@ -126,7 +126,13 @@ static void server_receive_loop(void* prcv)
 									{
 										uint8_t* mstr;
 
-										slen = pkt.msglen + QSMS_SIMPLEX_MACTAG_SIZE;
+										if (pkt.msglen <= QSMS_SIMPLEX_MACTAG_SIZE)
+										{
+											qsms_log_write(qsms_messages_receive_fail, cadd);
+											break;
+										}
+
+										slen = pkt.msglen - QSMS_SIMPLEX_MACTAG_SIZE + 1U;
 										mstr = (uint8_t*)qsc_memutils_malloc(slen);
 
 										if (mstr != NULL)
