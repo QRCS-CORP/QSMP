@@ -817,14 +817,14 @@ size_t qsms_public_key_encode(char* enck, size_t enclen, const qsms_client_verif
 			qsc_encoding_base64_encode(prvs, elen, pubk->verkey, slen);
 			spos += qsc_stringutils_add_line_breaks(enck + spos, enclen - spos, QSMS_PUBKEY_LINE_LENGTH, prvs, elen);
 			qsc_memutils_alloc_free(prvs);
-			enck[spos] = '\n';
 		}
 
+		enck[spos] = '\n';
+		++spos;
 		slen = sizeof(QSMS_PUBKEY_FOOTER) - 1U;
 		qsc_memutils_copy((enck + spos), QSMS_PUBKEY_FOOTER, slen);
 		spos += slen;
 		enck[spos] = '\n';
-		++spos;
 		++spos;
 	}
 
